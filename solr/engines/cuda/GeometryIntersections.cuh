@@ -692,7 +692,7 @@ __device__ __INLINE__ bool intersectionWithPrimitives(
             // Intersection with Box
             if (sceneInfo.renderBoxes != 0) // Box 0 is for light emitting objects
             {
-                colorBox += materials[box.startIndex % NB_MAX_MATERIALS].color / 200.f;
+                colorBox += materials[box.startIndex % NB_MAX_MATERIALS].color / 50.f;
             }
             else
             {

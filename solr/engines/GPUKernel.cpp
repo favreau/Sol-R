@@ -1072,8 +1072,8 @@ int GPUKernel::compactBoxes(bool reconstructBoxes)
             processOutterBoxes(nbBoxes, m_treeDepth);
             nbBoxes /= gridDivider;
         } while (nbBoxes > gridGranularity);
-        LOG_INFO(1, "Primitives.........: " << m_primitives[m_frame].size());
-        LOG_INFO(1, "Scene depth........: " << m_treeDepth);
+        LOG_INFO(2, "Primitives.........: " << m_primitives[m_frame].size());
+        LOG_INFO(2, "Scene depth........: " << m_treeDepth);
     }
 
     LOG_INFO(3, "Streaming data to GPU");

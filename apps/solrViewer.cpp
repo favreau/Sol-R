@@ -59,6 +59,7 @@
 #include <scenes/meshes/TrianglesScene.h>
 #include <scenes/science/MoleculeScene.h>
 #include <scenes/science/SwcScene.h>
+#include <scenes/science/HypercubeScene.h>
 
 // Ray-tracing Kernel
 solr::GPUKernel *gKernel = solr::SingletonKernel::kernel();
@@ -804,7 +805,7 @@ void keyboard(unsigned char key, int x, int y)
         delete gScene;
         gScene = 0;
         gAnimate = false;
-        gSceneId = ((gSceneId + 1) % 16);
+        gSceneId = ((gSceneId + 1) % 17);
         createScene();
         break;
     }
@@ -1312,12 +1313,16 @@ void createScene()
     case 15:
         gScene = new SwcScene("Neuroscience");
         break;
+
+    case 16:
+        gScene = new PerpetualMotionScene("Perpetual Motion");
+        break;
     default:
 #ifdef _USE_KINECT
         gScene = new KinectFaceTrackingScene("Kinect Face Tracking");
         break;
 #else
-        gScene = new PerpetualMotionScene("Perpetual Motion");
+        gScene = new HypercubeScene("Hypercubes");
         break;
 #endif
     }

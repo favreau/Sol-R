@@ -224,7 +224,7 @@ void Scene::initialize(solr::GPUKernel *kernel, const int width, const int heigh
     sceneInfo.skyboxRadius = static_cast<int>(sceneInfo.viewDistance * 0.9f);
     sceneInfo.skyboxMaterialId = SKYBOX_SPHERE_MATERIAL;
     sceneInfo.gradientBackground = 0;
-    sceneInfo.geometryEpsilon = 0.001f;
+    sceneInfo.geometryEpsilon = 0.01f;
     sceneInfo.rayEpsilon = 0.05f;
 
     // HDRI
@@ -445,7 +445,7 @@ void Scene::createRandomMaterials(bool update, bool lightsOnly)
             transparency = 0.f;
             refraction = 0.f;
             r = g = b = 0.25f;
-            gloss = 0.25f;
+            gloss = 0.2f;
         }
         break;
 
@@ -629,6 +629,15 @@ void Scene::createRandomMaterials(bool update, bool lightsOnly)
             g = 1.f;
             b = 1.f;
             innerIllumination.x = 2.f;
+            break;
+        case METAL_MATERIAL:
+            r = 0.3f;
+            g = 0.3f;
+            b = 0.3f;
+            reflection = 0.5f;
+            specular.x = 1.f;
+            specular.y = 50.f;
+            gloss = 0.5f;
             break;
 
         default:

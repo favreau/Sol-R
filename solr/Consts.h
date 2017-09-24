@@ -119,6 +119,9 @@ const unsigned int SKYBOX_SPHERE_MATERIAL = NB_MAX_MATERIALS - 41;
 const unsigned int KINECT_COLOR_MATERIAL = NB_MAX_MATERIALS - 42;
 const unsigned int KINECT_DEPTH_MATERIAL = NB_MAX_MATERIALS - 43;
 
+// Metal
+const unsigned int METAL_MATERIAL = NB_MAX_MATERIALS - 44;
+
 const unsigned int KINECT_COLOR_TEXTURE = 0;
 const unsigned int KINECT_DEPTH_TEXTURE = 1;
 
