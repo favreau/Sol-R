@@ -2722,7 +2722,7 @@ void GPUKernel::render_begin(const float timer)
         srand(static_cast<int>(time(0)));
 #pragma omp parallel for
         for (int i = 0; i < size; ++i)
-            m_hRandoms[i] = 0.000005f * (rand() % 2000 - 1000);
+            m_hRandoms[i] = 0.0000005f * (rand() % 20000 - 10000);
     }
 
 #ifdef USE_OCULUS

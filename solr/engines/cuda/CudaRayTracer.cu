@@ -115,7 +115,7 @@ __device__ __INLINE__ float4 launchRayTracing(const int& index, BoundingBox* bou
     Ray pathTracingRay;
     float pathTracingRatio = 0.f;
     float4 pathTracingColor = {0.f, 0.f, 0.f, 0.f};
-    bool useGlobalIllumination = false;
+    bool processGI = false;
 
     float4 rBlinn = {0.f, 0.f, 0.f, 0.f};
     int currentMaxIteration =
@@ -155,22 +155,22 @@ __device__ __INLINE__ float4 launchRayTracing(const int& index, BoundingBox* bou
                 depthOfField = length(firstIntersection - ray.origin);
 
                 if (materials[primitives[closestPrimitive].materialId].innerIllumination.x == 0.f &&
-                    (sceneInfo.advancedIllumination == aiBasic ||
-                     sceneInfo.advancedIllumination == aiFull))
+                    sceneInfo.advancedIllumination != aiNone)
                 {
                     // Global illumination
-                    int t = (index + sceneInfo.pathTracingIteration * 100 + sceneInfo.timestamp) % (MAX_BITMAP_SIZE - 3);
+                    const int t = (index + sceneInfo.timestamp) % (sceneInfo.size.x * sceneInfo.size.y - 3);
                     pathTracingRay.origin = closestIntersection + normal * sceneInfo.rayEpsilon;
-                    pathTracingRay.direction.x = normal.x + 100.f * randoms[t];
-                    pathTracingRay.direction.y = normal.y + 100.f * randoms[t + 1];
-                    pathTracingRay.direction.z = normal.z + 100.f * randoms[t + 2];
+                    pathTracingRay.direction.x = randoms[t];
+                    pathTracingRay.direction.y = randoms[t + 1];
+                    pathTracingRay.direction.z = randoms[t + 2];
+                    pathTracingRay.direction = normalize(pathTracingRay.direction);
 
-                    float cos_theta = dot(normalize(pathTracingRay.direction), normal);
+                    const float cos_theta = dot(pathTracingRay.direction, normal);
                     if (cos_theta < 0.f)
                         pathTracingRay.direction = -pathTracingRay.direction;
                     pathTracingRay.direction += closestIntersection;
-                    pathTracingRatio = (1.f - attributes.y) * fabs(cos_theta);
-                    useGlobalIllumination = true;
+                    pathTracingRatio = (1.f - attributes.y) * abs(cos_theta);
+                    processGI = true;
                 }
 
                 // Primitive ID for current pixel
@@ -314,78 +314,58 @@ __device__ __INLINE__ float4 launchRayTracing(const int& index, BoundingBox* bou
             primitiveXYId.w = shadowIntensity * 255;
         }
 
-    bool test(true);
-    if ((sceneInfo.advancedIllumination == aiBasic || sceneInfo.advancedIllumination == aiFull) &&
-        sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
+    if (processGI && sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
     {
-        if (useGlobalIllumination && sceneInfo.advancedIllumination == aiFull)
+        float alphaIntensity = 1.f;
+        if (sceneInfo.advancedIllumination == aiFull)
         {
             // Global illumination
             if (intersectionWithPrimitives(sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoxes, primitives,
                                            nbActivePrimitives, materials, textures, pathTracingRay,
-                                           30, // Only consider close geometry (max distance / 30)
+                                           10, // Only consider nearby geometry (max distance / 10)
                                            closestPrimitive, closestIntersection, normal, areas, closestColor, colorBox,
                                            MATERIAL_NONE))
             {
+                // Ambient occlusion and material emission
                 if (primitives[closestPrimitive].materialId != MATERIAL_NONE)
                 {
                     Material& material = materials[primitives[closestPrimitive].materialId];
-                    if (material.innerIllumination.x == 0.f)
-                    {
-                        colors[0] = material.color * material.innerIllumination.x * pathTracingRatio;
-                        test = false;
-                    }
-                    else
-                        colors[0] = material.color * pathTracingRatio;
-                }
-                if (test)
-                {
-                    pathTracingRatio *= STANDARD_LUNINANCE_STRENGTH;
+                    const float distanceToPrimitive = length(closestIntersection - pathTracingRay.origin);
+                    const float normalizedDistanceToPrimitive = 1.f - min(1.f, distanceToPrimitive / sceneInfo.viewDistance);
                     vec4f attributes;
-
-                    Material& material = materials[primitives[closestPrimitive].materialId];
-                    if (material.innerIllumination.x == 0.f)
-                    {
-                        float len = length(closestIntersection - pathTracingRay.origin);
-                        colors[0] -= sceneInfo.shadowIntensity;
-                    }
-                    else
-                        pathTracingColor =
-                            primitiveShader(index, sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoxes,
-                                            primitives, nbActivePrimitives, lightInformation, lightInformationSize,
-                                            nbActiveLamps, materials, textures, randoms, pathTracingRay.origin, normal,
-                                            closestPrimitive, closestIntersection, areas, closestColor, iteration,
-                                            refractionFromColor, shadowIntensity, rBlinn, attributes);
+                    pathTracingColor =
+                        primitiveShader(index, sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoxes,
+                            primitives, nbActivePrimitives, lightInformation, lightInformationSize,
+                            nbActiveLamps, materials, textures, randoms, pathTracingRay.origin, normal,
+                            closestPrimitive, closestIntersection, areas, closestColor, iteration,
+                            refractionFromColor, shadowIntensity, rBlinn, attributes);
+                    alphaIntensity -= sceneInfo.shadowIntensity * normalizedDistanceToPrimitive;
+                    pathTracingRatio *= (MATERIAL_DEFAULT_EMMISION_STRENGTH + material.innerIllumination.x) * normalizedDistanceToPrimitive;
                 }
             }
             else
-                // Background
                 if (sceneInfo.skyboxMaterialId != MATERIAL_NONE)
                 {
+                    // Background
                     pathTracingColor = skyboxMapping(sceneInfo, materials, textures, pathTracingRay);
                     pathTracingRatio *= SKYBOX_LUNINANCE_STRENGTH;
                 }
         }
         else
-            // Background
             if (sceneInfo.skyboxMaterialId != MATERIAL_NONE)
             {
+                // Background
                 pathTracingColor = skyboxMapping(sceneInfo, materials, textures, pathTracingRay);
                 pathTracingRatio *= SKYBOX_LUNINANCE_STRENGTH;
             }
-        if (test)
-            colors[0] += pathTracingColor * pathTracingRatio;
+
+        colors[0] = colors[0] * alphaIntensity + pathTracingColor * pathTracingRatio;
     }
 
-    if (test)
-    {
-        for (int i = iteration - 2; i >= 0; --i)
-            colors[i] = colors[i] * (1.f - colorContributions[i]) + colors[i + 1] * colorContributions[i];
-        intersectionColor = colors[0];
-        intersectionColor += recursiveBlinn;
-    }
-    else
-        intersectionColor = colors[0];
+    for (int i = iteration - 2; i >= 0; --i)
+        colors[i] = colors[i] * (1.f - colorContributions[i]) + colors[i + 1] * colorContributions[i];
+    intersectionColor = colors[0];
+    intersectionColor += recursiveBlinn;
 
     // Background color
     float D1 = sceneInfo.viewDistance * 0.95f;
