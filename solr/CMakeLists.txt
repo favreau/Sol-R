@@ -37,6 +37,7 @@ SET(SOLR_SOURCES
 if (CUDA_FOUND)
     if(UNIX)
         set(CUDA_NVCC_USER_ARGS
+            -std=c++11
             -D_FORCE_INLINES
             --maxrregcount=32
             --use_fast_math

@@ -44,12 +44,30 @@ typedef cl_int3 vec3i;
 typedef cl_int4 vec4i;
 typedef cl_int4 PrimitiveXYIdBuffer;
 
-inline vec2i make_vec2i(const int x = 0, const int y = 0) { return{ { x, y } }; }
-inline vec3i make_vec3i(const int x = 0, const int y = 0, const int z = 0) { return{ { x, y, z } }; }
-inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0, const int w = 0) { return{ { x, y, z, w } }; }
-inline vec2f make_vec2f(const float x = 0.f, const float y = 0.f) { return{ { x, y } }; }
-inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f) { return{ { x, y, z } }; }
-inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f, const float z = 0.f, const float w = 0.f) { return{ {x, y, z, w } }; }
+inline vec2i make_vec2i(const int x = 0, const int y = 0)
+{
+    return {{x, y}};
+}
+inline vec3i make_vec3i(const int x = 0, const int y = 0, const int z = 0)
+{
+    return {{x, y, z}};
+}
+inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0, const int w = 0)
+{
+    return {{x, y, z, w}};
+}
+inline vec2f make_vec2f(const float x = 0.f, const float y = 0.f)
+{
+    return {{x, y}};
+}
+inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f)
+{
+    return {{x, y, z}};
+}
+inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f, const float z = 0.f, const float w = 0.f)
+{
+    return {{x, y, z, w}};
+}
 
 #define __ALIGN16__
 #else
@@ -65,12 +83,30 @@ typedef int3 vec3i;
 typedef int4 vec4i;
 typedef int4 PrimitiveXYIdBuffer;
 
-inline vec2i make_vec2i(const int x = 0, const int y = 0) { return{ x, y }; }
-inline vec3i make_vec3i(const int x = 0, const int y = 0, const int z = 0) { return{ x, y, z }; }
-inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0, const int w = 0) { return{ x, y, z, w }; }
-inline vec2f make_vec2f(const float x = 0.f, const float y = 0.f) { return{ x, y}; }
-inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f) { return{ x, y, z }; }
-inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f, const float z = 0.f, const float w = 0.f) { return{ x, y, z, w }; }
+inline vec2i make_vec2i(const int x = 0, const int y = 0)
+{
+    return {x, y};
+}
+inline vec3i make_vec3i(const int x = 0, const int y = 0, const int z = 0)
+{
+    return {x, y, z};
+}
+inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0, const int w = 0)
+{
+    return {x, y, z, w};
+}
+inline vec2f make_vec2f(const float x = 0.f, const float y = 0.f)
+{
+    return {x, y};
+}
+inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f)
+{
+    return {x, y, z};
+}
+inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f, const float z = 0.f, const float w = 0.f)
+{
+    return {x, y, z, w};
+}
 
 #define __ALIGN16__ __align__(16)
 #endif
