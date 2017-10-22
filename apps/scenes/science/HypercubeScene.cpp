@@ -43,16 +43,21 @@ HypercubeScene::HypercubeScene(const std::string& name)
     , _scale(1000.f)
     , _transparency((rand() % 100 > 50) ? 0.5f : 0.f)
     , _reflection((rand() % 100 > 50) ? 1.f : 0.f)
-    , _explosionFactor(1.f + rand() % 100 / 100.f)
+    , _explosionFactor(1.f + rand() % 50 / 50.f)
 {
     srand(static_cast<int>(time(0)));
-    _dimension = 4 + rand() % (MaxDimensions - 4);
+    _dimension = 4 + rand() % (MaxDimensions - 5);
     LOG_INFO(1, "Number of dimensions: " << _dimension);
     for (size_t i = 0; i < MaxDimensions; ++i)
-        animationAngles[i] = (rand() % 1000 - 500) / 100.f;
+        if (rand() % 4 != 0)
+            animationAngles[i] = (rand() % 1000 - 500) / 200.f;
+        else
+            animationAngles[i] = 0.f;
 }
 
-HypercubeScene::~HypercubeScene(void) {}
+HypercubeScene::~HypercubeScene(void)
+{
+}
 
 float HypercubeScene::powerOfTwo(const size_t n)
 {
@@ -61,22 +66,34 @@ float HypercubeScene::powerOfTwo(const size_t n)
 
 void HypercubeScene::makeMatrix()
 {
-    const float ratio = 2.f * static_cast<float>(M_PI) / 3000.f;
+    const float ratio = static_cast<float>(M_PI) / 360.f;
     _matrix = identityMatrix();
-    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(1, 2, _angles[0] * ratio));
-    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(2, 0, _angles[1] * ratio));
-    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(0, 1, _angles[2] * ratio));
+    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(0, 1, _angles[2] * ratio)); // Rotate YZ
+    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(1, 2, _angles[0] * ratio)); // Rotate XZ
+    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(2, 0, _angles[1] * ratio)); // Rotate XY
     for (size_t a = 0; a < 3 * (_dimension - 3); ++a)
-        _matrix = multiplyMatrices(_matrix, makeRotationMatrix((a % 3), (a / 3) + 3, _angles[a + 3] * ratio));
+    {
+        auto i = a % 3;
+        auto j = (a / 3) + 3;
+        if (a == 0)
+        {
+            auto t = i;
+            i = j;
+            j = t;
+        }
+        _matrix = multiplyMatrices(_matrix, makeRotationMatrix(i, j, _angles[a + 3] * ratio));
+    }
 }
 
-Matrix HypercubeScene::makeRotationMatrix(const size_t ID, const size_t IDD, const float angle)
+Matrix HypercubeScene::makeRotationMatrix(const size_t i, const size_t j, const float angle)
 {
     Matrix matrix = identityMatrix();
-    matrix.values[ID][ID] = cos(angle);
-    matrix.values[IDD][IDD] = matrix.values[ID][ID];
-    matrix.values[IDD][ID] = sin(angle);
-    matrix.values[ID][IDD] = -matrix.values[IDD][ID];
+    const auto c = cos(angle);
+    const auto s = sin(angle);
+    matrix.values[i][i] = c;
+    matrix.values[j][j] = c;
+    matrix.values[j][i] = s;
+    matrix.values[i][j] = -s;
     return matrix;
 }
 
@@ -114,6 +131,7 @@ Vector HypercubeScene::cross(const Vector& u, const Vector& v)
 
 void HypercubeScene::makeSubFaces(const size_t a, const size_t b, size_t& c, const size_t n)
 {
+    const float s = _scale * _explosionFactor;
     for (size_t i = 0; i < n; ++i)
     {
         const size_t index = c + 4 * i;
@@ -128,23 +146,23 @@ void HypercubeScene::makeSubFaces(const size_t a, const size_t b, size_t& c, con
             if ((j == a) || (j == b))
                 continue;
             if ((u & i) == u)
-                v = _scale;
+                v = s;
             else
-                v = -_scale;
-            _vertices[index + 0][j] = v * _explosionFactor;
-            _vertices[index + 1][j] = v * _explosionFactor;
-            _vertices[index + 2][j] = v * _explosionFactor;
-            _vertices[index + 3][j] = v * _explosionFactor;
+                v = -s;
+            _vertices[index + 0][j] = v;
+            _vertices[index + 1][j] = v;
+            _vertices[index + 2][j] = v;
+            _vertices[index + 3][j] = v;
             u *= 2;
         }
-        _vertices[index + 0][a] = _scale;
-        _vertices[index + 1][a] = _scale;
-        _vertices[index + 2][a] = -_scale;
-        _vertices[index + 3][a] = -_scale;
-        _vertices[index + 0][b] = _scale;
-        _vertices[index + 1][b] = -_scale;
-        _vertices[index + 2][b] = -_scale;
-        _vertices[index + 3][b] = _scale;
+        _vertices[index + 0][a] = s;
+        _vertices[index + 1][a] = s;
+        _vertices[index + 2][a] = -s;
+        _vertices[index + 3][a] = -s;
+        _vertices[index + 0][b] = s;
+        _vertices[index + 1][b] = -s;
+        _vertices[index + 2][b] = -s;
+        _vertices[index + 3][b] = s;
     }
 
     c += 4 * n;
@@ -153,7 +171,6 @@ void HypercubeScene::makeSubFaces(const size_t a, const size_t b, size_t& c, con
 void HypercubeScene::createGeometry()
 {
     const size_t nbVertices = (_dimension - 1) * _dimension * powerOfTwo(_dimension - 1);
-    LOG_INFO(2, "Number of faces   : " << nbVertices / 4);
 
     const float refraction = 1.f;
     for (unsigned int i = 0; i < (nbVertices + 4); ++i)
@@ -165,19 +182,19 @@ void HypercubeScene::createGeometry()
     _vertices.clear();
     size_t c = 0;
     const size_t n = powerOfTwo(_dimension - 2);
-    for (size_t a = 0; a < _dimension; ++a)
-        for (size_t b = a + 1; b < _dimension + 1; ++b)
+    for (size_t a = 0; a < _dimension - 1; ++a)
+        for (size_t b = a + 1; b < _dimension; ++b)
             makeSubFaces(a, b, c, n);
     makeMatrix();
 }
 
 Vector HypercubeScene::multiplyVector(const Matrix& m, const Vector& v)
 {
-    Vector vector(MaxDimensions, 0.f);
-    for (size_t a = 0; a < MaxDimensions; ++a)
+    Vector vector(_dimension, 0.f);
+    for (size_t a = 0; a < _dimension; ++a)
     {
         float s = 0.f;
-        for (size_t b = 0; b < MaxDimensions; ++b)
+        for (size_t b = 0; b < _dimension; ++b)
             s += m.values[a][b] * v[b];
         vector[a] = s;
     }
@@ -186,8 +203,8 @@ Vector HypercubeScene::multiplyVector(const Matrix& m, const Vector& v)
 
 Vector HypercubeScene::subtractVector(const Vector& u, const Vector& v)
 {
-    Vector vector(MaxDimensions, 0.f);
-    for (size_t a = 0; a < MaxDimensions; ++a)
+    Vector vector(_dimension, 0.f);
+    for (size_t a = 0; a < _dimension; ++a)
         vector[a] = u[a] - v[a];
     return vector;
 }
@@ -208,14 +225,20 @@ void HypercubeScene::drawFace(const size_t Id)
         m_gpuKernel->setCurrentMaterial(static_cast<int>(Id));
         glBegin(GL_TRIANGLES);
         glVertex3f(t[index], t[index + 1], t[index + 2]);
+        glNormal3f(normal.x, normal.y, normal.z);
         glVertex3f(u[index], u[index + 1], u[index + 2]);
+        glNormal3f(normal.x, normal.y, normal.z);
         glVertex3f(v[index], v[index + 1], v[index + 2]);
+        glNormal3f(normal.x, normal.y, normal.z);
         glEnd();
 
         glBegin(GL_TRIANGLES);
         glVertex3f(v[index], v[index + 1], v[index + 2]);
+        glNormal3f(normal.x, normal.y, normal.z);
         glVertex3f(w[index], w[index + 1], w[index + 2]);
+        glNormal3f(normal.x, normal.y, normal.z);
         glVertex3f(t[index], t[index + 1], t[index + 2]);
+        glNormal3f(normal.x, normal.y, normal.z);
         glEnd();
     }
 
@@ -247,7 +270,7 @@ void HypercubeScene::drawFaces()
         {
             const size_t index = 0;
             const float radius = _scale / 10.f;
-            Vector t = multiplyVector(_matrix, _vertices[a + 0]);
+            Vector t = multiplyVector(_matrix, _vertices[a]);
             _primitiveIndex = m_gpuKernel->addPrimitive(ptSphere);
             m_gpuKernel->setPrimitive(_primitiveIndex, t[index], t[index + 1], t[index + 2], radius, 0.f, 0.f,
                                       METAL_MATERIAL);
