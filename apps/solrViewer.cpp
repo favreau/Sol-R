@@ -111,8 +111,8 @@ std::string gFilename;
 unsigned int gWindowWidth = 1280 / 2;
 unsigned int gWindowHeight = 800 / 2;
 #else
-unsigned int gWindowWidth = 800;
-unsigned int gWindowHeight = static_cast<unsigned int>(gWindowWidth * 9.f / 16.f);
+unsigned int gWindowWidth = 960;
+unsigned int gWindowHeight = 540;
 #endif // USE_OCULUS
 unsigned int gWindowDepth = 4;
 
@@ -169,7 +169,7 @@ int gMaterials[2];
 int gWallTexture = 3;
 
 // Scene description and behavior
-int gCornellBoxType = 1;
+int gCornellBoxType = 0;
 int gNbBoxes = 0;
 int m_nbPrimitives = 0;
 int gLampId = 0;
@@ -531,9 +531,9 @@ void keyboard(unsigned char key, int x, int y)
     }
     case 'B':
     {
-        gScene->getSceneInfo().backgroundColor.x = 1.f;
-        gScene->getSceneInfo().backgroundColor.y = 1.f;
-        gScene->getSceneInfo().backgroundColor.z = 1.f;
+        gScene->getSceneInfo().backgroundColor.x = 0.1f;
+        gScene->getSceneInfo().backgroundColor.y = 0.1f;
+        gScene->getSceneInfo().backgroundColor.z = 0.1f;
         gScene->getSceneInfo().backgroundColor.w = 0.5f;
         gScene->getSceneInfo().skyboxMaterialId =
             (gScene->getSceneInfo().skyboxMaterialId == MATERIAL_NONE) ? SKYBOX_SPHERE_MATERIAL : MATERIAL_NONE;
@@ -1277,7 +1277,7 @@ void createScene()
         gScene = new MoleculeScene("Molecules");
         break;
     case 4:
-        gScene = new FractalScene("Fractals");
+        gScene = new HypercubeScene("Hypercubes");
         break;
     case 5:
         gScene = new CylinderScene("Cylinders");
@@ -1313,16 +1313,15 @@ void createScene()
     case 15:
         gScene = new SwcScene("Neuroscience");
         break;
-
     case 16:
-        gScene = new PerpetualMotionScene("Perpetual Motion");
+        gScene = new FractalScene("Fractals");
         break;
     default:
 #ifdef _USE_KINECT
         gScene = new KinectFaceTrackingScene("Kinect Face Tracking");
         break;
 #else
-        gScene = new HypercubeScene("Hypercubes");
+        gScene = new PerpetualMotionScene("Perpetual Motion");
         break;
 #endif
     }

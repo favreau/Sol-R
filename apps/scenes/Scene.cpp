@@ -444,7 +444,7 @@ void Scene::createRandomMaterials(bool update, bool lightsOnly)
             reflection = 0.25f;
             transparency = 0.f;
             refraction = 0.f;
-            r = g = b = 0.25f;
+            r = g = b = 0.1f;
             gloss = 0.2f;
         }
         break;
@@ -856,9 +856,9 @@ void Scene::addCornellBox(int boxType)
     LOG_INFO(3, "Adding Cornell Box");
     LOG_INFO(3, "Ground height = " << m_groundHeight);
     vec4f skyBoxSize = make_vec4f(20000.f, 20000.f, 20000.f);
-    const vec2f groundSize = make_vec2f(100000.f, 100000.f);
+    const vec2f groundSize = make_vec2f(10000.f, 10000.f);
     float groundHeight = m_groundHeight;
-    float repeats = 40.f;
+    float repeats = 10.f;
 
     switch (boxType)
     {
@@ -1400,7 +1400,9 @@ void Scene::createDog(const vec3f &center, int material, float size, int boxid)
                               material);
 }
 
-void Scene::renderText() {}
+void Scene::renderText()
+{
+}
 
 SceneInfo &Scene::getSceneInfo()
 {
@@ -1477,7 +1479,7 @@ void Scene::animateSkeleton()
                                           m_skeletonThickness * 2.0f, 41, // Head size and material
                                           m_skeletonThickness * 1.5f, 42, // Hands size and material
                                           m_skeletonThickness * 1.8f, 43  // Feet size and material
-    );
+                                          );
     m_gpuKernel->getSceneInfo().pathTracingIteration = 0;
 
     if (hr == S_OK)
