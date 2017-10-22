@@ -126,7 +126,7 @@ struct MenuItem
     char key;
 };
 const int NB_MENU_ITEMS = 22;
-MenuItem menuItems[NB_MENU_ITEMS] = {{"a: Black background and no image noise", 'a'},
+MenuItem menuItems[NB_MENU_ITEMS] = {{"A: Black background and no image noise", 'A'},
                                      {"b: Randomly set background color and image noise", 'b'},
                                      {"f: Auto-focus", 'f'},
                                      {"h: Help", 'h'},
@@ -1350,6 +1350,9 @@ int main(int argc, char *argv[])
     createScene();
 
     LOG_INFO(1, "Sol-R is happily running... (^_^)y");
+    for (const auto &menuItem : menuItems)
+        LOG_INFO(1, menuItem.description);
+
     glutMainLoop();
 
     Cleanup(EXIT_SUCCESS);

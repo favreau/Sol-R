@@ -224,7 +224,7 @@ void Scene::initialize(solr::GPUKernel *kernel, const int width, const int heigh
     sceneInfo.skyboxRadius = static_cast<int>(sceneInfo.viewDistance * 0.9f);
     sceneInfo.skyboxMaterialId = SKYBOX_SPHERE_MATERIAL;
     sceneInfo.gradientBackground = 0;
-    sceneInfo.geometryEpsilon = 0.01f;
+    sceneInfo.geometryEpsilon = 0.05f;
     sceneInfo.rayEpsilon = 0.05f;
 
     // HDRI
