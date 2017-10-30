@@ -9,22 +9,21 @@ ENV SOLR_SRC /app/solr
 WORKDIR /app
 ADD . ${SOLR_SRC}
 
-# Install Build Tools
-RUN apt-get update > /dev/null && \
-    apt-get -y install ${BUILD_TOOLS} > /dev/null
-
-# Install CUDA 8
-RUN cd /tmp && \
-    wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run -o /dev/null && \
-    chmod +x cuda_*_linux-run && ./cuda_*_linux-run -extract=`pwd` && \
-    ./cuda-linux64-rel*.run -noprompt | cat > /dev/null && \
-    rm -rf *
+# CUDA 8
 ENV PATH=/usr/local/cuda/bin:$PATH \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 # Install Sol-R
 # https://github.com/favreau/Sol-R
-RUN cd ${SOLR_SRC} && \
+RUN apt-get update && \
+    apt-get -y install ${BUILD_TOOLS} && \
+    mkdir ${SOLR_SRC}/tmp && \
+    cd ${SOLR_SRC}/tmp && \
+    wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run && \
+    chmod +x cuda_*_linux-run && ${SOLR_SRC}/tmp/cuda_*_linux-run -extract=${SOLR_SRC}/tmp && \
+    ${SOLR_SRC}/tmp/cuda-linux64-rel*.run -noprompt | cat > /dev/null && \
+    cd ${SOLR_SRC} && \
+    rm -rf tmp && \
     mkdir build && \
     cd build && \
     cmake .. \
