@@ -60,6 +60,7 @@
 #include <scenes/science/MoleculeScene.h>
 #include <scenes/science/SwcScene.h>
 #include <scenes/science/HypercubeScene.h>
+#include <scenes/science/TesseractScene.h>
 
 // Ray-tracing Kernel
 solr::GPUKernel *gKernel = solr::SingletonKernel::kernel();
@@ -1321,7 +1322,8 @@ void createScene()
         gScene = new KinectFaceTrackingScene("Kinect Face Tracking");
         break;
 #else
-        gScene = new PerpetualMotionScene("Perpetual Motion");
+        gScene = new TesseractScene("Tesseract");
+//        gScene = new PerpetualMotionScene("Perpetual Motion");
         break;
 #endif
     }

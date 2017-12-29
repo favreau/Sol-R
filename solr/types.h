@@ -29,7 +29,7 @@
 #ifdef USE_OPENCL
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #ifdef __APPLE__
-#include </System/Library/Frameworks/OpenCL.framework/Headers/opencl.h>
+#include </Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/OpenCL.framework/Headers/opencl.h>
 #else // __APPLE__
 #include <CL/cl.h>
 #endif // __APPLE__

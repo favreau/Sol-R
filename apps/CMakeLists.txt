@@ -64,6 +64,8 @@ ADD_EXECUTABLE(
   scenes/science/MoleculeScene.h
   scenes/science/HypercubeScene.cpp
   scenes/science/HypercubeScene.h
+  scenes/science/TesseractScene.cpp
+  scenes/science/TesseractScene.h
   )
 
 
