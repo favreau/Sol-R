@@ -39,7 +39,7 @@
 #include "../opencl/types.h"
 #endif
 
-#include <Consts.h>
+#include <consts.h>
 #include <Logging.h>
 
 #include "CPUKernel.h"

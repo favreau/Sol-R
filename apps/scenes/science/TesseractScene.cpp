@@ -2,17 +2,13 @@
 
 #include <opengl/rtgl.h>
 
-using namespace solr;
-
 TesseractScene::TesseractScene(const std::string& name)
     : Scene(name)
     , _timestamp(0.f)
 {
 }
 
-TesseractScene::~TesseractScene()
-{
-}
+TesseractScene::~TesseractScene() {}
 
 vec3f TesseractScene::computeCoordinates(const vec3f& p1, const vec3f& p2, const vec3f& p3, const vec3f& p4)
 {
@@ -49,31 +45,27 @@ vec3f TesseractScene::computeCoordinates(const vec3f& p1, const vec3f& p2, const
 void TesseractScene::createGeometry()
 {
     vec3f tesseract[16] = {
-        {-0.5, -0.5, -0.5}, {0.5, -0.5, -0.5}, {0.5, 0.5, -0.5}, {-0.5, 0.5, -0.5},
-        {-0.5, -0.5, 0.5}, {0.5, -0.5, 0.5}, {0.5, 0.5, 0.5}, {-0.5, 0.5, 0.5},
-        {-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
-        {-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1},
+        {-0.5, -0.5, -0.5}, {0.5, -0.5, -0.5}, {0.5, 0.5, -0.5}, {-0.5, 0.5, -0.5}, {-0.5, -0.5, 0.5}, {0.5, -0.5, 0.5},
+        {0.5, 0.5, 0.5},    {-0.5, 0.5, 0.5},  {-1, -1, -1},     {1, -1, -1},       {1, 1, -1},        {-1, 1, -1},
+        {-1, -1, 1},        {1, -1, 1},        {1, 1, 1},        {-1, 1, 1},
     };
 
-    vec3f vertices[16] =
-    {
-        computeCoordinates(tesseract[8], tesseract[9], tesseract[1], tesseract[0]),
-        computeCoordinates(tesseract[0], tesseract[8], tesseract[9], tesseract[1]),
-        computeCoordinates(tesseract[3], tesseract[11], tesseract[10], tesseract[2]),
-        computeCoordinates(tesseract[11], tesseract[10], tesseract[2], tesseract[3]),
-        computeCoordinates(tesseract[12], tesseract[13], tesseract[5], tesseract[4]),
-        computeCoordinates(tesseract[4], tesseract[12], tesseract[13], tesseract[5]),
-        computeCoordinates(tesseract[7], tesseract[15], tesseract[14], tesseract[6]),
-        computeCoordinates(tesseract[15], tesseract[14], tesseract[6], tesseract[7]),
-        computeCoordinates(tesseract[9], tesseract[1], tesseract[0], tesseract[8]),
-        computeCoordinates(tesseract[1], tesseract[0], tesseract[8], tesseract[9]),
-        computeCoordinates(tesseract[2], tesseract[3], tesseract[11], tesseract[10]),
-        computeCoordinates(tesseract[10], tesseract[2], tesseract[3], tesseract[11]),
-        computeCoordinates(tesseract[13], tesseract[5], tesseract[4], tesseract[12]),
-        computeCoordinates(tesseract[5], tesseract[4], tesseract[12], tesseract[13]),
-        computeCoordinates(tesseract[6], tesseract[7], tesseract[15], tesseract[14]),
-        computeCoordinates(tesseract[14], tesseract[6], tesseract[7], tesseract[15])
-    };
+    vec3f vertices[16] = {computeCoordinates(tesseract[8], tesseract[9], tesseract[1], tesseract[0]),
+                          computeCoordinates(tesseract[0], tesseract[8], tesseract[9], tesseract[1]),
+                          computeCoordinates(tesseract[3], tesseract[11], tesseract[10], tesseract[2]),
+                          computeCoordinates(tesseract[11], tesseract[10], tesseract[2], tesseract[3]),
+                          computeCoordinates(tesseract[12], tesseract[13], tesseract[5], tesseract[4]),
+                          computeCoordinates(tesseract[4], tesseract[12], tesseract[13], tesseract[5]),
+                          computeCoordinates(tesseract[7], tesseract[15], tesseract[14], tesseract[6]),
+                          computeCoordinates(tesseract[15], tesseract[14], tesseract[6], tesseract[7]),
+                          computeCoordinates(tesseract[9], tesseract[1], tesseract[0], tesseract[8]),
+                          computeCoordinates(tesseract[1], tesseract[0], tesseract[8], tesseract[9]),
+                          computeCoordinates(tesseract[2], tesseract[3], tesseract[11], tesseract[10]),
+                          computeCoordinates(tesseract[10], tesseract[2], tesseract[3], tesseract[11]),
+                          computeCoordinates(tesseract[13], tesseract[5], tesseract[4], tesseract[12]),
+                          computeCoordinates(tesseract[5], tesseract[4], tesseract[12], tesseract[13]),
+                          computeCoordinates(tesseract[6], tesseract[7], tesseract[15], tesseract[14]),
+                          computeCoordinates(tesseract[14], tesseract[6], tesseract[7], tesseract[15])};
 
     const float s = 2000.f;
     float radius = s / 10.f;
@@ -85,11 +77,9 @@ void TesseractScene::createGeometry()
     }
 
     const size_t joints[32][2] = {
-        {0, 1},   {1, 2},   {2, 3},   {3, 0},   {0, 4},  {1, 5},  {2, 6},   {3, 7},
-        {4, 5},   {5, 6},   {6, 7},   {7, 4},
-        {0, 8},   {1, 9},   {2, 10},  {3, 11},  {4, 12}, {5, 13}, {6, 14},  {7, 15},
-        {8, 9},   {9, 10},  {10, 11}, {11, 8},  {8, 12}, {9, 13}, {10, 14}, {11, 15},
-        {12, 13}, {13, 14}, {14, 15}, {15, 12},
+        {0, 1},   {1, 2},  {2, 3},  {3, 0},  {0, 4},   {1, 5},   {2, 6},   {3, 7},   {4, 5},   {5, 6},   {6, 7},
+        {7, 4},   {0, 8},  {1, 9},  {2, 10}, {3, 11},  {4, 12},  {5, 13},  {6, 14},  {7, 15},  {8, 9},   {9, 10},
+        {10, 11}, {11, 8}, {8, 12}, {9, 13}, {10, 14}, {11, 15}, {12, 13}, {13, 14}, {14, 15}, {15, 12},
     };
 
     radius = s / 20.f;

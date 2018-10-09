@@ -33,9 +33,7 @@ TrefoilKnotScene::TrefoilKnotScene(const std::string& name)
 {
 }
 
-TrefoilKnotScene::~TrefoilKnotScene(void)
-{
-}
+TrefoilKnotScene::~TrefoilKnotScene(void) {}
 
 void TrefoilKnotScene::trefoilKnot(float R, float t, vec4f& p)
 {

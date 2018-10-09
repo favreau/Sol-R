@@ -26,7 +26,7 @@
 #include <GL/freeglut.h>
 #endif
 
-#include <Consts.h>
+#include <consts.h>
 #include <Logging.h>
 #include "CudaKernel.h"
 #include "CudaRayTracer.h"

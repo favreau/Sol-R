@@ -31,9 +31,7 @@ PerpetualMotionScene::PerpetualMotionScene(const std::string& name)
 {
 }
 
-PerpetualMotionScene::~PerpetualMotionScene(void)
-{
-}
+PerpetualMotionScene::~PerpetualMotionScene(void) {}
 
 void PerpetualMotionScene::doInitialize()
 {
@@ -89,9 +87,7 @@ void PerpetualMotionScene::doInitialize()
     m_gpuKernel->getSceneInfo().nbRayIterations = 20;
 }
 
-void PerpetualMotionScene::doAnimate()
-{
-}
+void PerpetualMotionScene::doAnimate() {}
 
 void PerpetualMotionScene::doAddLights()
 {

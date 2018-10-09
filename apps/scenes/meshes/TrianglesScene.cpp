@@ -34,9 +34,7 @@ TrianglesScene::TrianglesScene(const std::string& name)
     m_groundHeight = -2500.f;
 }
 
-TrianglesScene::~TrianglesScene(void)
-{
-}
+TrianglesScene::~TrianglesScene(void) {}
 
 void TrianglesScene::doInitialize()
 {
@@ -48,7 +46,7 @@ void TrianglesScene::doInitialize()
         const vec4f center = make_vec4f();
         const float objectScale = 1.f;
         m_currentModel = m_currentModel % fileNames.size();
-        solr::FileMarshaller fm;
+        FileMarshaller fm;
         fm.loadFromFile(*m_gpuKernel, fileNames[m_currentModel], center, objectScale * 5000.f);
         m_groundHeight = -2500.f;
     }

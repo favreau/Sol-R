@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "../DLL_API.h"
+#include "../api.h"
 
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;

@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include "types.h"
-#include <engines/GPUKernel.h>
+#include "../GPUKernel.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -140,4 +139,4 @@ private:
     cl_mem m_dDepth;
 #endif // KINECT
 };
-}
+} // namespace solr

@@ -20,7 +20,7 @@
 
 #pragma warning(disable : 4996)
 
-#include "types.h"
+#include "solr.h"
 #include "Logging.h"
 #include "SolRStub.h"
 #include "engines/GPUKernel.h"
@@ -33,6 +33,8 @@
 #ifdef USE_OPENCL
 #include <engines/opencl/OpenCLKernel.h>
 #endif
+
+using namespace solr;
 
 SceneInfo gSceneInfoStub;
 PostProcessingInfo gPostProcessingInfoStub;

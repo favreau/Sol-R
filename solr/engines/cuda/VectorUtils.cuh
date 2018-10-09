@@ -21,11 +21,13 @@
 #pragma once
 
 // Project
-#include "../../types.h"
+#include "../../solr.h"
 
 // Cuda
 #include "helper_math.h"
 #include "helper_cuda.h"
+
+using namespace solr;
 
 // _____________________________________________________________________________________________________________________
 __device__ __INLINE__ void saturateVector(float4 &v)

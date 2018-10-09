@@ -22,7 +22,7 @@
 //#define VOLUME_RENDERING_NORMALS
 
 // Project
-#include "../../types.h"
+#include "../../solr.h"
 #include "VectorUtils.cuh"
 #include "GeometryShaders.cuh"
 #include "TextureMapping.cuh"
@@ -567,7 +567,7 @@ __device__ __INLINE__ bool planeIntersection(const SceneInfo &sceneInfo, const P
 }
 
 /*
-________________________________________________________________________________
+______80__________________________________________________________________________
 
 Triangle intersection
 ________________________________________________________________________________

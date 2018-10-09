@@ -34,9 +34,7 @@ FractalScene::FractalScene(const std::string& name)
 {
 }
 
-FractalScene::~FractalScene(void)
-{
-}
+FractalScene::~FractalScene(void) {}
 
 /*
 ________________________________________________________________________________
@@ -47,50 +45,23 @@ ________________________________________________________________________________
 void FractalScene::createFractals(int iteration, int modelId, int mode, int maxIterations, vec4f center, int material,
                                   float interval, float radius)
 {
-    vec4f positions[NB_MODELS][NB_ELEMENTS] = 
-    { 
-        {make_vec4f(-1.f, -1.f, -1.f, 0.f),
-        make_vec4f(1.f, -1.f, -1.f, 0.f),
-        make_vec4f(0.f, -1.f, 1.f, 0.f),
-        make_vec4f(0.f, 1.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, -1.f, 0.f),
-        make_vec4f(0.f, -1.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f)},
-        {make_vec4f(-1.f, -1.f, 1.f, 0.f),
-        make_vec4f(1.f, -1.f, 1.f, 0.f),
-        make_vec4f(-1.f, 1.f, 1.f, 0.f),
-        make_vec4f(1.f, 1.f, 1.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f)},
+    vec4f positions[NB_MODELS][NB_ELEMENTS] = {
+        {make_vec4f(-1.f, -1.f, -1.f, 0.f), make_vec4f(1.f, -1.f, -1.f, 0.f), make_vec4f(0.f, -1.f, 1.f, 0.f),
+         make_vec4f(0.f, 1.f, 0.f, 0.f), make_vec4f(0.f, 0.f, -1.f, 0.f), make_vec4f(0.f, -1.f, 0.f, 0.f),
+         make_vec4f(0.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, 0.f, 0.f)},
+        {make_vec4f(-1.f, -1.f, 1.f, 0.f), make_vec4f(1.f, -1.f, 1.f, 0.f), make_vec4f(-1.f, 1.f, 1.f, 0.f),
+         make_vec4f(1.f, 1.f, 1.f, 0.f), make_vec4f(0.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, 0.f, 0.f),
+         make_vec4f(0.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, 0.f, 0.f)},
         {// Cube
-        make_vec4f(-1.f, -1.f, -1.f, 0.f),
-        make_vec4f(1.f, -1.f, -1.f, 0.f),
-        make_vec4f(-1.f, 1.f, -1.f, 0.f),
-        make_vec4f(1.f, 1.f, -1.f, 0.f),
-        make_vec4f(-1.f, -1.f, 1.f, 0.f),
-        make_vec4f(1.f, -1.f, 1.f, 0.f),
-        make_vec4f(-1.f, 1.f, 1.f, 0.f),
-        make_vec4f(1.f, 1.f, 1.f, 0.f)},
-        {make_vec4f(1.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 1.f, 0.f),
-        make_vec4f(0.f, 2.f, 0.f, 0.f),
-        make_vec4f(-1.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, -1.f, 0.f),
-        make_vec4f(0.f, -1.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f)},
-        {make_vec4f(1.f, 1.f, 0.f, 0.f),
-        make_vec4f(-1.f, 1.f, 0.f, 0.f),
-        make_vec4f(1.f, -1.f, 0.f, 0.f),
-        make_vec4f(-1.f, -1.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, -1.f, 0.f),
-        make_vec4f(0.f, 0.f, 1.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f),
-        make_vec4f(0.f, 0.f, 0.f, 0.f)}
-    };
+         make_vec4f(-1.f, -1.f, -1.f, 0.f), make_vec4f(1.f, -1.f, -1.f, 0.f), make_vec4f(-1.f, 1.f, -1.f, 0.f),
+         make_vec4f(1.f, 1.f, -1.f, 0.f), make_vec4f(-1.f, -1.f, 1.f, 0.f), make_vec4f(1.f, -1.f, 1.f, 0.f),
+         make_vec4f(-1.f, 1.f, 1.f, 0.f), make_vec4f(1.f, 1.f, 1.f, 0.f)},
+        {make_vec4f(1.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, 1.f, 0.f), make_vec4f(0.f, 2.f, 0.f, 0.f),
+         make_vec4f(-1.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, -1.f, 0.f), make_vec4f(0.f, -1.f, 0.f, 0.f),
+         make_vec4f(0.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, 0.f, 0.f)},
+        {make_vec4f(1.f, 1.f, 0.f, 0.f), make_vec4f(-1.f, 1.f, 0.f, 0.f), make_vec4f(1.f, -1.f, 0.f, 0.f),
+         make_vec4f(-1.f, -1.f, 0.f, 0.f), make_vec4f(0.f, 0.f, -1.f, 0.f), make_vec4f(0.f, 0.f, 1.f, 0.f),
+         make_vec4f(0.f, 0.f, 0.f, 0.f), make_vec4f(0.f, 0.f, 0.f, 0.f)}};
 
     if (iteration > 0)
     {
@@ -178,8 +149,4 @@ void FractalScene::doAddLights()
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
     m_gpuKernel->setPrimitive(m_nbPrimitives, -15000.f, 15000.f, -15000.f, 10.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
-    // m_nbPrimitives = m_gpuKernel->addPrimitive( ptSphere );  m_gpuKernel->setPrimitive( m_nbPrimitives, 15000.f,
-    // 15000.f, 15000.f, 10.f, 0.f, 0.f, 121);
-    // m_nbPrimitives = m_gpuKernel->addPrimitive( ptSphere );  m_gpuKernel->setPrimitive( m_nbPrimitives, 0.f, 15000.f,
-    // -15000.f, 10.f, 0.f, 0.f, 122);
 }

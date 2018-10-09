@@ -48,9 +48,7 @@ AnimationScene::AnimationScene(const std::string& name)
     m_forward = true;
 }
 
-AnimationScene::~AnimationScene(void)
-{
-}
+AnimationScene::~AnimationScene(void) {}
 
 void AnimationScene::doInitialize()
 {
@@ -82,11 +80,11 @@ void AnimationScene::doInitialize()
         m_gpuKernel->resetFrame();
         solr::CPUBoundingBox aabb;
         solr::CPUBoundingBox inAABB;
-        objReader.loadModelFromFile(fileName, *m_gpuKernel, center, false, objectSize, (frame == 0), m,
-                                                     false, true, aabb, false, inAABB);
+        objReader.loadModelFromFile(fileName, *m_gpuKernel, center, false, objectSize, (frame == 0), m, false, true,
+                                    aabb, false, inAABB);
 
         // lights
-        m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
+        m_nbPrimitives = m_gpuKernel->addPrimitive(solr::ptSphere);
         m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f, 10000.f, -10000.f, 100.f, 100.f, 100.f,
                                   DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
@@ -108,6 +106,4 @@ void AnimationScene::doAnimate()
     m_currentFrame = m_currentFrame % nbFrames;
 }
 
-void AnimationScene::doAddLights()
-{
-}
+void AnimationScene::doAddLights() {}

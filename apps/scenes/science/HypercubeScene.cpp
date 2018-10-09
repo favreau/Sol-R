@@ -33,8 +33,6 @@ http://codes-sources.commentcamarche.net/source/33735-hypercubes
 #include <math.h>
 #endif
 
-using namespace solr;
-
 float animationAngles[MaxDimensions];
 
 HypercubeScene::HypercubeScene(const std::string& name)
@@ -55,9 +53,7 @@ HypercubeScene::HypercubeScene(const std::string& name)
             animationAngles[i] = 0.f;
 }
 
-HypercubeScene::~HypercubeScene(void)
-{
-}
+HypercubeScene::~HypercubeScene(void) {}
 
 float HypercubeScene::powerOfTwo(const size_t n)
 {

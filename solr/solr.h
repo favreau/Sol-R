@@ -18,14 +18,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef SOLR_H
+#define SOLR_H
 
-#include <defines.h>
-#include "Consts.h"
+#include "solr_defines.h"
+#include "consts.h"
 #include <vector>
 #include <map>
 
+namespace solr
+{
 #ifdef USE_OPENCL
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #ifdef __APPLE__
@@ -119,12 +121,12 @@ typedef std::vector<vec2i> vec2is;
 typedef std::vector<vec3i> vec3is;
 typedef std::vector<vec4i> vec4is;
 
+#define _CRT_SECURE_NO_WARNINGS
+#define __INLINE__ inline
+
 typedef unsigned char BitmapBuffer;
 typedef float RandomBuffer;
 typedef int Lamp;
-
-#define _CRT_SECURE_NO_WARNINGS
-#define __INLINE__ inline
 
 struct PostProcessingBuffer
 {
@@ -364,4 +366,54 @@ struct __ALIGN16__ PostProcessingInfo
     vec1i param3; // Parameter role depends on post processing type
 };
 
-#endif // TYPES_H
+// Host data structures
+struct CPUPrimitive
+{
+    bool belongsToModel;
+    bool movable;
+    vec3f p0;
+    vec3f p1;
+    vec3f p2;
+    vec3f n0;
+    vec3f n1;
+    vec3f n2;
+    vec3f size;
+    int type;
+    int materialId;
+    vec2f vt0; // Texture coordinates
+    vec2f vt1;
+    vec2f vt2;
+    vec3f speed0;
+    vec3f speed1;
+    vec3f speed2;
+};
+
+struct CPUBoundingBox
+{
+    vec3f parameters[2];
+    vec3f center;
+    std::vector<long> primitives;
+    long indexForNextBox;
+};
+
+typedef std::map<unsigned int, CPUBoundingBox> BoxContainer;
+typedef std::map<unsigned int, CPUPrimitive> PrimitiveContainer;
+typedef std::map<unsigned int, Lamp> LampContainer;
+
+// Forward declarations
+class GPUKernel;
+#ifdef USE_CUDA
+class CudaKernel;
+#else
+#ifdef USE_OPENCL
+class OpenCLKernel;
+#else
+#ifdef USE_CPU
+class CPUKernel;
+#endif // USE_CPU
+#endif // USE_OPENCL
+#endif // USE_CUDA
+
+} // namespace solr
+
+#endif // SOLR_H

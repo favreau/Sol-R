@@ -41,9 +41,7 @@ MoleculeScene::MoleculeScene(const std::string& name)
     m_groundHeight = -5000.f;
 }
 
-MoleculeScene::~MoleculeScene(void)
-{
-}
+MoleculeScene::~MoleculeScene(void) {}
 
 void MoleculeScene::doInitialize()
 {
@@ -66,9 +64,9 @@ void MoleculeScene::doInitialize()
         m_name = fileNames[m_currentModel];
 
         // PDB
-        solr::PDBReader pdbReader;
-        pdbReader.loadAtomsFromFile(m_name, *m_gpuKernel, static_cast<solr::GeometryType>(geometryType),
-                                    defaultAtomSize, defaultStickSize, atomMaterialType, scale, loadModels);
+        PDBReader pdbReader;
+        pdbReader.loadAtomsFromFile(m_name, *m_gpuKernel, static_cast<GeometryType>(geometryType), defaultAtomSize,
+                                    defaultStickSize, atomMaterialType, scale, loadModels);
     }
 }
 

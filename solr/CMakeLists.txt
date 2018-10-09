@@ -1,37 +1,47 @@
 include_directories(${PROJECT_SOURCE_DIR}/solr ${PROJECT_SOURCE_DIR}/generated)
 
 SET(SOLR_SOURCES
-    DLL_API.h
-    Logging.h
-    types.h
-    Consts.h
     SolRStub.cpp
-    SolRStub.h
     engines/GPUKernel.cpp
-    engines/GPUKernel.h
     #engines/cpu/CPUKernel.cpp
-    #engines/cpu/CPUKernel.h
     io/PDBReader.cpp
-    io/PDBReader.h
     io/OBJReader.cpp
-    io/OBJReader.h
-    io/FileMarshaller.cpp
     io/SWCReader.cpp
-    io/SWCReader.h
     io/FileMarshaller.cpp
-    io/FileMarshaller.h
     images/ImageLoader.cpp
-    images/ImageLoader.h
     images/jpge.cpp
-    images/jpge.h
     images/jpgd.cpp
-    images/jpgd.h
     images/tgad.cpp
-    images/tgad.h
     opengl/rtgl.cpp
-    opengl/rtgl.h
     games/MapReader.cpp
+)
+
+SET(SOLR_HEADERS
+    Logging.h
+    SolRStub.h
+    #engines/cpu/CPUKernel.h
+    io/PDBReader.h
+    io/OBJReader.h
+    io/SWCReader.h
+    io/FileMarshaller.h
+    images/ImageLoader.h
+    images/jpge.h
+    images/jpgd.h
+    images/tgad.h
+    opengl/rtgl.h
     games/MapReader.h
+)
+
+SET(SOLR_PUBLIC_HEADERS
+    ../generated/solr_defines.h
+    engines/GPUKernel.h
+    api.h
+    solr.h
+    consts.h
+)
+
+SET(SOLR_ENGINE_PUBLIC_HEADERS
+    engines/GPUKernel.h
 )
 
 if (CUDA_FOUND)
@@ -39,6 +49,7 @@ if (CUDA_FOUND)
         set(CUDA_NVCC_USER_ARGS
             -std=c++11
             -D_FORCE_INLINES
+            --compiler-options "-fPIC"
             --maxrregcount=32
             --use_fast_math
             -gencode=arch=compute_30,code=sm_30
@@ -80,6 +91,7 @@ if (CUDA_FOUND)
 		${OCULUS_SDK_LIBRARIES}
 		${SIXENSESDK_LIBRARIES}
                 )
+    list(APPEND SOLR_ENGINE_PUBLIC_HEADERS engines/cuda/CudaKernel.h)
 endif()
 
 if(OPENCL_FOUND)
@@ -99,10 +111,13 @@ if(OPENCL_FOUND)
 		${OCULUS_SDK_LIBRARIES}
 		${SIXENSESDK_LIBRARIES}
         )
+
     # ================================================================================
     # Install kernels
     # ================================================================================
     INSTALL( FILES engines/opencl/RayTracer.cl DESTINATION bin/kernels )
+
+    list(APPEND SOLR_ENGINE_PUBLIC_HEADERS engines/opencl/OpenCLKernel.h)
 endif()
 
 # ================================================================================
@@ -112,3 +127,6 @@ INSTALL(TARGETS solr
     RUNTIME DESTINATION bin 
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
+# Install headers
+INSTALL( FILES ${SOLR_PUBLIC_HEADERS} DESTINATION include/solr )
+INSTALL( FILES ${SOLR_ENGINE_PUBLIC_HEADERS} DESTINATION include/solr/engines )

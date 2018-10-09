@@ -29,9 +29,7 @@ SwcScene::SwcScene(const std::string &name)
 {
 }
 
-SwcScene::~SwcScene()
-{
-}
+SwcScene::~SwcScene() {}
 
 /*
 ________________________________________________________________________________
@@ -54,7 +52,7 @@ void SwcScene::doInitialize()
         const vec4f position = make_vec4f(0.f, 0.f, 0.f);
         for (int i(0); i < fileNames.size(); ++i)
         {
-            solr::SWCReader swcReader;
+            SWCReader swcReader;
             swcReader.loadMorphologyFromFile(fileNames[i], *m_gpuKernel, position, scale, 1001);
 
             if (i == 0)
@@ -66,7 +64,7 @@ void SwcScene::doInitialize()
 void SwcScene::doAnimate()
 {
     const int index = m_counter % m_morphologies.size();
-    solr::Morphology &m = m_morphologies[index];
+    Morphology &m = m_morphologies[index];
     if (m_counter > 0)
         m_gpuKernel->setPrimitiveMaterial(m_previousPrimitiveId, m_previousMaterial);
 
@@ -77,7 +75,7 @@ void SwcScene::doAnimate()
     const int light = m_gpuKernel->getLight(0);
     if (light != -1)
     {
-        solr::CPUPrimitive *lamp = m_gpuKernel->getPrimitive(light);
+        CPUPrimitive *lamp = m_gpuKernel->getPrimitive(light);
         lamp->p0.x = m.x;
         lamp->p0.y = m.y;
         lamp->p0.z = m.z - 50.f;

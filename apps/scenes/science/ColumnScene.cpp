@@ -40,9 +40,7 @@ ColumnScene::ColumnScene(const std::string& name)
 {
 }
 
-ColumnScene::~ColumnScene(void)
-{
-}
+ColumnScene::~ColumnScene(void) {}
 
 /*
 ________________________________________________________________________________
@@ -64,7 +62,7 @@ void ColumnScene::doInitialize()
 
     // Scene Bounding Box
     SceneInfo& sceneInfo = m_gpuKernel->getSceneInfo();
-    solr::CPUBoundingBox AABB;
+    CPUBoundingBox AABB;
     AABB.parameters[0].x = sceneInfo.viewDistance;
     AABB.parameters[0].y = sceneInfo.viewDistance;
     AABB.parameters[0].z = sceneInfo.viewDistance;
@@ -78,21 +76,19 @@ void ColumnScene::doInitialize()
     const Strings fileNames = getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/obj", extensions);
 
     const std::string star("neuron_12558.obj");
-    solr::OBJReader objectReader;
-    solr::CPUBoundingBox inAABB;
-    memset(&inAABB, 0, sizeof(solr::CPUBoundingBox));
-    const vec4f size = 
-        objectReader.loadModelFromFile(path + "\\" + star, *m_gpuKernel, objectPosition, false, m_objectScale, 
-            false, 10, false, false, AABB, false, inAABB);
+    OBJReader objectReader;
+    CPUBoundingBox inAABB;
+    memset(&inAABB, 0, sizeof(CPUBoundingBox));
+    const vec4f size = objectReader.loadModelFromFile(path + "\\" + star, *m_gpuKernel, objectPosition, false,
+                                                      m_objectScale, false, 10, false, false, AABB, false, inAABB);
 
-    const vec4f halfSize = make_vec4f(
-        (AABB.parameters[1].x - AABB.parameters[0].x) / 2.f, 
-        (AABB.parameters[1].y - AABB.parameters[0].y) / 2.f,
-        (AABB.parameters[1].z - AABB.parameters[0].z) / 2.f);
+    const vec4f halfSize = make_vec4f((AABB.parameters[1].x - AABB.parameters[0].x) / 2.f,
+                                      (AABB.parameters[1].y - AABB.parameters[0].y) / 2.f,
+                                      (AABB.parameters[1].z - AABB.parameters[0].z) / 2.f);
 
     const vec4f boxCenter = make_vec4f((AABB.parameters[0].x + AABB.parameters[1].x) / 2.f,
-        (AABB.parameters[0].y + AABB.parameters[1].y) / 2.f,
-        (AABB.parameters[0].z + AABB.parameters[1].z) / 2.f);
+                                       (AABB.parameters[0].y + AABB.parameters[1].y) / 2.f,
+                                       (AABB.parameters[0].z + AABB.parameters[1].z) / 2.f);
 
     inAABB.parameters[0].x = (boxCenter.x - halfSize.x * boxScale);
     inAABB.parameters[0].y = (boxCenter.y - halfSize.y * boxScale);
@@ -111,7 +107,7 @@ void ColumnScene::doInitialize()
         LOG_INFO(1, "--- Loading " << m_name << " ---");
         if (m_name.find(star) == -1)
         {
-            solr::CPUBoundingBox aabb;
+            CPUBoundingBox aabb;
             objectReader.loadModelFromFile(m_name, *m_gpuKernel, objectPosition, false, m_objectScale, false, 11, false,
                                            false, aabb, true, inAABB);
 
@@ -134,7 +130,7 @@ void ColumnScene::doInitialize()
     }
 
     // Save to binary format
-    solr::FileMarshaller fm;
+    FileMarshaller fm;
     fm.saveToFile(*m_gpuKernel, "column.irt");
 }
 

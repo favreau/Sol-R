@@ -20,11 +20,14 @@
 
 #pragma once
 
+#include <solr_defines.h>
 #include <common/Types.h>
 
 // Raytracer
 #include <Logging.h>
 #include <engines/GPUKernel.h>
+
+using namespace solr;
 
 class Scene
 {
@@ -33,7 +36,7 @@ public:
     virtual ~Scene(void);
 
 public:
-    void initialize(solr::GPUKernel* kernel, const int width, const int height);
+    void initialize(GPUKernel* kernel, const int width, const int height);
     void animate();
     void render(const bool& animate);
 
@@ -67,7 +70,7 @@ public:
 
 public:
     int getNbPrimitives() { return m_gpuKernel->getNbActivePrimitives(); }
-    solr::GPUKernel* getKernel() { return m_gpuKernel; }
+    GPUKernel* getKernel() { return m_gpuKernel; }
     int getNbHDRI() { return m_nbHDRI; }
 
 public:
@@ -85,7 +88,7 @@ protected:
 
 protected:
     std::string m_name;
-    solr::GPUKernel* m_gpuKernel;
+    GPUKernel* m_gpuKernel;
 
     // Textures
     int m_nbHDRI;

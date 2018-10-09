@@ -27,7 +27,7 @@
 #endif
 
 #include "rtgl.h"
-#include "types.h"
+#include "solr.h"
 #include "../Logging.h"
 #include <engines/GPUKernel.h>
 

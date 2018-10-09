@@ -35,7 +35,7 @@ protected:
     virtual void doAddLights();
 
 private:
-    solr::Morphologies m_morphologies;
+    Morphologies m_morphologies;
     int m_counter;
     int m_previousMaterial;
     int m_previousPrimitiveId;

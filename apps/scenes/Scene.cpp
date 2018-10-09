@@ -58,8 +58,6 @@
 #include <sixense_utils/event_triggers.hpp>
 #endif // USE_SIXENSE
 
-using namespace solr;
-
 const int gTotalPathTracingIterations = 2000;
 
 #ifdef USE_SIXENSE
@@ -186,7 +184,7 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
  */
-void Scene::initialize(solr::GPUKernel *kernel, const int width, const int height)
+void Scene::initialize(GPUKernel *kernel, const int width, const int height)
 {
     LOG_INFO(1, "--------------------------------------------------------------------------------");
     LOG_INFO(1, "Scene...............: " << m_name);
@@ -832,7 +830,7 @@ ________________________________________________________________________________
  */
 void Scene::saveToFile()
 {
-    solr::FileMarshaller fm;
+    FileMarshaller fm;
     std::string filename(m_name);
     filename += ".irt";
     fm.saveToFile(*m_gpuKernel, filename);
@@ -845,7 +843,7 @@ ________________________________________________________________________________
  */
 void Scene::loadFromFile(const float scale)
 {
-    solr::FileMarshaller fm;
+    FileMarshaller fm;
     std::string filename(m_name);
     filename += ".irt";
     fm.loadFromFile(*m_gpuKernel, filename, make_vec4f(), scale);
@@ -1400,9 +1398,7 @@ void Scene::createDog(const vec3f &center, int material, float size, int boxid)
                               material);
 }
 
-void Scene::renderText()
-{
-}
+void Scene::renderText() {}
 
 SceneInfo &Scene::getSceneInfo()
 {
@@ -1479,7 +1475,7 @@ void Scene::animateSkeleton()
                                           m_skeletonThickness * 2.0f, 41, // Head size and material
                                           m_skeletonThickness * 1.5f, 42, // Hands size and material
                                           m_skeletonThickness * 1.8f, 43  // Feet size and material
-                                          );
+    );
     m_gpuKernel->getSceneInfo().pathTracingIteration = 0;
 
     if (hr == S_OK)

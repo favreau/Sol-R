@@ -33,9 +33,7 @@ FractalsScene::FractalsScene(const std::string& name)
 {
 }
 
-FractalsScene::~FractalsScene(void)
-{
-}
+FractalsScene::~FractalsScene(void) {}
 
 /*
 ________________________________________________________________________________
@@ -218,8 +216,8 @@ bool FractalsScene::isSierpinskiCarpetPixelFilled(int i, vec3i v)
 {
     while (v.x > 0 || v.y > 0 || v.z > 0) // when either of these reaches zero the pixel is determined to be on the edge
     {
-        if (v.x % i == 1 && v.y % i == 1 &&
-            v.z % i == 1) // checks if the pixel is in the center for the current square level
+        if (v.x % i == 1 && v.y % i == 1 && v.z % i == 1) // checks if the pixel is in the center for the current square
+                                                          // level
             return false;
         v.x /= i; // x and y are decremented to check the next larger square level
         v.y /= i;

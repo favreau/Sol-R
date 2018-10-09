@@ -18,15 +18,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <types.h>
-#include <Logging.h>
-
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
 #include <GL/freeglut.h>
 #endif
 
+#include <solr.h>
+#include <Logging.h>
 #include <engines/opencl/OpenCLKernel.h>
 
 #ifdef WIN32
@@ -38,7 +37,6 @@
 #include <fstream>
 
 #define __CL_ENABLE_EXCEPTIONS
-
 
 namespace solr
 {
@@ -307,11 +305,11 @@ void OpenCLKernel::recompileKernels()
         compilationOptions += " -DUSE_KINECT";
 #endif
         LOG_INFO(1, "Building Program with " << compilationOptions);
-        CHECKSTATUS(
-            clBuildProgram(m_hProgram, 1, &m_devices[m_platform][m_device], compilationOptions.c_str(), &buildNotify, NULL));
+        CHECKSTATUS(clBuildProgram(m_hProgram, 1, &m_devices[m_platform][m_device], compilationOptions.c_str(),
+                                   &buildNotify, NULL));
         size_t logSize;
         CHECKSTATUS(clGetProgramBuildInfo(m_hProgram, m_hDeviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize));
-        char* log = new char[logSize];
+        char *log = new char[logSize];
         CHECKSTATUS(clGetProgramBuildInfo(m_hProgram, m_hDeviceId, CL_PROGRAM_BUILD_LOG, logSize, log, NULL));
         if (logSize > 1)
             LOG_INFO(1, log);
@@ -386,7 +384,8 @@ void OpenCLKernel::initializeDevice()
 
     // initialize OpenCL device
     LOG_INFO(1, "Initializing OpenCL context on platform: " << m_platform << ", device: " << m_hDeviceId);
-    m_hContext = clCreateContext(NULL, m_numberOfDevices[m_platform], m_devices[m_platform], &contextNotify, NULL, &status);
+    m_hContext =
+        clCreateContext(NULL, m_numberOfDevices[m_platform], m_devices[m_platform], &contextNotify, NULL, &status);
     CHECKSTATUS(status);
     m_hDeviceId = m_devices[m_platform][m_device];
     if (m_hContext)
@@ -913,7 +912,7 @@ void OpenCLKernel::render_end()
             float step = 0.1f;
             float halfStep = 1.f;
             float scale = 2.f;
-            
+
             for (int a(0); a < 2; ++a)
             {
                 cl_float2 center = {{0.f, 0.f}};
@@ -1195,4 +1194,4 @@ void OpenCLKernel::queryDevice()
     LOG_INFO(3, "- PostProcessingInfo: " << sizeof(PostProcessingInfo));
     LOG_INFO(3, "_______________________________________|");
 }
-}
+} // namespace solr

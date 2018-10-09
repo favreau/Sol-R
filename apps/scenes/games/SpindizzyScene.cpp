@@ -22,16 +22,12 @@
 
 #include <opengl/rtgl.h>
 
-using namespace solr;
-
 SpindizzyScene::SpindizzyScene(const std::string& name)
     : Scene(name)
 {
 }
 
-SpindizzyScene::~SpindizzyScene(void)
-{
-}
+SpindizzyScene::~SpindizzyScene(void) {}
 
 void SpindizzyScene::doInitialize()
 {

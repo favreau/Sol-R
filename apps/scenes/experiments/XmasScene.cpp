@@ -32,9 +32,7 @@ XmasScene::XmasScene(const std::string& name)
 {
 }
 
-XmasScene::~XmasScene(void)
-{
-}
+XmasScene::~XmasScene(void) {}
 
 /*
 ________________________________________________________________________________
@@ -59,11 +57,11 @@ void XmasScene::createTree(int iteration, int boxId, int maxIterations, vec3f ce
             m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y, a.z, b.x, b.y, b.z, radius / 2.f, 0.f, 0.f, material);
 
             const vec4f angles = make_vec4f(((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
-                ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
-                ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f));
+                                            ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
+                                            ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f));
             const vec3f cosAngles = make_vec3f(cosf(angles.x), cosf(angles.y), cosf(angles.z));
             const vec3f sinAngles = make_vec3f(sinf(angles.x), sinf(angles.y), sinf(angles.z));
-            solr::CPUPrimitive* p = m_gpuKernel->getPrimitive(m_nbPrimitives);
+            CPUPrimitive* p = m_gpuKernel->getPrimitive(m_nbPrimitives);
             m_gpuKernel->rotatePrimitive(*p, a, cosAngles, sinAngles);
             b.y += interval;
             m_gpuKernel->getPrimitiveOtherCenter(m_nbPrimitives, b);
@@ -124,12 +122,10 @@ void XmasScene::doInitialize()
     createTree(nbIterations, 10, nbIterations, center, material,
                1000.f, //+rand()%800,
                200.f   //+rand()%300
-               );
+    );
 }
 
-void XmasScene::doAnimate()
-{
-}
+void XmasScene::doAnimate() {}
 
 void XmasScene::doAddLights()
 {

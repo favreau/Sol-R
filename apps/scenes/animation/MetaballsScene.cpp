@@ -29,8 +29,6 @@
 #include <opengl/rtgl.h>
 #include <math.h>
 
-using namespace solr;
-
 const int minGridSize = 40;
 float threshold = 1.0f;
 
@@ -45,7 +43,7 @@ unsigned int gridSize = 50;
 unsigned int numMetaballs = 50;
 const int gridScale = 3.f;
 vec3f size = make_vec3f(static_cast<float>(numMetaballs * gridScale), static_cast<float>(numMetaballs* gridScale),
-    static_cast<float>(numMetaballs* gridScale));
+                        static_cast<float>(numMetaballs* gridScale));
 const vec3f amplitude = make_vec3f(size.x / gridScale, size.y / gridScale, size.z / gridScale);
 const vec3f scale = make_vec3f(2000.f / numMetaballs, 2000.f / numMetaballs, 2000.f / numMetaballs);
 #endif // USE_KINECT
@@ -216,13 +214,17 @@ void MetaballsScene::doAnimate()
             switch (i % 4)
             {
             case 0:
-                metaballs[i].position.x = center.x - ratio * amplitude.x * (float)cos(timer / (740 + i * numMetaballs)) - c;
-                metaballs[i].position.y = center.z + ratio * amplitude.y * (float)sin(timer / (620 + i * numMetaballs)) - c;
+                metaballs[i].position.x =
+                    center.x - ratio * amplitude.x * (float)cos(timer / (740 + i * numMetaballs)) - c;
+                metaballs[i].position.y =
+                    center.z + ratio * amplitude.y * (float)sin(timer / (620 + i * numMetaballs)) - c;
                 metaballs[i].position.z = center.y + fabs(ratio * amplitude.z * (float)sin(cos(timer / (500 + i))) - c);
                 break;
             case 1:
-                metaballs[i].position.x = center.x + ratio * amplitude.x * (float)sin(timer / (420 + i * numMetaballs)) + c;
-                metaballs[i].position.y = center.z - ratio * amplitude.y * (float)cos(timer / (340 + i * numMetaballs)) - c;
+                metaballs[i].position.x =
+                    center.x + ratio * amplitude.x * (float)sin(timer / (420 + i * numMetaballs)) + c;
+                metaballs[i].position.y =
+                    center.z - ratio * amplitude.y * (float)cos(timer / (340 + i * numMetaballs)) - c;
                 metaballs[i].position.z = center.y + fabs(ratio * amplitude.z * (float)sin(cos(timer / (400 + i))) - c);
                 break;
             case 2:

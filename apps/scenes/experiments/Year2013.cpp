@@ -31,9 +31,7 @@ Year2013::Year2013(const std::string& name)
 {
 }
 
-Year2013::~Year2013(void)
-{
-}
+Year2013::~Year2013(void) {}
 
 void Year2013::doInitialize()
 {
@@ -134,9 +132,7 @@ void Year2013::doInitialize()
     m_gpuKernel->getSceneInfo().nbRayIterations = 20;
 }
 
-void Year2013::doAnimate()
-{
-}
+void Year2013::doAnimate() {}
 
 void Year2013::doAddLights()
 {

@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-#include "../Consts.h"
+#include "../consts.h"
 #include "../Logging.h"
 
 #include "ImageLoader.h"

@@ -30,8 +30,6 @@
 #endif
 #include <fstream>
 
-using namespace solr;
-
 GraphScene::GraphScene(const std::string& name)
     : Scene(name)
 {
@@ -327,9 +325,7 @@ void GraphScene::doInitialize()
         buildGraph(false);
 }
 
-void GraphScene::doAnimate()
-{
-}
+void GraphScene::doAnimate() {}
 
 void GraphScene::doAddLights()
 {

@@ -153,13 +153,13 @@ __device__ __INLINE__ void makeColor(const SceneInfo &sceneInfo, vec4f &color, B
         bitmap[i + 2] = (BitmapBuffer)(color.x * 255.f); // Red
         break;
     }
-	default:
-	{
-		// OpenGL
-		bitmap[mdc_index] = (BitmapBuffer)(color.x * 255.f);     // Red
-		bitmap[mdc_index + 1] = (BitmapBuffer)(color.y * 255.f); // Green
-		bitmap[mdc_index + 2] = (BitmapBuffer)(color.z * 255.f); // Blue
-		break;
-	}
-	}
+    default:
+    {
+        // OpenGL
+        bitmap[mdc_index] = (BitmapBuffer)(color.x * 255.f);     // Red
+        bitmap[mdc_index + 1] = (BitmapBuffer)(color.y * 255.f); // Green
+        bitmap[mdc_index + 2] = (BitmapBuffer)(color.z * 255.f); // Blue
+        break;
+    }
+    }
 }

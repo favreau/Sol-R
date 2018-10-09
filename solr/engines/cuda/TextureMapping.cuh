@@ -21,7 +21,7 @@
 #pragma once
 
 // Project
-#include "../../types.h"
+#include "../../solr.h"
 #include "VectorUtils.cuh"
 
 // ----------

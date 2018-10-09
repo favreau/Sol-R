@@ -19,7 +19,7 @@
  */
 
 // Project
-#include <types.h>
+#include <solr.h>
 #include <Logging.h>
 #include "TextureMapping.cuh"
 #include "GeometryIntersections.cuh"

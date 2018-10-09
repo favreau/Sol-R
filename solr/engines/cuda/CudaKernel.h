@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include <DLL_API.h>
-#include <engines/GPUKernel.h>
+#include "../GPUKernel.h"
 
 namespace solr
 {
@@ -39,6 +38,7 @@ public:
     virtual void setDeviceId(const int) {}
     virtual void setKernelFilename(const std::string&) {}
     virtual void recompileKernels() {}
+
 public:
     // ---------- Devices ----------
     void initializeDevice();
@@ -66,9 +66,10 @@ public:
         m_blockSize.z = z;
     }
     void setSharedMemSize(int sharedMemSize) { m_sharedMemSize = sharedMemSize; }
+
 private:
     // Runtime kernel execution parameters
     vec4i m_blockSize;
     int m_sharedMemSize;
 };
-}
+} // namespace solr

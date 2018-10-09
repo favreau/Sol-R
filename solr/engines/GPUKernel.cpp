@@ -36,7 +36,7 @@
 #include <images/jpge.h>
 
 // Raytracing
-#include "Consts.h"
+#include "consts.h"
 #include "GPUKernel.h"
 #include "Logging.h"
 #include "io/FileMarshaller.h"
@@ -48,7 +48,9 @@
 #ifdef USE_OPENCL
 #include <engines/opencl/OpenCLKernel.h>
 #else
+#ifdef USE_CPU
 #include "cpu/CPUKernel.h"
+#endif // USE_CPU
 #endif // USE_OPENCL
 #endif // USE_CUDA
 
@@ -65,6 +67,8 @@ extern "C" FILE *__cdecl __iob_func(void)
 #pragma comment(lib, "legacy_stdio_definitions.lib")
 #endif
 #endif // USE_OCULUS
+
+using namespace solr;
 
 const unsigned int AABB_MAGIC_NUMBER = 6400;
 
@@ -119,7 +123,9 @@ GPUKernel *SingletonKernel::kernel()
 #ifdef USE_OPENCL
         m_kernel = new OpenCLKernel();
 #else
+#ifdef USE_OPENCL
         m_kernel = new CPUKernel();
+#endif // USE_CPU
 #endif // USE_OPENCL
 #endif // USE_CUDA
     return m_kernel;
@@ -2907,4 +2913,4 @@ void GPUKernel::finializeOVR()
     OVR::System::Destroy();
 }
 #endif // USE_OCULUS
-}
+} // namespace solr

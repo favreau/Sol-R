@@ -31,9 +31,7 @@ TransparentScene::TransparentScene(const std::string& name)
 {
 }
 
-TransparentScene::~TransparentScene(void)
-{
-}
+TransparentScene::~TransparentScene(void) {}
 
 void TransparentScene::doInitialize()
 {

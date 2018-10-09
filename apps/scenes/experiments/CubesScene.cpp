@@ -31,9 +31,7 @@ CubesScene::CubesScene(const std::string& name)
 {
 }
 
-CubesScene::~CubesScene(void)
-{
-}
+CubesScene::~CubesScene(void) {}
 
 void CubesScene::doInitialize()
 {
@@ -55,9 +53,7 @@ void CubesScene::doInitialize()
     m_gpuKernel->getSceneInfo().nbRayIterations = 20;
 }
 
-void CubesScene::doAnimate()
-{
-}
+void CubesScene::doAnimate() {}
 
 void CubesScene::doAddLights()
 {

@@ -65,8 +65,6 @@
 // Ray-tracing Kernel
 solr::GPUKernel *gKernel = solr::SingletonKernel::kernel();
 
-using namespace solr;
-
 // General Settings
 const int TARGET_FPS = 60;
 const int REFRESH_DELAY = 1000 / TARGET_FPS; // ms
@@ -1323,7 +1321,7 @@ void createScene()
         break;
 #else
         gScene = new TesseractScene("Tesseract");
-//        gScene = new PerpetualMotionScene("Perpetual Motion");
+        //        gScene = new PerpetualMotionScene("Perpetual Motion");
         break;
 #endif
     }

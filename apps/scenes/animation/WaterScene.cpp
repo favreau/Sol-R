@@ -33,9 +33,7 @@ WaterScene::WaterScene(const std::string& name)
 {
 }
 
-WaterScene::~WaterScene(void)
-{
-}
+WaterScene::~WaterScene(void) {}
 
 vec3f WaterScene::F(float x, float z, float stepX, float stepZ)
 {
@@ -98,8 +96,10 @@ void WaterScene::processCurve(bool update)
                     // Normal
                     const vec3f P1p = F(x + X + step, z + Z, X / 2.f, Z / 2.f);
                     const vec3f P3p = F(x + X, z + Z + step, X / 2.f, Z / 2.f);
-                    vec3f v1 = make_vec3f(P1p.x - vertices[index].x, P1p.y - vertices[index].y, P1p.z - vertices[index].z);
-                    vec3f v3 = make_vec3f(P3p.x - vertices[index].x, P3p.y - vertices[index].y, P3p.z - vertices[index].z);
+                    vec3f v1 =
+                        make_vec3f(P1p.x - vertices[index].x, P1p.y - vertices[index].y, P1p.z - vertices[index].z);
+                    vec3f v3 =
+                        make_vec3f(P3p.x - vertices[index].x, P3p.y - vertices[index].y, P3p.z - vertices[index].z);
                     m_gpuKernel->normalizeVector(v1);
                     m_gpuKernel->normalizeVector(v3);
                     verticesNormals[index] = m_gpuKernel->crossProduct(v1, v3);

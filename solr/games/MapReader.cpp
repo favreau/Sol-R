@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vector>
 
-#include "../Consts.h"
+#include "../consts.h"
 #include "../Logging.h"
 
 #include "MapReader.h"

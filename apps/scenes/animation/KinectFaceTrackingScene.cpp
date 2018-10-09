@@ -30,17 +30,13 @@
 
 #pragma comment(lib, "FaceTrackLib.lib")
 
-using namespace solr;
-
 KinectFaceTrackingScene::KinectFaceTrackingScene(const std::string& name)
     : Scene(name)
     , m_faceTracker(nullptr)
 {
 }
 
-KinectFaceTrackingScene::~KinectFaceTrackingScene(void)
-{
-}
+KinectFaceTrackingScene::~KinectFaceTrackingScene(void) {}
 
 void KinectFaceTrackingScene::doInitialize()
 {

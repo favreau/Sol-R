@@ -30,7 +30,7 @@
 typedef char *HANDLE;
 #endif
 
-#include "DLL_API.h"
+#include "api.h"
 #include "engines/GPUKernel.h"
 
 // ---------- OpenCL ----------
@@ -66,7 +66,7 @@ extern "C" SOLR_API void SolR_SetCamera(double eye_x, double eye_y, double eye_z
                                         double dir_z, double angle_x, double angle_y, double angle_z);
 
 // ---------- Rendering ----------
-extern "C" SOLR_API int SolR_RunKernel(double timer, BitmapBuffer *image);
+extern "C" SOLR_API int SolR_RunKernel(double timer, solr::BitmapBuffer *image);
 
 // ---------- Primitives ----------
 extern "C" SOLR_API int SolR_AddPrimitive(int type, int movable);
@@ -129,7 +129,7 @@ extern "C" SOLR_API int SolR_GetLight(int index);
 extern "C" SOLR_API int SolR_LoadTextureFromFile(int index, char *filename);
 extern "C" SOLR_API int SolR_SetTexture(int index, HANDLE texture);
 extern "C" SOLR_API int SolR_GetTextureSize(int index, int &width, int &height, int &depth);
-extern "C" SOLR_API int SolR_GetTexture(int index, BitmapBuffer *image);
+extern "C" SOLR_API int SolR_GetTexture(int index, solr::BitmapBuffer *image);
 extern "C" SOLR_API int SolR_GetNbTextures(int &nbTextures);
 
 // ---------- Molecules ----------

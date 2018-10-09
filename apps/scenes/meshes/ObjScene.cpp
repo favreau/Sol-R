@@ -35,9 +35,7 @@ ObjScene::ObjScene(const std::string& name, const std::string& filename)
     m_groundHeight = -2500.f;
 }
 
-ObjScene::~ObjScene(void)
-{
-}
+ObjScene::~ObjScene(void) {}
 
 void ObjScene::doInitialize()
 {
@@ -49,7 +47,7 @@ void ObjScene::doInitialize()
 
     // Scene Bounding Box
     SceneInfo& sceneInfo = m_gpuKernel->getSceneInfo();
-    solr::CPUBoundingBox AABB;
+    CPUBoundingBox AABB;
     AABB.parameters[0].x = sceneInfo.viewDistance;
     AABB.parameters[0].y = sceneInfo.viewDistance;
     AABB.parameters[0].z = sceneInfo.viewDistance;
@@ -60,10 +58,10 @@ void ObjScene::doInitialize()
     if (m_filename.length() != 0)
     {
         LOG_INFO(1, "Loading " << m_filename);
-        solr::OBJReader objectReader;
-        solr::CPUBoundingBox aabb;
-        solr::CPUBoundingBox inAABB;
-        memset(&inAABB, 0, sizeof(solr::CPUBoundingBox));
+        OBJReader objectReader;
+        CPUBoundingBox aabb;
+        CPUBoundingBox inAABB;
+        memset(&inAABB, 0, sizeof(CPUBoundingBox));
         vec4f size = objectReader.loadModelFromFile(m_filename, *m_gpuKernel, objectPosition, true, m_objectScale, true,
                                                     RANDOM_MATERIALS_OFFSET, false, true, aabb, false, inAABB);
         m_groundHeight = -size.y / 2.f - sceneInfo.geometryEpsilon;
@@ -76,10 +74,10 @@ void ObjScene::doInitialize()
         if (!fileNames.empty())
         {
             m_filename = fileNames[m_currentModel % fileNames.size()];
-            solr::OBJReader objectReader;
-            solr::CPUBoundingBox aabb;
-            solr::CPUBoundingBox inAABB;
-            memset(&inAABB, 0, sizeof(solr::CPUBoundingBox));
+            OBJReader objectReader;
+            CPUBoundingBox aabb;
+            CPUBoundingBox inAABB;
+            memset(&inAABB, 0, sizeof(CPUBoundingBox));
             vec4f size = objectReader.loadModelFromFile(m_filename, *m_gpuKernel, objectPosition, true, m_objectScale,
                                                         true, 1000, false, true, aabb, false, inAABB);
             m_groundHeight = -size.y / 2.f - sceneInfo.geometryEpsilon * 10.f;
@@ -87,13 +85,9 @@ void ObjScene::doInitialize()
     }
 }
 
-void ObjScene::doPostInitialize()
-{
-}
+void ObjScene::doPostInitialize() {}
 
-void ObjScene::doAnimate()
-{
-}
+void ObjScene::doAnimate() {}
 
 void ObjScene::doAddLights()
 {

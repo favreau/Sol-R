@@ -35,9 +35,7 @@ GalleryScene::GalleryScene(const std::string& name)
     m_groundHeight = -2500.f;
 }
 
-GalleryScene::~GalleryScene(void)
-{
-}
+GalleryScene::~GalleryScene(void) {}
 
 void GalleryScene::doInitialize()
 {

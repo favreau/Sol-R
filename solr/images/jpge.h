@@ -4,7 +4,7 @@
 #ifndef JPEG_ENCODER_H
 #define JPEG_ENCODER_H
 
-#include "../DLL_API.h"
+#include "../api.h"
 
 namespace jpge
 {

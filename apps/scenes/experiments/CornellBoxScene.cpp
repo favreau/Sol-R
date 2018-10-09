@@ -31,9 +31,7 @@ CornellBoxScene::CornellBoxScene(const std::string& name)
 {
 }
 
-CornellBoxScene::~CornellBoxScene(void)
-{
-}
+CornellBoxScene::~CornellBoxScene(void) {}
 
 void CornellBoxScene::doInitialize()
 {

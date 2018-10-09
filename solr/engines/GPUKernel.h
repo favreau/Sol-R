@@ -20,9 +20,8 @@
 
 #pragma once
 
-#include "types.h"
-
-#include "DLL_API.h"
+#include "solr.h"
+#include "api.h"
 
 #ifdef WIN32
 #ifdef USE_KINECT
@@ -43,39 +42,6 @@
 
 namespace solr
 {
-struct CPUPrimitive
-{
-    bool belongsToModel;
-    bool movable;
-    vec3f p0;
-    vec3f p1;
-    vec3f p2;
-    vec3f n0;
-    vec3f n1;
-    vec3f n2;
-    vec3f size;
-    int type;
-    int materialId;
-    vec2f vt0; // Texture coordinates
-    vec2f vt1;
-    vec2f vt2;
-    vec3f speed0;
-    vec3f speed1;
-    vec3f speed2;
-};
-
-struct CPUBoundingBox
-{
-    vec3f parameters[2];
-    vec3f center;
-    std::vector<long> primitives;
-    long indexForNextBox;
-};
-
-typedef std::map<unsigned int, CPUBoundingBox> BoxContainer;
-typedef std::map<unsigned int, CPUPrimitive> PrimitiveContainer;
-typedef std::map<unsigned int, Lamp> LampContainer;
-
 class SOLR_API GPUKernel
 {
 public:
@@ -453,4 +419,4 @@ private:
 public:
     static GPUKernel *kernel();
 };
-}
+} // namespace solr

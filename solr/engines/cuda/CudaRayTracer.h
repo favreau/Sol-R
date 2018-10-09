@@ -20,7 +20,9 @@
 
 #pragma once
 
-#include <types.h>
+#include <solr.h>
+
+using namespace solr;
 
 extern "C" void initialize_scene(vec2i occupancyParameters, SceneInfo sceneInfo, int nbPrimitives, int nbLamps,
                                  int nbMaterials
@@ -28,14 +30,14 @@ extern "C" void initialize_scene(vec2i occupancyParameters, SceneInfo sceneInfo,
                                  ,
                                  BoundingBox *&boundingBoxes, Primitive *&primitives
 #endif
-                                 );
+);
 
 extern "C" void finalize_scene(vec2i occupancyParameters
 #ifdef USE_MANAGED_MEMORY
                                ,
                                BoundingBox *boundingBoxes, Primitive *primitives
 #endif
-                               );
+);
 
 extern "C" void reshape_scene(vec2i occupancyParameters, SceneInfo sceneInfo);
 
@@ -60,7 +62,7 @@ extern "C" void cudaRender(vec2i occupancyParameters, vec4i blockSize, SceneInfo
                            ,
                            BoundingBox *boundingBoxes, Primitive *primitives
 #endif
-                           );
+);
 
 #ifdef USE_KINECT
 extern "C" void h2d_kinect(vec2i occupancyParameters, BitmapBuffer *video, BitmapBuffer *depth);

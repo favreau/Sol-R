@@ -31,9 +31,7 @@ CylinderScene::CylinderScene(const std::string& name)
 {
 }
 
-CylinderScene::~CylinderScene(void)
-{
-}
+CylinderScene::~CylinderScene(void) {}
 
 /*
 ________________________________________________________________________________

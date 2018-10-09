@@ -33,9 +33,7 @@ DoggyStyleScene::DoggyStyleScene(const std::string& name)
 {
 }
 
-DoggyStyleScene::~DoggyStyleScene(void)
-{
-}
+DoggyStyleScene::~DoggyStyleScene(void) {}
 
 void DoggyStyleScene::doInitialize()
 {
@@ -47,9 +45,7 @@ void DoggyStyleScene::doInitialize()
     m_gpuKernel->rotatePrimitives(center, angles);
 }
 
-void DoggyStyleScene::doAnimate()
-{
-}
+void DoggyStyleScene::doAnimate() {}
 
 void DoggyStyleScene::doAddLights()
 {

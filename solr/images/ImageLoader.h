@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include <Consts.h>
+#include <consts.h>
 #include <map>
-#include <types.h>
+#include <solr.h>
 
 namespace solr
 {
