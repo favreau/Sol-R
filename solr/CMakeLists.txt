@@ -52,10 +52,10 @@ if (CUDA_FOUND)
             --compiler-options "-fPIC"
             --maxrregcount=32
             --use_fast_math
-            -gencode=arch=compute_30,code=sm_30
-            -gencode=arch=compute_35,code=sm_35
-            -gencode=arch=compute_50,code=sm_50
             -gencode=arch=compute_52,code=sm_52
+            -gencode=arch=compute_60,code=sm_60
+            -gencode=arch=compute_70,code=sm_70
+            -gencode=arch=compute_80,code=sm_80
             )
     else(UNIX)
         CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS 3.0 3.5 5.0 5.2 6.0 6.1)
