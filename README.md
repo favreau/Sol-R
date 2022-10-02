@@ -1,14 +1,20 @@
 [![Build Status](https://travis-ci.org/favreau/Sol-R.svg?branch=master)](https://travis-ci.org/favreau/Sol-R)
 
-### Introduction
+# Welcome to Sol-R, the Speed Of Light Ray-tracer
+
+## Note about the Blue Brain BioExplorer, a Sol-R sequel
+
+If you like Sol-R, but you think it's now getting a bit old, you will love my new open-source, the [Blue Brain BioExplorer](https://github.com/BlueBrain/BioExplorer). Check-it out and star the GitHub Repository to support the project.
+
+## Introduction
 Sol-R is a CUDA/OpenCL-based realtime ray-tracer compatible with Oculus Rift DK1, Kinect, Razor Hydra and Leap Motion devices.
-Sol-R was used by the Interactive Molecular Visualiser project (http://www.molecular-visualization.com)
+Sol-R was used by the Interactive Molecular Visualizer project (http://www.molecular-visualization.com)
 
 A number of videos can be found on my channel: https://www.youtube.com/user/CyrilleOnDrums
 
 Sol-R was written as a hobby project in order to understand and learn more about CUDA and OpenCL. Most of the code was written at night and during week-ends, meaning that it's probably not the best quality ever ;-)
 
-The idea was to produce a Ray-Tracer that has its own "personality". Most of the code does not rely on any litterature about ray-tracing, but more on a naive approach of what rays could be used for. The idea was not to produce a physically based ray-tracer, but a simple engine that could produce cool images interactively.
+The idea was to produce a Ray-Tracer that has its own "personality". Most of the code does not rely on any literature about ray-tracing, but more on a naive approach of what rays could be used for. A simple engine that could produce cool images interactively.
 
 Take it for what it is! Sol-R is a lot of fun to play with if you like coding computer generated images.
 
@@ -18,21 +24,21 @@ May the fun continue with your contributions! :-)
 usage: solrViewer
 ```
 
-### Prerequeries
+## Prerequeries
 
-#### Mandatory
+### Mandatory
 - CMake 3.5
 - Glew 2.x
 - Glut 3.7
 - Cuda 8.0 or OpenCL 1.2
 
-#### Optional
+### Optional
 - Kinect SDK 1.8
 - Oculus Rift DK1 SDK 0.2.5
 - Sixense SDK
 - Leap SDK 3.2.0
 
-### Build
+## Build from source
 ```
 mkdir Build
 cd Build
@@ -41,7 +47,7 @@ make install
 ```
 Note that the installation process with deploy extra files that are needed by the Sol-R viewer. Typically, textures, environment maps and OpenCL kernels. Therefore, it is required to run the solrViewer application from the installation folder.
 
-### Run
+## Run
 ```
 <installation-folder>/bin/solrViewer
 ```
