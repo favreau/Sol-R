@@ -42,13 +42,16 @@ public:
 
 public:
     // BITMAP
-    bool loadBMP24(const int index, const std::string &filename, TextureInfo *textureInformations);
+    bool loadBMP24(const int index, const std::string &filename,
+                   TextureInfo *textureInformations);
 
     // JPEG
     // https://code.google.com/p/jpeg-compressor
-    bool loadJPEG(const int index, const std::string &filename, TextureInfo *textureInformations);
+    bool loadJPEG(const int index, const std::string &filename,
+                  TextureInfo *textureInformations);
 
     // TGA
-    bool loadTGA(const int index, const std::string &filename, TextureInfo *textureInformations);
+    bool loadTGA(const int index, const std::string &filename,
+                 TextureInfo *textureInformations);
 };
-}
+} // namespace solr

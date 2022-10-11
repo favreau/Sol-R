@@ -1,13 +1,15 @@
 ﻿// jpgd.cpp - C++ class for JPEG decompression.
 // Public domain, Rich Geldreich <richgel99@gmail.com>
 // Alex Evans: Linear memory allocator (taken from jpge.h).
-// v1.04, May. 19, 2012: Code tweaks to fix VS2008 static code analysis warnings (all looked harmless)
+// v1.04, May. 19, 2012: Code tweaks to fix VS2008 static code analysis warnings
+// (all looked harmless)
 //
-// Supports progressive and baseline sequential JPEG image files, and the most common chroma subsampling factors: Y,
-// H1V1, H2V1, H1V2, and H2V2.
+// Supports progressive and baseline sequential JPEG image files, and the most
+// common chroma subsampling factors: Y, H1V1, H2V1, H1V2, and H2V2.
 //
-// Chroma upsampling quality: H2V2 is upsampled in the frequency domain, H2V1 and H1V2 are upsampled using point
-// sampling. Chroma upsampling reference: "Fast Scheme for Image Size Change in the Compressed Domain"
+// Chroma upsampling quality: H2V2 is upsampled in the frequency domain, H2V1
+// and H1V2 are upsampled using point sampling. Chroma upsampling reference:
+// "Fast Scheme for Image Size Change in the Compressed Domain"
 // http://vision.ai.uiuc.edu/~dugad/research/dct/index.html
 
 #include "jpgd.h"
@@ -17,12 +19,13 @@
 #define JPGD_ASSERT(x) assert(x)
 
 #ifdef _MSC_VER
-#pragma warning( \
-    disable : 4611) // warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable
+#pragma warning(disable : 4611) // warning C4611: interaction between '_setjmp'
+                                // and C++ object destruction is non-portable
 #endif
 
-// Set to 1 to enable freq. domain chroma upsampling on images using H2V2 subsampling (0=faster nearest neighbor
-// sampling). This is slower, but results in higher quality on images with highly saturated colors.
+// Set to 1 to enable freq. domain chroma upsampling on images using H2V2
+// subsampling (0=faster nearest neighbor sampling). This is slower, but results
+// in higher quality on images with highly saturated colors.
 #define JPGD_SUPPORT_FREQ_DOMAIN_UPSAMPLING 1
 
 #define JPGD_TRUE (1)
@@ -43,9 +46,11 @@ static inline void jpgd_free(void *p)
 }
 
 // DCT coefficients are stored in this sequence.
-static int g_ZAG[64] = {0,  1,  8,  16, 9,  2,  3,  10, 17, 24, 32, 25, 18, 11, 4,  5,  12, 19, 26, 33, 40, 48,
-                        41, 34, 27, 20, 13, 6,  7,  14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23,
-                        30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
+static int g_ZAG[64] = {0,  1,  8,  16, 9,  2,  3,  10, 17, 24, 32, 25, 18,
+                        11, 4,  5,  12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
+                        13, 6,  7,  14, 21, 28, 35, 42, 49, 56, 57, 50, 43,
+                        36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45,
+                        38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
 
 enum JPEG_MARKER
 {
@@ -118,7 +123,8 @@ enum JPEG_SUBSAMPLING
 #define FIX_3_072711026 ((int32)25172) /* FIX(3.072711026) */
 
 #define DESCALE(x, n) (((x) + (SCALEDONE << ((n)-1))) >> (n))
-#define DESCALE_ZEROSHIFT(x, n) (((x) + (128 << (n)) + (SCALEDONE << ((n)-1))) >> (n))
+#define DESCALE_ZEROSHIFT(x, n) \
+    (((x) + (128 << (n)) + (SCALEDONE << ((n)-1))) >> (n))
 
 #define MULTIPLY(var, cnst) ((var) * (cnst))
 
@@ -130,7 +136,8 @@ struct Row
 {
     static void idct(int *pTemp, const jpgd_block_t *pSrc)
     {
-// ACCESS_COL() will be optimized at compile time to either an array access, or 0.
+// ACCESS_COL() will be optimized at compile time to either an array access, or
+// 0.
 #define ACCESS_COL(x) (((x) < NONZERO_COLS) ? (int)pSrc[x] : 0)
 
         const int z2 = ACCESS_COL(2), z3 = ACCESS_COL(6);
@@ -142,11 +149,14 @@ struct Row
         const int tmp0 = (ACCESS_COL(0) + ACCESS_COL(4)) << CONST_BITS;
         const int tmp1 = (ACCESS_COL(0) - ACCESS_COL(4)) << CONST_BITS;
 
-        const int tmp10 = tmp0 + tmp3, tmp13 = tmp0 - tmp3, tmp11 = tmp1 + tmp2, tmp12 = tmp1 - tmp2;
+        const int tmp10 = tmp0 + tmp3, tmp13 = tmp0 - tmp3, tmp11 = tmp1 + tmp2,
+                  tmp12 = tmp1 - tmp2;
 
-        const int atmp0 = ACCESS_COL(7), atmp1 = ACCESS_COL(5), atmp2 = ACCESS_COL(3), atmp3 = ACCESS_COL(1);
+        const int atmp0 = ACCESS_COL(7), atmp1 = ACCESS_COL(5),
+                  atmp2 = ACCESS_COL(3), atmp3 = ACCESS_COL(1);
 
-        const int bz1 = atmp0 + atmp3, bz2 = atmp1 + atmp2, bz3 = atmp0 + atmp2, bz4 = atmp1 + atmp3;
+        const int bz1 = atmp0 + atmp3, bz2 = atmp1 + atmp2, bz3 = atmp0 + atmp2,
+                  bz4 = atmp1 + atmp3;
         const int bz5 = MULTIPLY(bz3 + bz4, FIX_1_175875602);
 
         const int az1 = MULTIPLY(bz1, -FIX_0_899976223);
@@ -206,7 +216,8 @@ struct Col
 {
     static void idct(uint8 *pDst_ptr, const int *pTemp)
     {
-// ACCESS_ROW() will be optimized at compile time to either an array access, or 0.
+// ACCESS_ROW() will be optimized at compile time to either an array access, or
+// 0.
 #define ACCESS_ROW(x) (((x) < NONZERO_ROWS) ? pTemp[x * 8] : 0)
 
         const int z2 = ACCESS_ROW(2);
@@ -219,11 +230,14 @@ struct Col
         const int tmp0 = (ACCESS_ROW(0) + ACCESS_ROW(4)) << CONST_BITS;
         const int tmp1 = (ACCESS_ROW(0) - ACCESS_ROW(4)) << CONST_BITS;
 
-        const int tmp10 = tmp0 + tmp3, tmp13 = tmp0 - tmp3, tmp11 = tmp1 + tmp2, tmp12 = tmp1 - tmp2;
+        const int tmp10 = tmp0 + tmp3, tmp13 = tmp0 - tmp3, tmp11 = tmp1 + tmp2,
+                  tmp12 = tmp1 - tmp2;
 
-        const int atmp0 = ACCESS_ROW(7), atmp1 = ACCESS_ROW(5), atmp2 = ACCESS_ROW(3), atmp3 = ACCESS_ROW(1);
+        const int atmp0 = ACCESS_ROW(7), atmp1 = ACCESS_ROW(5),
+                  atmp2 = ACCESS_ROW(3), atmp3 = ACCESS_ROW(1);
 
-        const int bz1 = atmp0 + atmp3, bz2 = atmp1 + atmp2, bz3 = atmp0 + atmp2, bz4 = atmp1 + atmp3;
+        const int bz1 = atmp0 + atmp3, bz2 = atmp1 + atmp2, bz3 = atmp0 + atmp2,
+                  bz4 = atmp1 + atmp3;
         const int bz5 = MULTIPLY(bz3 + bz4, FIX_1_175875602);
 
         const int az1 = MULTIPLY(bz1, -FIX_0_899976223);
@@ -281,25 +295,34 @@ struct Col<1>
 };
 
 static const uint8 s_idct_row_table[] = {
-    1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 2, 2, 1, 0, 0,
-    0, 0, 0, 3, 2, 1, 0, 0, 0, 0, 0, 4, 2, 1, 0, 0, 0, 0, 0, 4, 3, 1, 0, 0, 0, 0, 0, 4, 3, 2, 0, 0, 0, 0, 0, 4, 3,
-    2, 1, 0, 0, 0, 0, 4, 3, 2, 1, 1, 0, 0, 0, 4, 3, 2, 2, 1, 0, 0, 0, 4, 3, 3, 2, 1, 0, 0, 0, 4, 4, 3, 2, 1, 0, 0,
-    0, 5, 4, 3, 2, 1, 0, 0, 0, 6, 4, 3, 2, 1, 0, 0, 0, 6, 5, 3, 2, 1, 0, 0, 0, 6, 5, 4, 2, 1, 0, 0, 0, 6, 5, 4, 3,
-    1, 0, 0, 0, 6, 5, 4, 3, 2, 0, 0, 0, 6, 5, 4, 3, 2, 1, 0, 0, 6, 5, 4, 3, 2, 1, 1, 0, 6, 5, 4, 3, 2, 2, 1, 0, 6,
-    5, 4, 3, 3, 2, 1, 0, 6, 5, 4, 4, 3, 2, 1, 0, 6, 5, 5, 4, 3, 2, 1, 0, 6, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2,
-    1, 0, 8, 6, 5, 4, 3, 2, 1, 0, 8, 7, 5, 4, 3, 2, 1, 0, 8, 7, 6, 4, 3, 2, 1, 0, 8, 7, 6, 5, 3, 2, 1, 0, 8, 7, 6,
-    5, 4, 2, 1, 0, 8, 7, 6, 5, 4, 3, 1, 0, 8, 7, 6, 5, 4, 3, 2, 0, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 2,
-    8, 7, 6, 5, 4, 3, 3, 2, 8, 7, 6, 5, 4, 4, 3, 2, 8, 7, 6, 5, 5, 4, 3, 2, 8, 7, 6, 6, 5, 4, 3, 2, 8, 7, 7, 6, 5,
-    4, 3, 2, 8, 8, 7, 6, 5, 4, 3, 2, 8, 8, 8, 6, 5, 4, 3, 2, 8, 8, 8, 7, 5, 4, 3, 2, 8, 8, 8, 7, 6, 4, 3, 2, 8, 8,
-    8, 7, 6, 5, 3, 2, 8, 8, 8, 7, 6, 5, 4, 2, 8, 8, 8, 7, 6, 5, 4, 3, 8, 8, 8, 7, 6, 5, 4, 4, 8, 8, 8, 7, 6, 5, 5,
-    4, 8, 8, 8, 7, 6, 6, 5, 4, 8, 8, 8, 7, 7, 6, 5, 4, 8, 8, 8, 8, 7, 6, 5, 4, 8, 8, 8, 8, 8, 6, 5, 4, 8, 8, 8, 8,
-    8, 7, 5, 4, 8, 8, 8, 8, 8, 7, 6, 4, 8, 8, 8, 8, 8, 7, 6, 5, 8, 8, 8, 8, 8, 7, 6, 6, 8, 8, 8, 8, 8, 7, 7, 6, 8,
-    8, 8, 8, 8, 8, 7, 6, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8,
+    1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 2,
+    1, 1, 0, 0, 0, 0, 0, 2, 2, 1, 0, 0, 0, 0, 0, 3, 2, 1, 0, 0, 0, 0, 0, 4, 2,
+    1, 0, 0, 0, 0, 0, 4, 3, 1, 0, 0, 0, 0, 0, 4, 3, 2, 0, 0, 0, 0, 0, 4, 3, 2,
+    1, 0, 0, 0, 0, 4, 3, 2, 1, 1, 0, 0, 0, 4, 3, 2, 2, 1, 0, 0, 0, 4, 3, 3, 2,
+    1, 0, 0, 0, 4, 4, 3, 2, 1, 0, 0, 0, 5, 4, 3, 2, 1, 0, 0, 0, 6, 4, 3, 2, 1,
+    0, 0, 0, 6, 5, 3, 2, 1, 0, 0, 0, 6, 5, 4, 2, 1, 0, 0, 0, 6, 5, 4, 3, 1, 0,
+    0, 0, 6, 5, 4, 3, 2, 0, 0, 0, 6, 5, 4, 3, 2, 1, 0, 0, 6, 5, 4, 3, 2, 1, 1,
+    0, 6, 5, 4, 3, 2, 2, 1, 0, 6, 5, 4, 3, 3, 2, 1, 0, 6, 5, 4, 4, 3, 2, 1, 0,
+    6, 5, 5, 4, 3, 2, 1, 0, 6, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 8,
+    6, 5, 4, 3, 2, 1, 0, 8, 7, 5, 4, 3, 2, 1, 0, 8, 7, 6, 4, 3, 2, 1, 0, 8, 7,
+    6, 5, 3, 2, 1, 0, 8, 7, 6, 5, 4, 2, 1, 0, 8, 7, 6, 5, 4, 3, 1, 0, 8, 7, 6,
+    5, 4, 3, 2, 0, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 2, 8, 7, 6, 5,
+    4, 3, 3, 2, 8, 7, 6, 5, 4, 4, 3, 2, 8, 7, 6, 5, 5, 4, 3, 2, 8, 7, 6, 6, 5,
+    4, 3, 2, 8, 7, 7, 6, 5, 4, 3, 2, 8, 8, 7, 6, 5, 4, 3, 2, 8, 8, 8, 6, 5, 4,
+    3, 2, 8, 8, 8, 7, 5, 4, 3, 2, 8, 8, 8, 7, 6, 4, 3, 2, 8, 8, 8, 7, 6, 5, 3,
+    2, 8, 8, 8, 7, 6, 5, 4, 2, 8, 8, 8, 7, 6, 5, 4, 3, 8, 8, 8, 7, 6, 5, 4, 4,
+    8, 8, 8, 7, 6, 5, 5, 4, 8, 8, 8, 7, 6, 6, 5, 4, 8, 8, 8, 7, 7, 6, 5, 4, 8,
+    8, 8, 8, 7, 6, 5, 4, 8, 8, 8, 8, 8, 6, 5, 4, 8, 8, 8, 8, 8, 7, 5, 4, 8, 8,
+    8, 8, 8, 7, 6, 4, 8, 8, 8, 8, 8, 7, 6, 5, 8, 8, 8, 8, 8, 7, 6, 6, 8, 8, 8,
+    8, 8, 7, 7, 6, 8, 8, 8, 8, 8, 8, 7, 6, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8,
+    8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8,
 };
 
-static const uint8 s_idct_col_table[] = {1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7,
-                                         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-                                         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+static const uint8 s_idct_col_table[] = {1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5,
+                                         5, 5, 5, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7,
+                                         7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8,
+                                         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+                                         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
 
 void idct(const jpgd_block_t *pSrc_ptr, uint8 *pDst_ptr, int block_max_zag)
 {
@@ -453,7 +476,8 @@ inline uint jpeg_decoder::get_char()
     return c;
 }
 
-// Same as previous method, except can indicate if the character is a pad character or not.
+// Same as previous method, except can indicate if the character is a pad
+// character or not.
 inline uint jpeg_decoder::get_char(bool *pPadding_flag)
 {
     if (!m_in_buf_left)
@@ -486,8 +510,8 @@ inline void jpeg_decoder::stuff_char(uint8 q)
     m_in_buf_left++;
 }
 
-// Retrieves one character from the input stream, but does not read past markers. Will continue to return 0xFF when a
-// marker is encountered.
+// Retrieves one character from the input stream, but does not read past
+// markers. Will continue to return 0xFF when a marker is encountered.
 inline uint8 jpeg_decoder::get_octet()
 {
     bool padding_flag;
@@ -518,7 +542,8 @@ inline uint8 jpeg_decoder::get_octet()
     return static_cast<uint8>(c);
 }
 
-// Retrieves a variable number of bits from the input stream. Does not recognize markers.
+// Retrieves a variable number of bits from the input stream. Does not recognize
+// markers.
 inline uint jpeg_decoder::get_bits(int num_bits)
 {
     if (!num_bits)
@@ -546,8 +571,9 @@ inline uint jpeg_decoder::get_bits(int num_bits)
     return i;
 }
 
-// Retrieves a variable number of bits from the input stream. Markers will not be read into the input bit buffer.
-// Instead, an infinite number of all 1's will be returned when a marker is encountered.
+// Retrieves a variable number of bits from the input stream. Markers will not
+// be read into the input bit buffer. Instead, an infinite number of all 1's
+// will be returned when a marker is encountered.
 inline uint jpeg_decoder::get_bits_no_markers(int num_bits)
 {
     if (!num_bits)
@@ -559,7 +585,8 @@ inline uint jpeg_decoder::get_bits_no_markers(int num_bits)
     {
         m_bit_buf <<= (num_bits += m_bits_left);
 
-        if ((m_in_buf_left < 2) || (m_pIn_buf_ofs[0] == 0xFF) || (m_pIn_buf_ofs[1] == 0xFF))
+        if ((m_in_buf_left < 2) || (m_pIn_buf_ofs[0] == 0xFF) ||
+            (m_pIn_buf_ofs[1] == 0xFF))
         {
             uint c1 = get_octet();
             uint c2 = get_octet();
@@ -630,7 +657,9 @@ inline int jpeg_decoder::huff_decode(huff_tables *pH, int &extra_bits)
     }
     else
     {
-        JPGD_ASSERT(((symbol >> 8) & 31) == pH->code_size[symbol & 255] + ((symbol & 0x8000) ? (symbol & 15) : 0));
+        JPGD_ASSERT(((symbol >> 8) & 31) ==
+                    pH->code_size[symbol & 255] +
+                        ((symbol & 0x8000) ? (symbol & 15) : 0));
 
         if (symbol & 0x8000)
         {
@@ -643,7 +672,8 @@ inline int jpeg_decoder::huff_decode(huff_tables *pH, int &extra_bits)
             int num_extra_bits = symbol & 0xF;
             int bits = code_size + num_extra_bits;
             if (bits <= (m_bits_left + 16))
-                extra_bits = get_bits_no_markers(bits) & ((1 << num_extra_bits) - 1);
+                extra_bits =
+                    get_bits_no_markers(bits) & ((1 << num_extra_bits) - 1);
             else
             {
                 get_bits_no_markers(code_size);
@@ -658,8 +688,10 @@ inline int jpeg_decoder::huff_decode(huff_tables *pH, int &extra_bits)
 }
 
 // Tables and macro used to fully decode the DPCM differences.
-static const int s_extend_test[16] = {0,      0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040,
-                                      0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x1000, 0x2000, 0x4000};
+static const int s_extend_test[16] = {0,      0x0001, 0x0002, 0x0004,
+                                      0x0008, 0x0010, 0x0020, 0x0040,
+                                      0x0080, 0x0100, 0x0200, 0x0400,
+                                      0x0800, 0x1000, 0x2000, 0x4000};
 static const int s_extend_offset[16] = {0,
                                         ((-1) << 1) + 1,
                                         ((-1) << 2) + 1,
@@ -676,9 +708,10 @@ static const int s_extend_offset[16] = {0,
                                         ((-1) << 13) + 1,
                                         ((-1) << 14) + 1,
                                         ((-1) << 15) + 1};
-// The logical AND's in this macro are to shut up static code analysis (aren't really necessary - couldn't find another
-// way to do this)
-#define JPGD_HUFF_EXTEND(x, s) (((x) < s_extend_test[s & 15]) ? ((x) + s_extend_offset[s & 15]) : (x))
+// The logical AND's in this macro are to shut up static code analysis (aren't
+// really necessary - couldn't find another way to do this)
+#define JPGD_HUFF_EXTEND(x, s) \
+    (((x) < s_extend_test[s & 15]) ? ((x) + s_extend_offset[s & 15]) : (x))
 
 // Clamps a value between 0-255.
 inline uint8 jpeg_decoder::clamp(int i)
@@ -760,25 +793,35 @@ struct Matrix44
         return ret;
     }
 
-    static inline void add_and_store(jpgd_block_t *pDst, const Matrix44 &a, const Matrix44 &b)
+    static inline void add_and_store(jpgd_block_t *pDst, const Matrix44 &a,
+                                     const Matrix44 &b)
     {
         for (int r = 0; r < 4; r++)
         {
-            pDst[0 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 0) + b.at(r, 0));
-            pDst[1 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 1) + b.at(r, 1));
-            pDst[2 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 2) + b.at(r, 2));
-            pDst[3 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 3) + b.at(r, 3));
+            pDst[0 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 0) + b.at(r, 0));
+            pDst[1 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 1) + b.at(r, 1));
+            pDst[2 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 2) + b.at(r, 2));
+            pDst[3 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 3) + b.at(r, 3));
         }
     }
 
-    static inline void sub_and_store(jpgd_block_t *pDst, const Matrix44 &a, const Matrix44 &b)
+    static inline void sub_and_store(jpgd_block_t *pDst, const Matrix44 &a,
+                                     const Matrix44 &b)
     {
         for (int r = 0; r < 4; r++)
         {
-            pDst[0 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 0) - b.at(r, 0));
-            pDst[1 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 1) - b.at(r, 1));
-            pDst[2 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 2) - b.at(r, 2));
-            pDst[3 * 8 + r] = static_cast<jpgd_block_t>(a.at(r, 3) - b.at(r, 3));
+            pDst[0 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 0) - b.at(r, 0));
+            pDst[1 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 1) - b.at(r, 1));
+            pDst[2 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 2) - b.at(r, 2));
+            pDst[3 * 8 + r] =
+                static_cast<jpgd_block_t>(a.at(r, 3) - b.at(r, 3));
         }
     }
 };
@@ -790,8 +833,10 @@ typedef int Temp_Type;
 #define D(i) (((i) + (SCALE >> 1)) >> FRACT_BITS)
 #define F(i) ((int)((i)*SCALE + .5f))
 
-// Any decent C++ compiler will optimize this at compile time to a 0, or an array access.
-#define AT(c, r) ((((c) >= NUM_COLS) || ((r) >= NUM_ROWS)) ? 0 : pSrc[(c) + (r)*8])
+// Any decent C++ compiler will optimize this at compile time to a 0, or an
+// array access.
+#define AT(c, r) \
+    ((((c) >= NUM_COLS) || ((r) >= NUM_ROWS)) ? 0 : pSrc[(c) + (r)*8])
 
 // NUM_ROWS/NUM_COLS = # of non-zero rows/cols in input matrix
 template <int NUM_ROWS, int NUM_COLS>
@@ -809,21 +854,29 @@ struct P_Q
         const Temp_Type X006 = AT(0, 6);
         const Temp_Type X007 = AT(0, 7);
         const Temp_Type X010 =
-            D(F(0.415735f) * AT(1, 0) + F(0.791065f) * AT(3, 0) + F(-0.352443f) * AT(5, 0) + F(0.277785f) * AT(7, 0));
+            D(F(0.415735f) * AT(1, 0) + F(0.791065f) * AT(3, 0) +
+              F(-0.352443f) * AT(5, 0) + F(0.277785f) * AT(7, 0));
         const Temp_Type X011 =
-            D(F(0.415735f) * AT(1, 1) + F(0.791065f) * AT(3, 1) + F(-0.352443f) * AT(5, 1) + F(0.277785f) * AT(7, 1));
+            D(F(0.415735f) * AT(1, 1) + F(0.791065f) * AT(3, 1) +
+              F(-0.352443f) * AT(5, 1) + F(0.277785f) * AT(7, 1));
         const Temp_Type X012 =
-            D(F(0.415735f) * AT(1, 2) + F(0.791065f) * AT(3, 2) + F(-0.352443f) * AT(5, 2) + F(0.277785f) * AT(7, 2));
+            D(F(0.415735f) * AT(1, 2) + F(0.791065f) * AT(3, 2) +
+              F(-0.352443f) * AT(5, 2) + F(0.277785f) * AT(7, 2));
         const Temp_Type X013 =
-            D(F(0.415735f) * AT(1, 3) + F(0.791065f) * AT(3, 3) + F(-0.352443f) * AT(5, 3) + F(0.277785f) * AT(7, 3));
+            D(F(0.415735f) * AT(1, 3) + F(0.791065f) * AT(3, 3) +
+              F(-0.352443f) * AT(5, 3) + F(0.277785f) * AT(7, 3));
         const Temp_Type X014 =
-            D(F(0.415735f) * AT(1, 4) + F(0.791065f) * AT(3, 4) + F(-0.352443f) * AT(5, 4) + F(0.277785f) * AT(7, 4));
+            D(F(0.415735f) * AT(1, 4) + F(0.791065f) * AT(3, 4) +
+              F(-0.352443f) * AT(5, 4) + F(0.277785f) * AT(7, 4));
         const Temp_Type X015 =
-            D(F(0.415735f) * AT(1, 5) + F(0.791065f) * AT(3, 5) + F(-0.352443f) * AT(5, 5) + F(0.277785f) * AT(7, 5));
+            D(F(0.415735f) * AT(1, 5) + F(0.791065f) * AT(3, 5) +
+              F(-0.352443f) * AT(5, 5) + F(0.277785f) * AT(7, 5));
         const Temp_Type X016 =
-            D(F(0.415735f) * AT(1, 6) + F(0.791065f) * AT(3, 6) + F(-0.352443f) * AT(5, 6) + F(0.277785f) * AT(7, 6));
+            D(F(0.415735f) * AT(1, 6) + F(0.791065f) * AT(3, 6) +
+              F(-0.352443f) * AT(5, 6) + F(0.277785f) * AT(7, 6));
         const Temp_Type X017 =
-            D(F(0.415735f) * AT(1, 7) + F(0.791065f) * AT(3, 7) + F(-0.352443f) * AT(5, 7) + F(0.277785f) * AT(7, 7));
+            D(F(0.415735f) * AT(1, 7) + F(0.791065f) * AT(3, 7) +
+              F(-0.352443f) * AT(5, 7) + F(0.277785f) * AT(7, 7));
         const Temp_Type X020 = AT(4, 0);
         const Temp_Type X021 = AT(4, 1);
         const Temp_Type X022 = AT(4, 2);
@@ -833,57 +886,81 @@ struct P_Q
         const Temp_Type X026 = AT(4, 6);
         const Temp_Type X027 = AT(4, 7);
         const Temp_Type X030 =
-            D(F(0.022887f) * AT(1, 0) + F(-0.097545f) * AT(3, 0) + F(0.490393f) * AT(5, 0) + F(0.865723f) * AT(7, 0));
+            D(F(0.022887f) * AT(1, 0) + F(-0.097545f) * AT(3, 0) +
+              F(0.490393f) * AT(5, 0) + F(0.865723f) * AT(7, 0));
         const Temp_Type X031 =
-            D(F(0.022887f) * AT(1, 1) + F(-0.097545f) * AT(3, 1) + F(0.490393f) * AT(5, 1) + F(0.865723f) * AT(7, 1));
+            D(F(0.022887f) * AT(1, 1) + F(-0.097545f) * AT(3, 1) +
+              F(0.490393f) * AT(5, 1) + F(0.865723f) * AT(7, 1));
         const Temp_Type X032 =
-            D(F(0.022887f) * AT(1, 2) + F(-0.097545f) * AT(3, 2) + F(0.490393f) * AT(5, 2) + F(0.865723f) * AT(7, 2));
+            D(F(0.022887f) * AT(1, 2) + F(-0.097545f) * AT(3, 2) +
+              F(0.490393f) * AT(5, 2) + F(0.865723f) * AT(7, 2));
         const Temp_Type X033 =
-            D(F(0.022887f) * AT(1, 3) + F(-0.097545f) * AT(3, 3) + F(0.490393f) * AT(5, 3) + F(0.865723f) * AT(7, 3));
+            D(F(0.022887f) * AT(1, 3) + F(-0.097545f) * AT(3, 3) +
+              F(0.490393f) * AT(5, 3) + F(0.865723f) * AT(7, 3));
         const Temp_Type X034 =
-            D(F(0.022887f) * AT(1, 4) + F(-0.097545f) * AT(3, 4) + F(0.490393f) * AT(5, 4) + F(0.865723f) * AT(7, 4));
+            D(F(0.022887f) * AT(1, 4) + F(-0.097545f) * AT(3, 4) +
+              F(0.490393f) * AT(5, 4) + F(0.865723f) * AT(7, 4));
         const Temp_Type X035 =
-            D(F(0.022887f) * AT(1, 5) + F(-0.097545f) * AT(3, 5) + F(0.490393f) * AT(5, 5) + F(0.865723f) * AT(7, 5));
+            D(F(0.022887f) * AT(1, 5) + F(-0.097545f) * AT(3, 5) +
+              F(0.490393f) * AT(5, 5) + F(0.865723f) * AT(7, 5));
         const Temp_Type X036 =
-            D(F(0.022887f) * AT(1, 6) + F(-0.097545f) * AT(3, 6) + F(0.490393f) * AT(5, 6) + F(0.865723f) * AT(7, 6));
+            D(F(0.022887f) * AT(1, 6) + F(-0.097545f) * AT(3, 6) +
+              F(0.490393f) * AT(5, 6) + F(0.865723f) * AT(7, 6));
         const Temp_Type X037 =
-            D(F(0.022887f) * AT(1, 7) + F(-0.097545f) * AT(3, 7) + F(0.490393f) * AT(5, 7) + F(0.865723f) * AT(7, 7));
+            D(F(0.022887f) * AT(1, 7) + F(-0.097545f) * AT(3, 7) +
+              F(0.490393f) * AT(5, 7) + F(0.865723f) * AT(7, 7));
 
         // 4x4 = 4x8 times 8x4, matrix 1 is constant
         P.at(0, 0) = X000;
-        P.at(0, 1) = D(X001 * F(0.415735f) + X003 * F(0.791065f) + X005 * F(-0.352443f) + X007 * F(0.277785f));
+        P.at(0, 1) = D(X001 * F(0.415735f) + X003 * F(0.791065f) +
+                       X005 * F(-0.352443f) + X007 * F(0.277785f));
         P.at(0, 2) = X004;
-        P.at(0, 3) = D(X001 * F(0.022887f) + X003 * F(-0.097545f) + X005 * F(0.490393f) + X007 * F(0.865723f));
+        P.at(0, 3) = D(X001 * F(0.022887f) + X003 * F(-0.097545f) +
+                       X005 * F(0.490393f) + X007 * F(0.865723f));
         P.at(1, 0) = X010;
-        P.at(1, 1) = D(X011 * F(0.415735f) + X013 * F(0.791065f) + X015 * F(-0.352443f) + X017 * F(0.277785f));
+        P.at(1, 1) = D(X011 * F(0.415735f) + X013 * F(0.791065f) +
+                       X015 * F(-0.352443f) + X017 * F(0.277785f));
         P.at(1, 2) = X014;
-        P.at(1, 3) = D(X011 * F(0.022887f) + X013 * F(-0.097545f) + X015 * F(0.490393f) + X017 * F(0.865723f));
+        P.at(1, 3) = D(X011 * F(0.022887f) + X013 * F(-0.097545f) +
+                       X015 * F(0.490393f) + X017 * F(0.865723f));
         P.at(2, 0) = X020;
-        P.at(2, 1) = D(X021 * F(0.415735f) + X023 * F(0.791065f) + X025 * F(-0.352443f) + X027 * F(0.277785f));
+        P.at(2, 1) = D(X021 * F(0.415735f) + X023 * F(0.791065f) +
+                       X025 * F(-0.352443f) + X027 * F(0.277785f));
         P.at(2, 2) = X024;
-        P.at(2, 3) = D(X021 * F(0.022887f) + X023 * F(-0.097545f) + X025 * F(0.490393f) + X027 * F(0.865723f));
+        P.at(2, 3) = D(X021 * F(0.022887f) + X023 * F(-0.097545f) +
+                       X025 * F(0.490393f) + X027 * F(0.865723f));
         P.at(3, 0) = X030;
-        P.at(3, 1) = D(X031 * F(0.415735f) + X033 * F(0.791065f) + X035 * F(-0.352443f) + X037 * F(0.277785f));
+        P.at(3, 1) = D(X031 * F(0.415735f) + X033 * F(0.791065f) +
+                       X035 * F(-0.352443f) + X037 * F(0.277785f));
         P.at(3, 2) = X034;
-        P.at(3, 3) = D(X031 * F(0.022887f) + X033 * F(-0.097545f) + X035 * F(0.490393f) + X037 * F(0.865723f));
+        P.at(3, 3) = D(X031 * F(0.022887f) + X033 * F(-0.097545f) +
+                       X035 * F(0.490393f) + X037 * F(0.865723f));
         // 40 muls 24 adds
 
         // 4x4 = 4x8 times 8x4, matrix 1 is constant
-        Q.at(0, 0) = D(X001 * F(0.906127f) + X003 * F(-0.318190f) + X005 * F(0.212608f) + X007 * F(-0.180240f));
+        Q.at(0, 0) = D(X001 * F(0.906127f) + X003 * F(-0.318190f) +
+                       X005 * F(0.212608f) + X007 * F(-0.180240f));
         Q.at(0, 1) = X002;
-        Q.at(0, 2) = D(X001 * F(-0.074658f) + X003 * F(0.513280f) + X005 * F(0.768178f) + X007 * F(-0.375330f));
+        Q.at(0, 2) = D(X001 * F(-0.074658f) + X003 * F(0.513280f) +
+                       X005 * F(0.768178f) + X007 * F(-0.375330f));
         Q.at(0, 3) = X006;
-        Q.at(1, 0) = D(X011 * F(0.906127f) + X013 * F(-0.318190f) + X015 * F(0.212608f) + X017 * F(-0.180240f));
+        Q.at(1, 0) = D(X011 * F(0.906127f) + X013 * F(-0.318190f) +
+                       X015 * F(0.212608f) + X017 * F(-0.180240f));
         Q.at(1, 1) = X012;
-        Q.at(1, 2) = D(X011 * F(-0.074658f) + X013 * F(0.513280f) + X015 * F(0.768178f) + X017 * F(-0.375330f));
+        Q.at(1, 2) = D(X011 * F(-0.074658f) + X013 * F(0.513280f) +
+                       X015 * F(0.768178f) + X017 * F(-0.375330f));
         Q.at(1, 3) = X016;
-        Q.at(2, 0) = D(X021 * F(0.906127f) + X023 * F(-0.318190f) + X025 * F(0.212608f) + X027 * F(-0.180240f));
+        Q.at(2, 0) = D(X021 * F(0.906127f) + X023 * F(-0.318190f) +
+                       X025 * F(0.212608f) + X027 * F(-0.180240f));
         Q.at(2, 1) = X022;
-        Q.at(2, 2) = D(X021 * F(-0.074658f) + X023 * F(0.513280f) + X025 * F(0.768178f) + X027 * F(-0.375330f));
+        Q.at(2, 2) = D(X021 * F(-0.074658f) + X023 * F(0.513280f) +
+                       X025 * F(0.768178f) + X027 * F(-0.375330f));
         Q.at(2, 3) = X026;
-        Q.at(3, 0) = D(X031 * F(0.906127f) + X033 * F(-0.318190f) + X035 * F(0.212608f) + X037 * F(-0.180240f));
+        Q.at(3, 0) = D(X031 * F(0.906127f) + X033 * F(-0.318190f) +
+                       X035 * F(0.212608f) + X037 * F(-0.180240f));
         Q.at(3, 1) = X032;
-        Q.at(3, 2) = D(X031 * F(-0.074658f) + X033 * F(0.513280f) + X035 * F(0.768178f) + X037 * F(-0.375330f));
+        Q.at(3, 2) = D(X031 * F(-0.074658f) + X033 * F(0.513280f) +
+                       X035 * F(0.768178f) + X037 * F(-0.375330f));
         Q.at(3, 3) = X036;
         // 40 muls 24 adds
     }
@@ -896,21 +973,29 @@ struct R_S
     {
         // 4x8 = 4x8 times 8x8, matrix 0 is constant
         const Temp_Type X100 =
-            D(F(0.906127f) * AT(1, 0) + F(-0.318190f) * AT(3, 0) + F(0.212608f) * AT(5, 0) + F(-0.180240f) * AT(7, 0));
+            D(F(0.906127f) * AT(1, 0) + F(-0.318190f) * AT(3, 0) +
+              F(0.212608f) * AT(5, 0) + F(-0.180240f) * AT(7, 0));
         const Temp_Type X101 =
-            D(F(0.906127f) * AT(1, 1) + F(-0.318190f) * AT(3, 1) + F(0.212608f) * AT(5, 1) + F(-0.180240f) * AT(7, 1));
+            D(F(0.906127f) * AT(1, 1) + F(-0.318190f) * AT(3, 1) +
+              F(0.212608f) * AT(5, 1) + F(-0.180240f) * AT(7, 1));
         const Temp_Type X102 =
-            D(F(0.906127f) * AT(1, 2) + F(-0.318190f) * AT(3, 2) + F(0.212608f) * AT(5, 2) + F(-0.180240f) * AT(7, 2));
+            D(F(0.906127f) * AT(1, 2) + F(-0.318190f) * AT(3, 2) +
+              F(0.212608f) * AT(5, 2) + F(-0.180240f) * AT(7, 2));
         const Temp_Type X103 =
-            D(F(0.906127f) * AT(1, 3) + F(-0.318190f) * AT(3, 3) + F(0.212608f) * AT(5, 3) + F(-0.180240f) * AT(7, 3));
+            D(F(0.906127f) * AT(1, 3) + F(-0.318190f) * AT(3, 3) +
+              F(0.212608f) * AT(5, 3) + F(-0.180240f) * AT(7, 3));
         const Temp_Type X104 =
-            D(F(0.906127f) * AT(1, 4) + F(-0.318190f) * AT(3, 4) + F(0.212608f) * AT(5, 4) + F(-0.180240f) * AT(7, 4));
+            D(F(0.906127f) * AT(1, 4) + F(-0.318190f) * AT(3, 4) +
+              F(0.212608f) * AT(5, 4) + F(-0.180240f) * AT(7, 4));
         const Temp_Type X105 =
-            D(F(0.906127f) * AT(1, 5) + F(-0.318190f) * AT(3, 5) + F(0.212608f) * AT(5, 5) + F(-0.180240f) * AT(7, 5));
+            D(F(0.906127f) * AT(1, 5) + F(-0.318190f) * AT(3, 5) +
+              F(0.212608f) * AT(5, 5) + F(-0.180240f) * AT(7, 5));
         const Temp_Type X106 =
-            D(F(0.906127f) * AT(1, 6) + F(-0.318190f) * AT(3, 6) + F(0.212608f) * AT(5, 6) + F(-0.180240f) * AT(7, 6));
+            D(F(0.906127f) * AT(1, 6) + F(-0.318190f) * AT(3, 6) +
+              F(0.212608f) * AT(5, 6) + F(-0.180240f) * AT(7, 6));
         const Temp_Type X107 =
-            D(F(0.906127f) * AT(1, 7) + F(-0.318190f) * AT(3, 7) + F(0.212608f) * AT(5, 7) + F(-0.180240f) * AT(7, 7));
+            D(F(0.906127f) * AT(1, 7) + F(-0.318190f) * AT(3, 7) +
+              F(0.212608f) * AT(5, 7) + F(-0.180240f) * AT(7, 7));
         const Temp_Type X110 = AT(2, 0);
         const Temp_Type X111 = AT(2, 1);
         const Temp_Type X112 = AT(2, 2);
@@ -920,21 +1005,29 @@ struct R_S
         const Temp_Type X116 = AT(2, 6);
         const Temp_Type X117 = AT(2, 7);
         const Temp_Type X120 =
-            D(F(-0.074658f) * AT(1, 0) + F(0.513280f) * AT(3, 0) + F(0.768178f) * AT(5, 0) + F(-0.375330f) * AT(7, 0));
+            D(F(-0.074658f) * AT(1, 0) + F(0.513280f) * AT(3, 0) +
+              F(0.768178f) * AT(5, 0) + F(-0.375330f) * AT(7, 0));
         const Temp_Type X121 =
-            D(F(-0.074658f) * AT(1, 1) + F(0.513280f) * AT(3, 1) + F(0.768178f) * AT(5, 1) + F(-0.375330f) * AT(7, 1));
+            D(F(-0.074658f) * AT(1, 1) + F(0.513280f) * AT(3, 1) +
+              F(0.768178f) * AT(5, 1) + F(-0.375330f) * AT(7, 1));
         const Temp_Type X122 =
-            D(F(-0.074658f) * AT(1, 2) + F(0.513280f) * AT(3, 2) + F(0.768178f) * AT(5, 2) + F(-0.375330f) * AT(7, 2));
+            D(F(-0.074658f) * AT(1, 2) + F(0.513280f) * AT(3, 2) +
+              F(0.768178f) * AT(5, 2) + F(-0.375330f) * AT(7, 2));
         const Temp_Type X123 =
-            D(F(-0.074658f) * AT(1, 3) + F(0.513280f) * AT(3, 3) + F(0.768178f) * AT(5, 3) + F(-0.375330f) * AT(7, 3));
+            D(F(-0.074658f) * AT(1, 3) + F(0.513280f) * AT(3, 3) +
+              F(0.768178f) * AT(5, 3) + F(-0.375330f) * AT(7, 3));
         const Temp_Type X124 =
-            D(F(-0.074658f) * AT(1, 4) + F(0.513280f) * AT(3, 4) + F(0.768178f) * AT(5, 4) + F(-0.375330f) * AT(7, 4));
+            D(F(-0.074658f) * AT(1, 4) + F(0.513280f) * AT(3, 4) +
+              F(0.768178f) * AT(5, 4) + F(-0.375330f) * AT(7, 4));
         const Temp_Type X125 =
-            D(F(-0.074658f) * AT(1, 5) + F(0.513280f) * AT(3, 5) + F(0.768178f) * AT(5, 5) + F(-0.375330f) * AT(7, 5));
+            D(F(-0.074658f) * AT(1, 5) + F(0.513280f) * AT(3, 5) +
+              F(0.768178f) * AT(5, 5) + F(-0.375330f) * AT(7, 5));
         const Temp_Type X126 =
-            D(F(-0.074658f) * AT(1, 6) + F(0.513280f) * AT(3, 6) + F(0.768178f) * AT(5, 6) + F(-0.375330f) * AT(7, 6));
+            D(F(-0.074658f) * AT(1, 6) + F(0.513280f) * AT(3, 6) +
+              F(0.768178f) * AT(5, 6) + F(-0.375330f) * AT(7, 6));
         const Temp_Type X127 =
-            D(F(-0.074658f) * AT(1, 7) + F(0.513280f) * AT(3, 7) + F(0.768178f) * AT(5, 7) + F(-0.375330f) * AT(7, 7));
+            D(F(-0.074658f) * AT(1, 7) + F(0.513280f) * AT(3, 7) +
+              F(0.768178f) * AT(5, 7) + F(-0.375330f) * AT(7, 7));
         const Temp_Type X130 = AT(6, 0);
         const Temp_Type X131 = AT(6, 1);
         const Temp_Type X132 = AT(6, 2);
@@ -947,38 +1040,54 @@ struct R_S
 
         // 4x4 = 4x8 times 8x4, matrix 1 is constant
         R.at(0, 0) = X100;
-        R.at(0, 1) = D(X101 * F(0.415735f) + X103 * F(0.791065f) + X105 * F(-0.352443f) + X107 * F(0.277785f));
+        R.at(0, 1) = D(X101 * F(0.415735f) + X103 * F(0.791065f) +
+                       X105 * F(-0.352443f) + X107 * F(0.277785f));
         R.at(0, 2) = X104;
-        R.at(0, 3) = D(X101 * F(0.022887f) + X103 * F(-0.097545f) + X105 * F(0.490393f) + X107 * F(0.865723f));
+        R.at(0, 3) = D(X101 * F(0.022887f) + X103 * F(-0.097545f) +
+                       X105 * F(0.490393f) + X107 * F(0.865723f));
         R.at(1, 0) = X110;
-        R.at(1, 1) = D(X111 * F(0.415735f) + X113 * F(0.791065f) + X115 * F(-0.352443f) + X117 * F(0.277785f));
+        R.at(1, 1) = D(X111 * F(0.415735f) + X113 * F(0.791065f) +
+                       X115 * F(-0.352443f) + X117 * F(0.277785f));
         R.at(1, 2) = X114;
-        R.at(1, 3) = D(X111 * F(0.022887f) + X113 * F(-0.097545f) + X115 * F(0.490393f) + X117 * F(0.865723f));
+        R.at(1, 3) = D(X111 * F(0.022887f) + X113 * F(-0.097545f) +
+                       X115 * F(0.490393f) + X117 * F(0.865723f));
         R.at(2, 0) = X120;
-        R.at(2, 1) = D(X121 * F(0.415735f) + X123 * F(0.791065f) + X125 * F(-0.352443f) + X127 * F(0.277785f));
+        R.at(2, 1) = D(X121 * F(0.415735f) + X123 * F(0.791065f) +
+                       X125 * F(-0.352443f) + X127 * F(0.277785f));
         R.at(2, 2) = X124;
-        R.at(2, 3) = D(X121 * F(0.022887f) + X123 * F(-0.097545f) + X125 * F(0.490393f) + X127 * F(0.865723f));
+        R.at(2, 3) = D(X121 * F(0.022887f) + X123 * F(-0.097545f) +
+                       X125 * F(0.490393f) + X127 * F(0.865723f));
         R.at(3, 0) = X130;
-        R.at(3, 1) = D(X131 * F(0.415735f) + X133 * F(0.791065f) + X135 * F(-0.352443f) + X137 * F(0.277785f));
+        R.at(3, 1) = D(X131 * F(0.415735f) + X133 * F(0.791065f) +
+                       X135 * F(-0.352443f) + X137 * F(0.277785f));
         R.at(3, 2) = X134;
-        R.at(3, 3) = D(X131 * F(0.022887f) + X133 * F(-0.097545f) + X135 * F(0.490393f) + X137 * F(0.865723f));
+        R.at(3, 3) = D(X131 * F(0.022887f) + X133 * F(-0.097545f) +
+                       X135 * F(0.490393f) + X137 * F(0.865723f));
         // 40 muls 24 adds
         // 4x4 = 4x8 times 8x4, matrix 1 is constant
-        S.at(0, 0) = D(X101 * F(0.906127f) + X103 * F(-0.318190f) + X105 * F(0.212608f) + X107 * F(-0.180240f));
+        S.at(0, 0) = D(X101 * F(0.906127f) + X103 * F(-0.318190f) +
+                       X105 * F(0.212608f) + X107 * F(-0.180240f));
         S.at(0, 1) = X102;
-        S.at(0, 2) = D(X101 * F(-0.074658f) + X103 * F(0.513280f) + X105 * F(0.768178f) + X107 * F(-0.375330f));
+        S.at(0, 2) = D(X101 * F(-0.074658f) + X103 * F(0.513280f) +
+                       X105 * F(0.768178f) + X107 * F(-0.375330f));
         S.at(0, 3) = X106;
-        S.at(1, 0) = D(X111 * F(0.906127f) + X113 * F(-0.318190f) + X115 * F(0.212608f) + X117 * F(-0.180240f));
+        S.at(1, 0) = D(X111 * F(0.906127f) + X113 * F(-0.318190f) +
+                       X115 * F(0.212608f) + X117 * F(-0.180240f));
         S.at(1, 1) = X112;
-        S.at(1, 2) = D(X111 * F(-0.074658f) + X113 * F(0.513280f) + X115 * F(0.768178f) + X117 * F(-0.375330f));
+        S.at(1, 2) = D(X111 * F(-0.074658f) + X113 * F(0.513280f) +
+                       X115 * F(0.768178f) + X117 * F(-0.375330f));
         S.at(1, 3) = X116;
-        S.at(2, 0) = D(X121 * F(0.906127f) + X123 * F(-0.318190f) + X125 * F(0.212608f) + X127 * F(-0.180240f));
+        S.at(2, 0) = D(X121 * F(0.906127f) + X123 * F(-0.318190f) +
+                       X125 * F(0.212608f) + X127 * F(-0.180240f));
         S.at(2, 1) = X122;
-        S.at(2, 2) = D(X121 * F(-0.074658f) + X123 * F(0.513280f) + X125 * F(0.768178f) + X127 * F(-0.375330f));
+        S.at(2, 2) = D(X121 * F(-0.074658f) + X123 * F(0.513280f) +
+                       X125 * F(0.768178f) + X127 * F(-0.375330f));
         S.at(2, 3) = X126;
-        S.at(3, 0) = D(X131 * F(0.906127f) + X133 * F(-0.318190f) + X135 * F(0.212608f) + X137 * F(-0.180240f));
+        S.at(3, 0) = D(X131 * F(0.906127f) + X133 * F(-0.318190f) +
+                       X135 * F(0.212608f) + X137 * F(-0.180240f));
         S.at(3, 1) = X132;
-        S.at(3, 2) = D(X131 * F(-0.074658f) + X133 * F(0.513280f) + X135 * F(0.768178f) + X137 * F(-0.375330f));
+        S.at(3, 2) = D(X131 * F(-0.074658f) + X133 * F(0.513280f) +
+                       X135 * F(0.768178f) + X137 * F(-0.375330f));
         S.at(3, 3) = X136;
         // 40 muls 24 adds
     }
@@ -1065,7 +1174,9 @@ void jpeg_decoder::prep_in_buffer()
 
     do
     {
-        int bytes_read = m_pStream->read(m_in_buf + m_in_buf_left, JPGD_IN_BUF_SIZE - m_in_buf_left, &m_eof_flag);
+        int bytes_read =
+            m_pStream->read(m_in_buf + m_in_buf_left,
+                            JPGD_IN_BUF_SIZE - m_in_buf_left, &m_eof_flag);
         if (bytes_read == -1)
             stop_decoding(JPGD_STREAM_READ);
 
@@ -1074,8 +1185,9 @@ void jpeg_decoder::prep_in_buffer()
 
     m_total_bytes_read += m_in_buf_left;
 
-    // Pad the end of the block with M_EOI (prevents the decompressor from going off the rails if the stream is
-    // invalid). (This dates way back to when this decompressor was written in C/asm, and the all-asm Huffman decoder
+    // Pad the end of the block with M_EOI (prevents the decompressor from going
+    // off the rails if the stream is invalid). (This dates way back to when
+    // this decompressor was written in C/asm, and the all-asm Huffman decoder
     // did some fancy things to increase perf.)
     word_clear(m_pIn_buf_ofs + m_in_buf_left, 0xD9FF, 64);
 }
@@ -1124,7 +1236,8 @@ void jpeg_decoder::read_dht_marker()
         if ((index & 0x10) > 0x10)
             stop_decoding(JPGD_BAD_DHT_INDEX);
 
-        index = (index & 0x0F) + ((index & 0x10) >> 4) * (JPGD_MAX_HUFF_TABLES >> 1);
+        index = (index & 0x0F) +
+                ((index & 0x10) >> 4) * (JPGD_MAX_HUFF_TABLES >> 1);
 
         if (index >= JPGD_MAX_HUFF_TABLES)
             stop_decoding(JPGD_BAD_DHT_INDEX);
@@ -1198,7 +1311,8 @@ void jpeg_decoder::read_sof_marker()
 
     num_left = get_bits(16);
 
-    if (get_bits(8) != 8) /* precision: sorry, only 8-bit precision is supported right now */
+    if (get_bits(8) != 8) /* precision: sorry, only 8-bit precision is supported
+                             right now */
         stop_decoding(JPGD_BAD_PRECISION);
 
     m_image_y_size = get_bits(16);
@@ -1270,7 +1384,8 @@ void jpeg_decoder::read_sos_marker()
 
     num_left -= 3;
 
-    if ((num_left != (uint)(n * 2 + 3)) || (n < 1) || (n > JPGD_MAX_COMPS_IN_SCAN))
+    if ((num_left != (uint)(n * 2 + 3)) || (n < 1) ||
+        (n > JPGD_MAX_COMPS_IN_SCAN))
         stop_decoding(JPGD_BAD_SOS_LENGTH);
 
     for (i = 0; i < n; i++)
@@ -1391,7 +1506,7 @@ int jpeg_decoder::process_markers()
             read_dri_marker();
             break;
         }
-        // case M_APP0:  /* no need to read the JFIF marker */
+            // case M_APP0:  /* no need to read the JFIF marker */
 
         case M_JPG:
         case M_RST0: /* no parameters */
@@ -1448,13 +1563,14 @@ void jpeg_decoder::locate_soi_marker()
         {
             if (thischar == M_SOI)
                 break;
-            else if (thischar == M_EOI) // get_bits will keep returning M_EOI if we read past the end
+            else if (thischar == M_EOI) // get_bits will keep returning M_EOI if
+                                        // we read past the end
                 stop_decoding(JPGD_NOT_JPEG);
         }
     }
 
-    // Check the next character after marker: if it's not 0xFF, it can't be the start of the next marker, so the file is
-    // bad.
+    // Check the next character after marker: if it's not 0xFF, it can't be the
+    // start of the next marker, so the file is bad.
     thischar = (m_bit_buf >> 24) & 0xFF;
 
     if (thischar != 0xFF)
@@ -1662,10 +1778,14 @@ void jpeg_decoder::transform_mcu(int mcu_row)
     }
 }
 
-static const uint8 s_max_rc[64] = {17,  18,  34,  50,  50,  51,  52,  52,  52,  68,  84,  84,  84,  84,  85,  86,
-                                   86,  86,  86,  86,  102, 118, 118, 118, 118, 118, 118, 119, 120, 120, 120, 120,
-                                   120, 120, 120, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136,
-                                   136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136, 136};
+static const uint8 s_max_rc[64] = {17,  18,  34,  50,  50,  51,  52,  52,
+                                   52,  68,  84,  84,  84,  84,  85,  86,
+                                   86,  86,  86,  86,  102, 118, 118, 118,
+                                   118, 118, 118, 119, 120, 120, 120, 120,
+                                   120, 120, 120, 136, 136, 136, 136, 136,
+                                   136, 136, 136, 136, 136, 136, 136, 136,
+                                   136, 136, 136, 136, 136, 136, 136, 136,
+                                   136, 136, 136, 136, 136, 136, 136, 136};
 
 void jpeg_decoder::transform_mcu_expand(int mcu_row)
 {
@@ -1674,7 +1794,8 @@ void jpeg_decoder::transform_mcu_expand(int mcu_row)
 
     // Y IDCT
     int mcu_block;
-    for (mcu_block = 0; mcu_block < m_expanded_blocks_per_component; mcu_block++)
+    for (mcu_block = 0; mcu_block < m_expanded_blocks_per_component;
+         mcu_block++)
     {
         idct(pSrc_ptr, pDst_ptr, m_mcu_block_max_zag[mcu_block]);
         pSrc_ptr += 64;
@@ -1693,7 +1814,8 @@ void jpeg_decoder::transform_mcu_expand(int mcu_row)
 
         int max_zag = m_mcu_block_max_zag[mcu_block++] - 1;
         if (max_zag <= 0)
-            max_zag = 0; // should never happen, only here to shut up static analysis
+            max_zag =
+                0; // should never happen, only here to shut up static analysis
         switch (s_max_rc[max_zag])
         {
         case 1 * 16 + 1:
@@ -1811,10 +1933,14 @@ void jpeg_decoder::load_next_row()
 
             p = m_pMCU_coefficients + 64 * mcu_block;
 
-            jpgd_block_t *pAC = coeff_buf_getp(m_ac_coeffs[component_id], block_x_mcu[component_id] + block_x_mcu_ofs,
-                                               m_block_y_mcu[component_id] + block_y_mcu_ofs);
-            jpgd_block_t *pDC = coeff_buf_getp(m_dc_coeffs[component_id], block_x_mcu[component_id] + block_x_mcu_ofs,
-                                               m_block_y_mcu[component_id] + block_y_mcu_ofs);
+            jpgd_block_t *pAC =
+                coeff_buf_getp(m_ac_coeffs[component_id],
+                               block_x_mcu[component_id] + block_x_mcu_ofs,
+                               m_block_y_mcu[component_id] + block_y_mcu_ofs);
+            jpgd_block_t *pDC =
+                coeff_buf_getp(m_dc_coeffs[component_id],
+                               block_x_mcu[component_id] + block_x_mcu_ofs,
+                               m_block_y_mcu[component_id] + block_y_mcu_ofs);
             p[0] = pDC[0];
             memcpy(&p[1], &pAC[1], 63 * sizeof(jpgd_block_t));
 
@@ -1842,7 +1968,8 @@ void jpeg_decoder::load_next_row()
                     {
                         block_y_mcu_ofs = 0;
 
-                        block_x_mcu[component_id] += m_comp_h_samp[component_id];
+                        block_x_mcu[component_id] +=
+                            m_comp_h_samp[component_id];
                     }
                 }
             }
@@ -1858,7 +1985,8 @@ void jpeg_decoder::load_next_row()
         m_block_y_mcu[m_comp_list[0]]++;
     else
     {
-        for (component_num = 0; component_num < m_comps_in_scan; component_num++)
+        for (component_num = 0; component_num < m_comps_in_scan;
+             component_num++)
         {
             component_id = m_comp_list[component_num];
 
@@ -1874,8 +2002,8 @@ void jpeg_decoder::process_restart()
     int c = 0;
 
     // Align to a byte boundry
-    // FIXME: Is this really necessary? get_bits_no_markers() never reads in markers!
-    // get_bits_no_markers(m_bits_left & 7);
+    // FIXME: Is this really necessary? get_bits_no_markers() never reads in
+    // markers! get_bits_no_markers(m_bits_left & 7);
 
     // Let's scan a little bit to find the marker, but not _too_ far.
     // 1536 is a "fudge factor" that determines how much to scan.
@@ -1930,7 +2058,8 @@ void jpeg_decoder::decode_next_row()
             process_restart();
 
         jpgd_block_t *p = m_pMCU_coefficients;
-        for (int mcu_block = 0; mcu_block < m_blocks_per_mcu; mcu_block++, p += 64)
+        for (int mcu_block = 0; mcu_block < m_blocks_per_mcu;
+             mcu_block++, p += 64)
         {
             int component_id = m_mcu_org[mcu_block];
             jpgd_quant_t *q = m_quant[m_comp_quant[component_id]];
@@ -1978,7 +2107,8 @@ void jpeg_decoder::decode_next_row()
 
                     JPGD_ASSERT(k < 64);
 
-                    p[g_ZAG[k]] = static_cast<jpgd_block_t>(dequantize_ac(s, q[k])); // s * q[k];
+                    p[g_ZAG[k]] = static_cast<jpgd_block_t>(
+                        dequantize_ac(s, q[k])); // s * q[k];
                 }
                 else
                 {
@@ -2234,7 +2364,8 @@ void jpeg_decoder::expanded_convert()
 {
     int row = m_max_mcu_y_size - m_mcu_lines_left;
 
-    uint8 *Py = m_pSample_buf + (row / 8) * 64 * m_comp_h_samp[0] + (row & 7) * 8;
+    uint8 *Py =
+        m_pSample_buf + (row / 8) * 64 * m_comp_h_samp[0] + (row & 7) * 8;
 
     uint8 *d = m_pScan_line_0;
 
@@ -2264,7 +2395,8 @@ void jpeg_decoder::expanded_convert()
     }
 }
 
-// Find end of image (EOI) marker, so we can return to the user the exact size of the input stream.
+// Find end of image (EOI) marker, so we can return to the user the exact size
+// of the input stream.
 void jpeg_decoder::find_eoi()
 {
     if (!m_progressive_flag)
@@ -2453,7 +2585,8 @@ void jpeg_decoder::make_huff_table(int index, huff_tables *pH)
                     if (total_codesize <= 8)
                     {
                         has_extrabits = true;
-                        extra_bits = ((1 << num_extra_bits) - 1) & (code >> (8 - total_codesize));
+                        extra_bits = ((1 << num_extra_bits) - 1) &
+                                     (code >> (8 - total_codesize));
                         JPGD_ASSERT(extra_bits <= 0x7FFF);
                         bits_to_fetch += num_extra_bits;
                     }
@@ -2462,7 +2595,8 @@ void jpeg_decoder::make_huff_table(int index, huff_tables *pH)
                 if (!has_extrabits)
                     pH->look_up2[code] = i | (bits_to_fetch << 8);
                 else
-                    pH->look_up2[code] = i | 0x8000 | (extra_bits << 16) | (bits_to_fetch << 8);
+                    pH->look_up2[code] =
+                        i | 0x8000 | (extra_bits << 16) | (bits_to_fetch << 8);
 
                 code++;
             }
@@ -2525,10 +2659,12 @@ void jpeg_decoder::check_huff_tables()
 {
     for (int i = 0; i < m_comps_in_scan; i++)
     {
-        if ((m_spectral_start == 0) && (m_huff_num[m_comp_dc_tab[m_comp_list[i]]] == NULL))
+        if ((m_spectral_start == 0) &&
+            (m_huff_num[m_comp_dc_tab[m_comp_list[i]]] == NULL))
             stop_decoding(JPGD_UNDEFINED_HUFF_TABLE);
 
-        if ((m_spectral_end > 0) && (m_huff_num[m_comp_ac_tab[m_comp_list[i]]] == NULL))
+        if ((m_spectral_end > 0) &&
+            (m_huff_num[m_comp_ac_tab[m_comp_list[i]]] == NULL))
             stop_decoding(JPGD_UNDEFINED_HUFF_TABLE);
     }
 
@@ -2561,9 +2697,17 @@ void jpeg_decoder::calc_mcu_block_order()
     for (component_id = 0; component_id < m_comps_in_frame; component_id++)
     {
         m_comp_h_blocks[component_id] =
-            ((((m_image_x_size * m_comp_h_samp[component_id]) + (max_h_samp - 1)) / max_h_samp) + 7) / 8;
+            ((((m_image_x_size * m_comp_h_samp[component_id]) +
+               (max_h_samp - 1)) /
+              max_h_samp) +
+             7) /
+            8;
         m_comp_v_blocks[component_id] =
-            ((((m_image_y_size * m_comp_v_samp[component_id]) + (max_v_samp - 1)) / max_v_samp) + 7) / 8;
+            ((((m_image_y_size * m_comp_v_samp[component_id]) +
+               (max_v_samp - 1)) /
+              max_v_samp) +
+             7) /
+            8;
     }
 
     if (m_comps_in_scan == 1)
@@ -2573,8 +2717,10 @@ void jpeg_decoder::calc_mcu_block_order()
     }
     else
     {
-        m_mcus_per_row = (((m_image_x_size + 7) / 8) + (max_h_samp - 1)) / max_h_samp;
-        m_mcus_per_col = (((m_image_y_size + 7) / 8) + (max_v_samp - 1)) / max_v_samp;
+        m_mcus_per_row =
+            (((m_image_x_size + 7) / 8) + (max_h_samp - 1)) / max_h_samp;
+        m_mcus_per_col =
+            (((m_image_y_size + 7) / 8) + (max_v_samp - 1)) / max_v_samp;
     }
 
     if (m_comps_in_scan == 1)
@@ -2587,13 +2733,15 @@ void jpeg_decoder::calc_mcu_block_order()
     {
         m_blocks_per_mcu = 0;
 
-        for (component_num = 0; component_num < m_comps_in_scan; component_num++)
+        for (component_num = 0; component_num < m_comps_in_scan;
+             component_num++)
         {
             int num_blocks;
 
             component_id = m_comp_list[component_num];
 
-            num_blocks = m_comp_h_samp[component_id] * m_comp_v_samp[component_id];
+            num_blocks =
+                m_comp_h_samp[component_id] * m_comp_v_samp[component_id];
 
             while (num_blocks--)
                 m_mcu_org[m_blocks_per_mcu++] = component_id;
@@ -2685,8 +2833,10 @@ void jpeg_decoder::init_frame()
     else
         stop_decoding(JPGD_UNSUPPORTED_COLORSPACE);
 
-    m_max_mcus_per_row = (m_image_x_size + (m_max_mcu_x_size - 1)) / m_max_mcu_x_size;
-    m_max_mcus_per_col = (m_image_y_size + (m_max_mcu_y_size - 1)) / m_max_mcu_y_size;
+    m_max_mcus_per_row =
+        (m_image_x_size + (m_max_mcu_x_size - 1)) / m_max_mcu_x_size;
+    m_max_mcus_per_col =
+        (m_image_y_size + (m_max_mcu_y_size - 1)) / m_max_mcu_y_size;
 
     // These values are for the *destination* pixels: after conversion.
     if (m_scan_type == JPGD_GRAYSCALE)
@@ -2694,7 +2844,8 @@ void jpeg_decoder::init_frame()
     else
         m_dest_bytes_per_pixel = 4;
 
-    m_dest_bytes_per_scan_line = ((m_image_x_size + 15) & 0xFFF0) * m_dest_bytes_per_pixel;
+    m_dest_bytes_per_scan_line =
+        ((m_image_x_size + 15) & 0xFFF0) * m_dest_bytes_per_pixel;
 
     m_real_dest_bytes_per_scan_line = (m_image_x_size * m_dest_bytes_per_pixel);
 
@@ -2710,15 +2861,18 @@ void jpeg_decoder::init_frame()
         stop_decoding(JPGD_ASSERTION_ERROR);
 
     // Allocate the coefficient buffer, enough for one MCU
-    m_pMCU_coefficients = (jpgd_block_t *)alloc(m_max_blocks_per_mcu * 64 * sizeof(jpgd_block_t));
+    m_pMCU_coefficients =
+        (jpgd_block_t *)alloc(m_max_blocks_per_mcu * 64 * sizeof(jpgd_block_t));
 
     for (i = 0; i < m_max_blocks_per_mcu; i++)
         m_mcu_block_max_zag[i] = 64;
 
     m_expanded_blocks_per_component = m_comp_h_samp[0] * m_comp_v_samp[0];
-    m_expanded_blocks_per_mcu = m_expanded_blocks_per_component * m_comps_in_frame;
+    m_expanded_blocks_per_mcu =
+        m_expanded_blocks_per_component * m_comps_in_frame;
     m_expanded_blocks_per_row = m_max_mcus_per_row * m_expanded_blocks_per_mcu;
-    // Freq. domain chroma upsampling is only supported for H2V2 subsampling factor (the most common one I've seen).
+    // Freq. domain chroma upsampling is only supported for H2V2 subsampling
+    // factor (the most common one I've seen).
     m_freq_domain_chroma_upsample = false;
 #if JPGD_SUPPORT_FREQ_DOMAIN_UPSAMPLING
     m_freq_domain_chroma_upsample = (m_expanded_blocks_per_mcu == 4 * 3);
@@ -2740,7 +2894,9 @@ void jpeg_decoder::init_frame()
 // into a "virtual" file which was located in EMS, XMS, or a disk file. A cache
 // was used to make this process more efficient. Now, we can store the entire
 // thing in RAM.
-jpeg_decoder::coeff_buf *jpeg_decoder::coeff_buf_open(int block_num_x, int block_num_y, int block_len_x,
+jpeg_decoder::coeff_buf *jpeg_decoder::coeff_buf_open(int block_num_x,
+                                                      int block_num_y,
+                                                      int block_len_x,
                                                       int block_len_y)
 {
     coeff_buf *cb = (coeff_buf *)alloc(sizeof(coeff_buf));
@@ -2750,24 +2906,30 @@ jpeg_decoder::coeff_buf *jpeg_decoder::coeff_buf_open(int block_num_x, int block
     cb->block_len_x = block_len_x;
     cb->block_len_y = block_len_y;
     cb->block_size = (block_len_x * block_len_y) * sizeof(jpgd_block_t);
-    cb->pData = (uint8 *)alloc(cb->block_size * block_num_x * block_num_y, true);
+    cb->pData =
+        (uint8 *)alloc(cb->block_size * block_num_x * block_num_y, true);
     return cb;
 }
 
-inline jpgd_block_t *jpeg_decoder::coeff_buf_getp(coeff_buf *cb, int block_x, int block_y)
+inline jpgd_block_t *jpeg_decoder::coeff_buf_getp(coeff_buf *cb, int block_x,
+                                                  int block_y)
 {
     JPGD_ASSERT((block_x < cb->block_num_x) && (block_y < cb->block_num_y));
-    return (jpgd_block_t *)(cb->pData + block_x * cb->block_size + block_y * (cb->block_size * cb->block_num_x));
+    return (jpgd_block_t *)(cb->pData + block_x * cb->block_size +
+                            block_y * (cb->block_size * cb->block_num_x));
 }
 
 // The following methods decode the various types of m_blocks encountered
 // in progressively encoded images.
-void jpeg_decoder::decode_block_dc_first(jpeg_decoder *pD, int component_id, int block_x, int block_y)
+void jpeg_decoder::decode_block_dc_first(jpeg_decoder *pD, int component_id,
+                                         int block_x, int block_y)
 {
     int s, r;
-    jpgd_block_t *p = pD->coeff_buf_getp(pD->m_dc_coeffs[component_id], block_x, block_y);
+    jpgd_block_t *p =
+        pD->coeff_buf_getp(pD->m_dc_coeffs[component_id], block_x, block_y);
 
-    if ((s = pD->huff_decode(pD->m_pHuff_tabs[pD->m_comp_dc_tab[component_id]])) != 0)
+    if ((s = pD->huff_decode(
+             pD->m_pHuff_tabs[pD->m_comp_dc_tab[component_id]])) != 0)
     {
         r = pD->get_bits_no_markers(s);
         s = JPGD_HUFF_EXTEND(r, s);
@@ -2778,17 +2940,20 @@ void jpeg_decoder::decode_block_dc_first(jpeg_decoder *pD, int component_id, int
     p[0] = static_cast<jpgd_block_t>(s << pD->m_successive_low);
 }
 
-void jpeg_decoder::decode_block_dc_refine(jpeg_decoder *pD, int component_id, int block_x, int block_y)
+void jpeg_decoder::decode_block_dc_refine(jpeg_decoder *pD, int component_id,
+                                          int block_x, int block_y)
 {
     if (pD->get_bits_no_markers(1))
     {
-        jpgd_block_t *p = pD->coeff_buf_getp(pD->m_dc_coeffs[component_id], block_x, block_y);
+        jpgd_block_t *p =
+            pD->coeff_buf_getp(pD->m_dc_coeffs[component_id], block_x, block_y);
 
         p[0] |= (1 << pD->m_successive_low);
     }
 }
 
-void jpeg_decoder::decode_block_ac_first(jpeg_decoder *pD, int component_id, int block_x, int block_y)
+void jpeg_decoder::decode_block_ac_first(jpeg_decoder *pD, int component_id,
+                                         int block_x, int block_y)
 {
     int k, s, r;
 
@@ -2798,7 +2963,8 @@ void jpeg_decoder::decode_block_ac_first(jpeg_decoder *pD, int component_id, int
         return;
     }
 
-    jpgd_block_t *p = pD->coeff_buf_getp(pD->m_ac_coeffs[component_id], block_x, block_y);
+    jpgd_block_t *p =
+        pD->coeff_buf_getp(pD->m_ac_coeffs[component_id], block_x, block_y);
 
     for (k = pD->m_spectral_start; k <= pD->m_spectral_end; k++)
     {
@@ -2839,12 +3005,14 @@ void jpeg_decoder::decode_block_ac_first(jpeg_decoder *pD, int component_id, int
     }
 }
 
-void jpeg_decoder::decode_block_ac_refine(jpeg_decoder *pD, int component_id, int block_x, int block_y)
+void jpeg_decoder::decode_block_ac_refine(jpeg_decoder *pD, int component_id,
+                                          int block_x, int block_y)
 {
     int s, k, r;
     int p1 = 1 << pD->m_successive_low;
     int m1 = (-1) << pD->m_successive_low;
-    jpgd_block_t *p = pD->coeff_buf_getp(pD->m_ac_coeffs[component_id], block_x, block_y);
+    jpgd_block_t *p =
+        pD->coeff_buf_getp(pD->m_ac_coeffs[component_id], block_x, block_y);
 
     JPGD_ASSERT(pD->m_spectral_end <= 63);
 
@@ -2854,7 +3022,8 @@ void jpeg_decoder::decode_block_ac_refine(jpeg_decoder *pD, int component_id, in
     {
         for (; k <= pD->m_spectral_end; k++)
         {
-            s = pD->huff_decode(pD->m_pHuff_tabs[pD->m_comp_ac_tab[component_id]]);
+            s = pD->huff_decode(
+                pD->m_pHuff_tabs[pD->m_comp_ac_tab[component_id]]);
 
             r = s >> 4;
             s &= 15;
@@ -2893,9 +3062,11 @@ void jpeg_decoder::decode_block_ac_refine(jpeg_decoder *pD, int component_id, in
                         if ((*this_coef & p1) == 0)
                         {
                             if (*this_coef >= 0)
-                                *this_coef = static_cast<jpgd_block_t>(*this_coef + p1);
+                                *this_coef =
+                                    static_cast<jpgd_block_t>(*this_coef + p1);
                             else
-                                *this_coef = static_cast<jpgd_block_t>(*this_coef + m1);
+                                *this_coef =
+                                    static_cast<jpgd_block_t>(*this_coef + m1);
                         }
                     }
                 }
@@ -2920,7 +3091,9 @@ void jpeg_decoder::decode_block_ac_refine(jpeg_decoder *pD, int component_id, in
     {
         for (; k <= pD->m_spectral_end; k++)
         {
-            jpgd_block_t *this_coef = p + g_ZAG[k & 63]; // logical AND to shut up static code analysis
+            jpgd_block_t *this_coef =
+                p +
+                g_ZAG[k & 63]; // logical AND to shut up static code analysis
 
             if (*this_coef != 0)
             {
@@ -2929,9 +3102,11 @@ void jpeg_decoder::decode_block_ac_refine(jpeg_decoder *pD, int component_id, in
                     if ((*this_coef & p1) == 0)
                     {
                         if (*this_coef >= 0)
-                            *this_coef = static_cast<jpgd_block_t>(*this_coef + p1);
+                            *this_coef =
+                                static_cast<jpgd_block_t>(*this_coef + p1);
                         else
-                            *this_coef = static_cast<jpgd_block_t>(*this_coef + m1);
+                            *this_coef =
+                                static_cast<jpgd_block_t>(*this_coef + m1);
                     }
                 }
             }
@@ -2966,8 +3141,10 @@ void jpeg_decoder::decode_scan(pDecode_block_func decode_block_func)
             {
                 component_id = m_mcu_org[mcu_block];
 
-                decode_block_func(this, component_id, block_x_mcu[component_id] + block_x_mcu_ofs,
-                                  m_block_y_mcu[component_id] + block_y_mcu_ofs);
+                decode_block_func(this, component_id,
+                                  block_x_mcu[component_id] + block_x_mcu_ofs,
+                                  m_block_y_mcu[component_id] +
+                                      block_y_mcu_ofs);
 
                 if (m_comps_in_scan == 1)
                     block_x_mcu[component_id]++;
@@ -2980,7 +3157,8 @@ void jpeg_decoder::decode_scan(pDecode_block_func decode_block_func)
                         if (++block_y_mcu_ofs == m_comp_v_samp[component_id])
                         {
                             block_y_mcu_ofs = 0;
-                            block_x_mcu[component_id] += m_comp_h_samp[component_id];
+                            block_x_mcu[component_id] +=
+                                m_comp_h_samp[component_id];
                         }
                     }
                 }
@@ -2993,7 +3171,8 @@ void jpeg_decoder::decode_scan(pDecode_block_func decode_block_func)
             m_block_y_mcu[m_comp_list[0]]++;
         else
         {
-            for (component_num = 0; component_num < m_comps_in_scan; component_num++)
+            for (component_num = 0; component_num < m_comps_in_scan;
+                 component_num++)
             {
                 component_id = m_comp_list[component_num];
                 m_block_y_mcu[component_id] += m_comp_v_samp[component_id];
@@ -3014,9 +3193,11 @@ void jpeg_decoder::init_progressive()
     for (i = 0; i < m_comps_in_frame; i++)
     {
         m_dc_coeffs[i] =
-            coeff_buf_open(m_max_mcus_per_row * m_comp_h_samp[i], m_max_mcus_per_col * m_comp_v_samp[i], 1, 1);
+            coeff_buf_open(m_max_mcus_per_row * m_comp_h_samp[i],
+                           m_max_mcus_per_col * m_comp_v_samp[i], 1, 1);
         m_ac_coeffs[i] =
-            coeff_buf_open(m_max_mcus_per_row * m_comp_h_samp[i], m_max_mcus_per_col * m_comp_v_samp[i], 8, 8);
+            coeff_buf_open(m_max_mcus_per_row * m_comp_h_samp[i],
+                           m_max_mcus_per_col * m_comp_v_samp[i], 8, 8);
     }
 
     for (;;)
@@ -3038,7 +3219,8 @@ void jpeg_decoder::init_progressive()
             if (m_spectral_end)
                 stop_decoding(JPGD_BAD_SOS_SPECTRAL);
         }
-        else if (m_comps_in_scan != 1) /* AC scans can only contain one component */
+        else if (m_comps_in_scan != 1) /* AC scans can only contain one
+                                          component */
             stop_decoding(JPGD_BAD_SOS_SPECTRAL);
 
         if ((refinement_scan) && (m_successive_low != m_successive_high - 1))
@@ -3166,7 +3348,8 @@ bool jpeg_decoder_file_stream::open(const char *Pfilename)
     return m_pFile != NULL;
 }
 
-int jpeg_decoder_file_stream::read(uint8 *pBuf, int max_bytes_to_read, bool *pEOF_flag)
+int jpeg_decoder_file_stream::read(uint8 *pBuf, int max_bytes_to_read,
+                                   bool *pEOF_flag)
 {
     if (!m_pFile)
         return -1;
@@ -3180,7 +3363,8 @@ int jpeg_decoder_file_stream::read(uint8 *pBuf, int max_bytes_to_read, bool *pEO
     if (m_error_flag)
         return -1;
 
-    int bytes_read = static_cast<int>(fread(pBuf, 1, max_bytes_to_read, m_pFile));
+    int bytes_read =
+        static_cast<int>(fread(pBuf, 1, max_bytes_to_read, m_pFile));
     if (bytes_read < max_bytes_to_read)
     {
         if (ferror(m_pFile))
@@ -3205,7 +3389,8 @@ bool jpeg_decoder_mem_stream::open(const uint8 *pSrc_data, uint size)
     return true;
 }
 
-int jpeg_decoder_mem_stream::read(uint8 *pBuf, int max_bytes_to_read, bool *pEOF_flag)
+int jpeg_decoder_mem_stream::read(uint8 *pBuf, int max_bytes_to_read,
+                                  bool *pEOF_flag)
 {
     *pEOF_flag = false;
 
@@ -3225,8 +3410,10 @@ int jpeg_decoder_mem_stream::read(uint8 *pBuf, int max_bytes_to_read, bool *pEOF
     return max_bytes_to_read;
 }
 
-unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream, int *width, int *height,
-                                                 int *actual_comps, int req_comps)
+unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream,
+                                                 int *width, int *height,
+                                                 int *actual_comps,
+                                                 int req_comps)
 {
     if (!actual_comps)
         return NULL;
@@ -3242,7 +3429,8 @@ unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream, i
     if (decoder.get_error_code() != JPGD_SUCCESS)
         return NULL;
 
-    const int image_width = decoder.get_width(), image_height = decoder.get_height();
+    const int image_width = decoder.get_width(),
+              image_height = decoder.get_height();
     *width = image_width;
     *height = image_height;
     *actual_comps = decoder.get_num_components();
@@ -3260,7 +3448,8 @@ unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream, i
     {
         const uint8 *pScan_line;
         uint scan_line_len;
-        if (decoder.decode((const void **)&pScan_line, &scan_line_len) != JPGD_SUCCESS)
+        if (decoder.decode((const void **)&pScan_line, &scan_line_len) !=
+            JPGD_SUCCESS)
         {
             jpgd_free(pImage_data);
             return NULL;
@@ -3307,7 +3496,8 @@ unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream, i
                     int r = pScan_line[x * 4 + 0];
                     int g = pScan_line[x * 4 + 1];
                     int b = pScan_line[x * 4 + 2];
-                    *pDst++ = static_cast<uint8>((r * YR + g * YG + b * YB + 32768) >> 16);
+                    *pDst++ = static_cast<uint8>(
+                        (r * YR + g * YG + b * YB + 32768) >> 16);
                 }
             }
             else
@@ -3326,20 +3516,25 @@ unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream, i
     return pImage_data;
 }
 
-unsigned char *decompress_jpeg_image_from_memory(const unsigned char *pSrc_data, int src_data_size, int *width,
-                                                 int *height, int *actual_comps, int req_comps)
+unsigned char *decompress_jpeg_image_from_memory(const unsigned char *pSrc_data,
+                                                 int src_data_size, int *width,
+                                                 int *height, int *actual_comps,
+                                                 int req_comps)
 {
     jpgd::jpeg_decoder_mem_stream mem_stream(pSrc_data, src_data_size);
-    return decompress_jpeg_image_from_stream(&mem_stream, width, height, actual_comps, req_comps);
+    return decompress_jpeg_image_from_stream(&mem_stream, width, height,
+                                             actual_comps, req_comps);
 }
 
-unsigned char *decompress_jpeg_image_from_file(const char *pSrc_filename, int *width, int *height, int *actual_comps,
-                                               int req_comps)
+unsigned char *decompress_jpeg_image_from_file(const char *pSrc_filename,
+                                               int *width, int *height,
+                                               int *actual_comps, int req_comps)
 {
     jpgd::jpeg_decoder_file_stream file_stream;
     if (!file_stream.open(pSrc_filename))
         return NULL;
-    return decompress_jpeg_image_from_stream(&file_stream, width, height, actual_comps, req_comps);
+    return decompress_jpeg_image_from_stream(&file_stream, width, height,
+                                             actual_comps, req_comps);
 }
 
 } // namespace jpgd

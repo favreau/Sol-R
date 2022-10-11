@@ -23,9 +23,9 @@
 
 // Project
 #include "../../solr.h"
-#include "VectorUtils.cuh"
 #include "GeometryShaders.cuh"
 #include "TextureMapping.cuh"
+#include "VectorUtils.cuh"
 
 /*
 ________________________________________________________________________________
@@ -49,14 +49,19 @@ ________________________________________________________________________________
 Box intersection
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool boxIntersection(const BoundingBox &box, const Ray &ray, const float &t0, const float &t1)
+__device__ __INLINE__ bool boxIntersection(const BoundingBox &box,
+                                           const Ray &ray, const float &t0,
+                                           const float &t1)
 {
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
     tmin = (box.parameters[ray.signs.x].x - ray.origin.x) * ray.inv_direction.x;
-    tmax = (box.parameters[1 - ray.signs.x].x - ray.origin.x) * ray.inv_direction.x;
-    tymin = (box.parameters[ray.signs.y].y - ray.origin.y) * ray.inv_direction.y;
-    tymax = (box.parameters[1 - ray.signs.y].y - ray.origin.y) * ray.inv_direction.y;
+    tmax = (box.parameters[1 - ray.signs.x].x - ray.origin.x) *
+           ray.inv_direction.x;
+    tymin =
+        (box.parameters[ray.signs.y].y - ray.origin.y) * ray.inv_direction.y;
+    tymax = (box.parameters[1 - ray.signs.y].y - ray.origin.y) *
+            ray.inv_direction.y;
 
     if ((tmin > tymax) || (tymin > tmax))
         return false;
@@ -65,8 +70,10 @@ __device__ __INLINE__ bool boxIntersection(const BoundingBox &box, const Ray &ra
         tmin = tymin;
     if (tymax < tmax)
         tmax = tymax;
-    tzmin = (box.parameters[ray.signs.z].z - ray.origin.z) * ray.inv_direction.z;
-    tzmax = (box.parameters[1 - ray.signs.z].z - ray.origin.z) * ray.inv_direction.z;
+    tzmin =
+        (box.parameters[ray.signs.z].z - ray.origin.z) * ray.inv_direction.z;
+    tzmax = (box.parameters[1 - ray.signs.z].z - ray.origin.z) *
+            ray.inv_direction.z;
 
     if ((tmin > tzmax) || (tzmin > tmax))
         return false;
@@ -84,7 +91,9 @@ ________________________________________________________________________________
 Skybox mapping
 ________________________________________________________________________________
 */
-__device__ __INLINE__ vec4f skyboxMapping(const SceneInfo &sceneInfo, Material *materials, BitmapBuffer *textures,
+__device__ __INLINE__ vec4f skyboxMapping(const SceneInfo &sceneInfo,
+                                          Material *materials,
+                                          BitmapBuffer *textures,
                                           const Ray &ray)
 {
     Material &material = materials[sceneInfo.skyboxMaterialId];
@@ -94,7 +103,8 @@ __device__ __INLINE__ vec4f skyboxMapping(const SceneInfo &sceneInfo, Material *
 
     float a = 2.f * dot(dir, dir);
     float b = 2.f * dot(ray.origin, dir);
-    float c = dot(ray.origin, ray.origin) - (sceneInfo.skyboxRadius * sceneInfo.skyboxRadius);
+    float c = dot(ray.origin, ray.origin) -
+              (sceneInfo.skyboxRadius * sceneInfo.skyboxRadius);
     float d = b * b - 2.f * a * c;
 
     if (d <= 0.f || a == 0.f)
@@ -130,10 +140,12 @@ __device__ __INLINE__ vec4f skyboxMapping(const SceneInfo &sceneInfo, Material *
     if (material.textureMapping.y != 0)
         v %= material.textureMapping.y;
 
-    if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.y)
+    if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+        v < material.textureMapping.y)
     {
         int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-        int B = material.textureMapping.x * material.textureMapping.y * material.textureMapping.w;
+        int B = material.textureMapping.x * material.textureMapping.y *
+                material.textureMapping.w;
         int index = A % B;
 
         // Diffuse
@@ -156,9 +168,9 @@ ________________________________________________________________________________
 Ellipsoid intersection
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool ellipsoidIntersection(const SceneInfo &sceneInfo, const Primitive &ellipsoid,
-                                                 Material *materials, const Ray &ray, vec3f &intersection,
-                                                 vec3f &normal, float &shadowIntensity)
+__device__ __INLINE__ bool ellipsoidIntersection(
+    const SceneInfo &sceneInfo, const Primitive &ellipsoid, Material *materials,
+    const Ray &ray, vec3f &intersection, vec3f &normal, float &shadowIntensity)
 {
     // Shadow intensity
     shadowIntensity = 1.f;
@@ -217,9 +229,9 @@ ________________________________________________________________________________
 Sphere intersection
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool sphereIntersection(const SceneInfo &sceneInfo, const Primitive &sphere, Material *materials,
-                                              const Ray &ray, vec3f &intersection, vec3f &normal,
-                                              float &shadowIntensity)
+__device__ __INLINE__ bool sphereIntersection(
+    const SceneInfo &sceneInfo, const Primitive &sphere, Material *materials,
+    const Ray &ray, vec3f &intersection, vec3f &normal, float &shadowIntensity)
 {
     bool back = false;
     // solve the equation sphere-ray to find the intersections
@@ -267,9 +279,15 @@ __device__ __INLINE__ bool sphereIntersection(const SceneInfo &sceneInfo, const 
     {
         // Procedural texture
         vec3f newCenter;
-        newCenter.x = sphere.p0.x + 0.008f * sphere.size.x * cos(sceneInfo.timestamp + intersection.x);
-        newCenter.y = sphere.p0.y + 0.008f * sphere.size.y * sin(sceneInfo.timestamp + intersection.y);
-        newCenter.z = sphere.p0.z + 0.008f * sphere.size.z * sin(cos(sceneInfo.timestamp + intersection.z));
+        newCenter.x =
+            sphere.p0.x +
+            0.008f * sphere.size.x * cos(sceneInfo.timestamp + intersection.x);
+        newCenter.y =
+            sphere.p0.y +
+            0.008f * sphere.size.y * sin(sceneInfo.timestamp + intersection.y);
+        newCenter.z =
+            sphere.p0.z + 0.008f * sphere.size.z *
+                              sin(cos(sceneInfo.timestamp + intersection.z));
         normal = intersection - newCenter;
     }
     normal = normalize(normal);
@@ -278,7 +296,9 @@ __device__ __INLINE__ bool sphereIntersection(const SceneInfo &sceneInfo, const 
 
     // Shadow management
     r = dot(dir, normal);
-    shadowIntensity = (materials[sphere.materialId].transparency != 0.f) ? (1.f - fabs(r)) : 1.f;
+    shadowIntensity = (materials[sphere.materialId].transparency != 0.f)
+                          ? (1.f - fabs(r))
+                          : 1.f;
 
     return true;
 }
@@ -290,9 +310,9 @@ Cylinder intersection
 ref: http://courses.cms.caltech.edu/cs11/material/advcpp/lab7/index.html
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool cylinderIntersection(const SceneInfo &sceneInfo, const Primitive &cylinder,
-                                                Material *materials, const Ray &ray, vec3f &intersection, vec3f &normal,
-                                                float &shadowIntensity)
+__device__ __INLINE__ bool cylinderIntersection(
+    const SceneInfo &sceneInfo, const Primitive &cylinder, Material *materials,
+    const Ray &ray, vec3f &intersection, vec3f &normal, float &shadowIntensity)
 {
     vec3f O_C = ray.origin - cylinder.p0;
     vec3f dir = ray.direction;
@@ -315,7 +335,8 @@ __device__ __INLINE__ bool cylinderIntersection(const SceneInfo &sceneInfo, cons
         return false;
 
     O = normalize(crossProduct(n, cylinder.n1));
-    float s = fabs(sqrtf(cylinder.size.x * cylinder.size.x - d * d) / dot(dir, O));
+    float s =
+        fabs(sqrtf(cylinder.size.x * cylinder.size.x - d * d) / dot(dir, O));
 
     float t1 = t - s;
     float t2 = t + s;
@@ -327,7 +348,8 @@ __device__ __INLINE__ bool cylinderIntersection(const SceneInfo &sceneInfo, cons
     float scale1 = dot(HB1, cylinder.n1);
     float scale2 = dot(HB2, cylinder.n1);
     // Cylinder length
-    if (scale1 < sceneInfo.geometryEpsilon || scale2 > sceneInfo.geometryEpsilon)
+    if (scale1 < sceneInfo.geometryEpsilon ||
+        scale2 > sceneInfo.geometryEpsilon)
     {
         intersection = ray.origin + t2 * dir;
         HB1 = intersection - cylinder.p0;
@@ -335,7 +357,8 @@ __device__ __INLINE__ bool cylinderIntersection(const SceneInfo &sceneInfo, cons
         scale1 = dot(HB1, cylinder.n1);
         scale2 = dot(HB2, cylinder.n1);
         // Cylinder length
-        if (scale1 < sceneInfo.geometryEpsilon || scale2 > sceneInfo.geometryEpsilon)
+        if (scale1 < sceneInfo.geometryEpsilon ||
+            scale2 > sceneInfo.geometryEpsilon)
             return false;
     }
 
@@ -355,8 +378,11 @@ Cone intersection
 ref: http://courses.cms.caltech.edu/cs11/material/advcpp/lab7/index.html
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool coneIntersection(const SceneInfo &sceneInfo, const Primitive &cone, Material *materials,
-                                            const Ray &ray, vec3f &intersection, vec3f &normal, float &shadowIntensity)
+__device__ __INLINE__ bool coneIntersection(const SceneInfo &sceneInfo,
+                                            const Primitive &cone,
+                                            Material *materials, const Ray &ray,
+                                            vec3f &intersection, vec3f &normal,
+                                            float &shadowIntensity)
 {
     vec3f O_C = ray.origin - cone.p0;
     vec3f dir = ray.direction;
@@ -392,7 +418,8 @@ __device__ __INLINE__ bool coneIntersection(const SceneInfo &sceneInfo, const Pr
     float scale1 = dot(HB1, cone.n1);
     float scale2 = dot(HB2, cone.n1);
     // Cylinder length
-    if (scale1 < sceneInfo.geometryEpsilon || scale2 > sceneInfo.geometryEpsilon)
+    if (scale1 < sceneInfo.geometryEpsilon ||
+        scale2 > sceneInfo.geometryEpsilon)
     {
         intersection = ray.origin + t2 * dir;
         HB1 = intersection - cone.p0;
@@ -400,7 +427,8 @@ __device__ __INLINE__ bool coneIntersection(const SceneInfo &sceneInfo, const Pr
         scale1 = dot(HB1, cone.n1);
         scale2 = dot(HB2, cone.n1);
         // Cylinder length
-        if (scale1 < sceneInfo.geometryEpsilon || scale2 > sceneInfo.geometryEpsilon)
+        if (scale1 < sceneInfo.geometryEpsilon ||
+            scale2 > sceneInfo.geometryEpsilon)
             return false;
     }
 
@@ -421,9 +449,10 @@ ________________________________________________________________________________
 Checkboard intersection
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool planeIntersection(const SceneInfo &sceneInfo, const Primitive &primitive,
-                                             Material *materials, BitmapBuffer *textures, const Ray &ray,
-                                             vec3f &intersection, vec3f &normal, float &shadowIntensity, bool reverse)
+__device__ __INLINE__ bool planeIntersection(
+    const SceneInfo &sceneInfo, const Primitive &primitive, Material *materials,
+    BitmapBuffer *textures, const Ray &ray, vec3f &intersection, vec3f &normal,
+    float &shadowIntensity, bool reverse)
 {
     bool collision = false;
 
@@ -436,78 +465,104 @@ __device__ __INLINE__ bool planeIntersection(const SceneInfo &sceneInfo, const P
     {
         intersection.y = primitive.p0.y;
         float y = ray.origin.y - primitive.p0.y;
-        if (reverted * ray.direction.y < 0.f && reverted * ray.origin.y > reverted * primitive.p0.y)
+        if (reverted * ray.direction.y < 0.f &&
+            reverted * ray.origin.y > reverted * primitive.p0.y)
         {
-            intersection.x = ray.origin.x + y * ray.direction.x / -ray.direction.y;
-            intersection.z = ray.origin.z + y * ray.direction.z / -ray.direction.y;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.x =
+                ray.origin.x + y * ray.direction.x / -ray.direction.y;
+            intersection.z =
+                ray.origin.z + y * ray.direction.z / -ray.direction.y;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
         }
         break;
     }
     case ptXZPlane:
     {
         float y = ray.origin.y - primitive.p0.y;
-        if (reverted * ray.direction.y < 0.f && reverted * ray.origin.y > reverted * primitive.p0.y)
+        if (reverted * ray.direction.y < 0.f &&
+            reverted * ray.origin.y > reverted * primitive.p0.y)
         {
-            intersection.x = ray.origin.x + y * ray.direction.x / -ray.direction.y;
+            intersection.x =
+                ray.origin.x + y * ray.direction.x / -ray.direction.y;
             intersection.y = primitive.p0.y;
-            intersection.z = ray.origin.z + y * ray.direction.z / -ray.direction.y;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.z =
+                ray.origin.z + y * ray.direction.z / -ray.direction.y;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
             if (materials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.z,
-                                              materials[primitive.materialId].attributes.w, primitive);
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.z,
+                    materials[primitive.materialId].attributes.w, primitive);
         }
-        if (!collision && reverted * ray.direction.y > 0.f && reverted * ray.origin.y < reverted * primitive.p0.y)
+        if (!collision && reverted * ray.direction.y > 0.f &&
+            reverted * ray.origin.y < reverted * primitive.p0.y)
         {
             normal = -normal;
-            intersection.x = ray.origin.x + y * ray.direction.x / -ray.direction.y;
+            intersection.x =
+                ray.origin.x + y * ray.direction.x / -ray.direction.y;
             intersection.y = primitive.p0.y;
-            intersection.z = ray.origin.z + y * ray.direction.z / -ray.direction.y;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.z =
+                ray.origin.z + y * ray.direction.z / -ray.direction.y;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
             if (materials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.z,
-                                              materials[primitive.materialId].attributes.w, primitive);
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.z,
+                    materials[primitive.materialId].attributes.w, primitive);
         }
         break;
     }
     case ptYZPlane:
     {
         float x = ray.origin.x - primitive.p0.x;
-        if (reverted * ray.direction.x < 0.f && reverted * ray.origin.x > reverted * primitive.p0.x)
+        if (reverted * ray.direction.x < 0.f &&
+            reverted * ray.origin.x > reverted * primitive.p0.x)
         {
             intersection.x = primitive.p0.x;
-            intersection.y = ray.origin.y + x * ray.direction.y / -ray.direction.x;
-            intersection.z = ray.origin.z + x * ray.direction.z / -ray.direction.x;
-            collision = fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.y =
+                ray.origin.y + x * ray.direction.y / -ray.direction.x;
+            intersection.z =
+                ray.origin.z + x * ray.direction.z / -ray.direction.x;
+            collision =
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
             if (materials[primitive.materialId].innerIllumination.x != 0.f)
             {
                 // Chessboard like Lights
-                collision &= int(fabs(intersection.z)) % 4000 < 2000 && int(fabs(intersection.y)) % 4000 < 2000;
+                collision &= int(fabs(intersection.z)) % 4000 < 2000 &&
+                             int(fabs(intersection.y)) % 4000 < 2000;
             }
             if (materials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.y, intersection.z,
-                                              materials[primitive.materialId].attributes.w, primitive);
+                collision &= wireFrameMapping(
+                    intersection.y, intersection.z,
+                    materials[primitive.materialId].attributes.w, primitive);
         }
-        if (!collision && reverted * ray.direction.x > 0.f && reverted * ray.origin.x < reverted * primitive.p0.x)
+        if (!collision && reverted * ray.direction.x > 0.f &&
+            reverted * ray.origin.x < reverted * primitive.p0.x)
         {
             normal = -normal;
             intersection.x = primitive.p0.x;
-            intersection.y = ray.origin.y + x * ray.direction.y / -ray.direction.x;
-            intersection.z = ray.origin.z + x * ray.direction.z / -ray.direction.x;
-            collision = fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.y =
+                ray.origin.y + x * ray.direction.y / -ray.direction.x;
+            intersection.z =
+                ray.origin.z + x * ray.direction.z / -ray.direction.x;
+            collision =
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
             if (materials[primitive.materialId].innerIllumination.x != 0.f)
             {
                 // Chessboard like Lights
-                collision &= int(fabs(intersection.z)) % 4000 < 2000 && int(fabs(intersection.y)) % 4000 < 2000;
+                collision &= int(fabs(intersection.z)) % 4000 < 2000 &&
+                             int(fabs(intersection.y)) % 4000 < 2000;
             }
             if (materials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.y, intersection.z,
-                                              materials[primitive.materialId].attributes.w, primitive);
+                collision &= wireFrameMapping(
+                    intersection.y, intersection.z,
+                    materials[primitive.materialId].attributes.w, primitive);
         }
         break;
     }
@@ -515,28 +570,38 @@ __device__ __INLINE__ bool planeIntersection(const SceneInfo &sceneInfo, const P
     case ptCamera:
     {
         float z = ray.origin.z - primitive.p0.z;
-        if (reverted * ray.direction.z < 0.f && reverted * ray.origin.z > reverted * primitive.p0.z)
+        if (reverted * ray.direction.z < 0.f &&
+            reverted * ray.origin.z > reverted * primitive.p0.z)
         {
             intersection.z = primitive.p0.z;
-            intersection.x = ray.origin.x + z * ray.direction.x / -ray.direction.z;
-            intersection.y = ray.origin.y + z * ray.direction.y / -ray.direction.z;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.y - primitive.p0.y) < primitive.size.y;
+            intersection.x =
+                ray.origin.x + z * ray.direction.x / -ray.direction.z;
+            intersection.y =
+                ray.origin.y + z * ray.direction.y / -ray.direction.z;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y;
             if (materials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.y,
-                                              materials[primitive.materialId].attributes.w, primitive);
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.y,
+                    materials[primitive.materialId].attributes.w, primitive);
         }
-        if (!collision && reverted * ray.direction.z > 0.f && reverted * ray.origin.z < reverted * primitive.p0.z)
+        if (!collision && reverted * ray.direction.z > 0.f &&
+            reverted * ray.origin.z < reverted * primitive.p0.z)
         {
             normal = -normal;
             intersection.z = primitive.p0.z;
-            intersection.x = ray.origin.x + z * ray.direction.x / -ray.direction.z;
-            intersection.y = ray.origin.y + z * ray.direction.y / -ray.direction.z;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.y - primitive.p0.y) < primitive.size.y;
+            intersection.x =
+                ray.origin.x + z * ray.direction.x / -ray.direction.z;
+            intersection.y =
+                ray.origin.y + z * ray.direction.y / -ray.direction.z;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y;
             if (materials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.y,
-                                              materials[primitive.materialId].attributes.w, primitive);
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.y,
+                    materials[primitive.materialId].attributes.w, primitive);
         }
         break;
     }
@@ -545,15 +610,18 @@ __device__ __INLINE__ bool planeIntersection(const SceneInfo &sceneInfo, const P
     if (collision)
     {
         // Shadow intensity
-        shadowIntensity = 1.f; // sceneInfo.shadowIntensity*(1.f-materials[primitive.materialId].transparency);
+        shadowIntensity =
+            1.f; // sceneInfo.shadowIntensity*(1.f-materials[primitive.materialId].transparency);
 
         vec4f color = materials[primitive.materialId].color;
-        if (primitive.type == ptCamera || materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
+        if (primitive.type == ptCamera ||
+            materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
         {
             vec4f specular = {0.f, 0.f, 0.f}; // TODO?
             vec4f attributes;
             vec4f advancedAttributes;
-            color = cubeMapping(sceneInfo, primitive, materials, textures, intersection, normal, specular, attributes,
+            color = cubeMapping(sceneInfo, primitive, materials, textures,
+                                intersection, normal, specular, attributes,
                                 advancedAttributes);
             shadowIntensity = color.w;
         }
@@ -572,9 +640,10 @@ ______80________________________________________________________________________
 Triangle intersection
 ________________________________________________________________________________
 */
-__device__ __INLINE__ bool triangleIntersection(const SceneInfo &sceneInfo, const Primitive &triangle, const Ray &ray,
-                                                vec3f &intersection, vec3f &normal, vec3f &areas,
-                                                float &shadowIntensity, const bool &processingShadows)
+__device__ __INLINE__ bool triangleIntersection(
+    const SceneInfo &sceneInfo, const Primitive &triangle, const Ray &ray,
+    vec3f &intersection, vec3f &normal, vec3f &areas, float &shadowIntensity,
+    const bool &processingShadows)
 {
     // Reject rays using the barycentric coordinates of
     // the intersection point with respect to T.
@@ -632,7 +701,8 @@ __device__ __INLINE__ bool triangleIntersection(const SceneInfo &sceneInfo, cons
     areas.x = 0.5f * length(crossProduct(v1, v2));
     areas.y = 0.5f * length(crossProduct(v0, v2));
     areas.z = 0.5f * length(crossProduct(v0, v1));
-    normal = normalize((triangle.n0 * areas.x + triangle.n1 * areas.y + triangle.n2 * areas.z) /
+    normal = normalize((triangle.n0 * areas.x + triangle.n1 * areas.y +
+                        triangle.n2 * areas.z) /
                        (areas.x + areas.y + areas.z));
 
     if (sceneInfo.doubleSidedTriangles)
@@ -665,13 +735,17 @@ Intersections with primitives
 ________________________________________________________________________________
 */
 __device__ __INLINE__ bool intersectionWithPrimitives(
-    const SceneInfo &sceneInfo, const PostProcessingInfo &postProcessingInfo, BoundingBox *boundingBoxes,
-    const int &nbActiveBoxes, Primitive *primitives, const int &nbActivePrimitives, Material *materials,
-    BitmapBuffer *textures, const Ray &ray, const int &iteration, int &closestPrimitive, vec3f &closestIntersection,
-    vec3f &closestNormal, vec3f &closestAreas, vec4f &closestColor, vec4f &colorBox, const int currentmaterialId)
+    const SceneInfo &sceneInfo, const PostProcessingInfo &postProcessingInfo,
+    BoundingBox *boundingBoxes, const int &nbActiveBoxes, Primitive *primitives,
+    const int &nbActivePrimitives, Material *materials, BitmapBuffer *textures,
+    const Ray &ray, const int &iteration, int &closestPrimitive,
+    vec3f &closestIntersection, vec3f &closestNormal, vec3f &closestAreas,
+    vec4f &closestColor, vec4f &colorBox, const int currentmaterialId)
 {
     bool intersections = false;
-    float minDistance = (iteration < 2) ? sceneInfo.viewDistance : sceneInfo.viewDistance / (iteration + 1);
+    float minDistance = (iteration < 2)
+                            ? sceneInfo.viewDistance
+                            : sceneInfo.viewDistance / (iteration + 1);
 
     Ray r;
     r.origin = ray.origin;
@@ -690,23 +764,29 @@ __device__ __INLINE__ bool intersectionWithPrimitives(
         if (boxIntersection(box, r, 0.f, minDistance))
         {
             // Intersection with Box
-            if (sceneInfo.renderBoxes != 0) // Box 0 is for light emitting objects
+            if (sceneInfo.renderBoxes != 0) // Box 0 is for light emitting
+                                            // objects
             {
-                colorBox += materials[box.startIndex % NB_MAX_MATERIALS].color / 50.f;
+                colorBox +=
+                    materials[box.startIndex % NB_MAX_MATERIALS].color / 50.f;
             }
             else
             {
                 // Intersection with primitive within boxes
-                for (int cptPrimitives = 0; cptPrimitives < box.nbPrimitives; ++cptPrimitives)
+                for (int cptPrimitives = 0; cptPrimitives < box.nbPrimitives;
+                     ++cptPrimitives)
                 {
-                    Primitive &primitive = primitives[box.startIndex + cptPrimitives];
+                    Primitive &primitive =
+                        primitives[box.startIndex + cptPrimitives];
                     Material &material = materials[primitive.materialId];
                     if (material.attributes.x == 0 ||
-                        (material.attributes.x == 1 && currentmaterialId != primitive.materialId)) // !!!! TEST SHALL BE
-                                                                                                   // REMOVED TO
-                                                                                                   // INCREASE
-                                                                                                   // TRANSPARENCY
-                                                                                                   // QUALITY !!!
+                        (material.attributes.x == 1 &&
+                         currentmaterialId !=
+                             primitive.materialId)) // !!!! TEST SHALL BE
+                                                    // REMOVED TO
+                                                    // INCREASE
+                                                    // TRANSPARENCY
+                                                    // QUALITY !!!
                     {
                         vec3f areas = {0.f, 0.f, 0.f};
                         if (sceneInfo.extendedGeometry)
@@ -716,39 +796,54 @@ __device__ __INLINE__ bool intersectionWithPrimitives(
                             {
                             case ptEnvironment:
                             case ptSphere:
-                                i = sphereIntersection(sceneInfo, primitive, materials, r, intersection, normal,
+                                i = sphereIntersection(sceneInfo, primitive,
+                                                       materials, r,
+                                                       intersection, normal,
                                                        shadowIntensity);
                                 break;
                             case ptCylinder:
-                                i = cylinderIntersection(sceneInfo, primitive, materials, r, intersection, normal,
+                                i = cylinderIntersection(sceneInfo, primitive,
+                                                         materials, r,
+                                                         intersection, normal,
                                                          shadowIntensity);
                                 break;
                             case ptCone:
-                                i = coneIntersection(sceneInfo, primitive, materials, r, intersection, normal,
-                                                     shadowIntensity);
+                                i = coneIntersection(sceneInfo, primitive,
+                                                     materials, r, intersection,
+                                                     normal, shadowIntensity);
                                 break;
                             case ptEllipsoid:
-                                i = ellipsoidIntersection(sceneInfo, primitive, materials, r, intersection, normal,
+                                i = ellipsoidIntersection(sceneInfo, primitive,
+                                                          materials, r,
+                                                          intersection, normal,
                                                           shadowIntensity);
                                 break;
                             case ptTriangle:
-                                i = triangleIntersection(sceneInfo, primitive, r, intersection, normal, areas,
-                                                         shadowIntensity, false);
+                                i = triangleIntersection(sceneInfo, primitive,
+                                                         r, intersection,
+                                                         normal, areas,
+                                                         shadowIntensity,
+                                                         false);
                                 break;
                             default:
-                                i = planeIntersection(sceneInfo, primitive, materials, textures, r, intersection,
-                                                      normal, shadowIntensity, false);
+                                i = planeIntersection(sceneInfo, primitive,
+                                                      materials, textures, r,
+                                                      intersection, normal,
+                                                      shadowIntensity, false);
                             }
                         }
                         else
                         {
-                            i = triangleIntersection(sceneInfo, primitive, r, intersection, normal, areas,
-                                                     shadowIntensity, false);
+                            i = triangleIntersection(sceneInfo, primitive, r,
+                                                     intersection, normal,
+                                                     areas, shadowIntensity,
+                                                     false);
                         }
 
                         float distance = length(intersection - r.origin);
 
-                        if (i && distance > sceneInfo.geometryEpsilon && distance < minDistance)
+                        if (i && distance > sceneInfo.geometryEpsilon &&
+                            distance < minDistance)
                         {
                             // Only keep intersection with the closest object
                             minDistance = distance;
@@ -795,11 +890,12 @@ light source center.
 
 ________________________________________________________________________________
 */
-__device__ __INLINE__ float processShadows(const SceneInfo &sceneInfo, BoundingBox *boudingBoxes,
-                                           const int &nbActiveBoxes, Primitive *primitives, Material *materials,
-                                           BitmapBuffer *textures, const int &nbPrimitives, const vec3f &lampCenter,
-                                           const vec3f &origin, const int &lightId, const int &iteration, vec4f &color,
-                                           const int &objectId)
+__device__ __INLINE__ float processShadows(
+    const SceneInfo &sceneInfo, BoundingBox *boudingBoxes,
+    const int &nbActiveBoxes, Primitive *primitives, Material *materials,
+    BitmapBuffer *textures, const int &nbPrimitives, const vec3f &lampCenter,
+    const vec3f &origin, const int &lightId, const int &iteration, vec4f &color,
+    const int &objectId)
 {
     float result = 0.f;
     int cptBoxes = 0;
@@ -810,7 +906,9 @@ __device__ __INLINE__ float processShadows(const SceneInfo &sceneInfo, BoundingB
     r.direction = lampCenter - origin;
     r.origin = origin + normalize(r.direction) * sceneInfo.rayEpsilon;
     computeRayAttributes(r);
-    const float minDistance = (iteration < 2) ? sceneInfo.viewDistance : sceneInfo.viewDistance / (iteration + 1);
+    const float minDistance = (iteration < 2)
+                                  ? sceneInfo.viewDistance
+                                  : sceneInfo.viewDistance / (iteration + 1);
 
     while (result < (sceneInfo.shadowIntensity) && cptBoxes < nbActiveBoxes)
     {
@@ -818,14 +916,16 @@ __device__ __INLINE__ float processShadows(const SceneInfo &sceneInfo, BoundingB
         if (boxIntersection(box, r, 0.f, minDistance))
         {
             int cptPrimitives = 0;
-            while (result < sceneInfo.shadowIntensity && cptPrimitives < box.nbPrimitives)
+            while (result < sceneInfo.shadowIntensity &&
+                   cptPrimitives < box.nbPrimitives)
             {
                 vec3f intersection = {0.f, 0.f, 0.f};
                 vec3f normal = {0.f, 0.f, 0.f};
                 vec3f areas = {0.f, 0.f, 0.f};
                 float shadowIntensity = 0.f;
 
-                Primitive &primitive = primitives[box.startIndex + cptPrimitives];
+                Primitive &primitive =
+                    primitives[box.startIndex + cptPrimitives];
                 if (primitive.index != lightId && primitive.index != objectId &&
                     materials[primitive.materialId].attributes.x == 0)
                 {
@@ -835,37 +935,48 @@ __device__ __INLINE__ float processShadows(const SceneInfo &sceneInfo, BoundingB
                         switch (primitive.type)
                         {
                         case ptSphere:
-                            hit = sphereIntersection(sceneInfo, primitive, materials, r, intersection, normal,
-                                                     shadowIntensity);
+                            hit = sphereIntersection(sceneInfo, primitive,
+                                                     materials, r, intersection,
+                                                     normal, shadowIntensity);
                             break;
                         case ptEllipsoid:
-                            hit = ellipsoidIntersection(sceneInfo, primitive, materials, r, intersection, normal,
+                            hit = ellipsoidIntersection(sceneInfo, primitive,
+                                                        materials, r,
+                                                        intersection, normal,
                                                         shadowIntensity);
                             break;
                         case ptCylinder:
-                            hit = cylinderIntersection(sceneInfo, primitive, materials, r, intersection, normal,
-                                                       shadowIntensity);
+                            hit =
+                                cylinderIntersection(sceneInfo, primitive,
+                                                     materials, r, intersection,
+                                                     normal, shadowIntensity);
                             break;
                         case ptCone:
-                            hit = coneIntersection(sceneInfo, primitive, materials, r, intersection, normal,
-                                                   shadowIntensity);
+                            hit = coneIntersection(sceneInfo, primitive,
+                                                   materials, r, intersection,
+                                                   normal, shadowIntensity);
                             break;
                         case ptTriangle:
-                            hit = triangleIntersection(sceneInfo, primitive, r, intersection, normal, areas,
-                                                       shadowIntensity, true);
+                            hit = triangleIntersection(sceneInfo, primitive, r,
+                                                       intersection, normal,
+                                                       areas, shadowIntensity,
+                                                       true);
                             break;
                         case ptCamera:
                             hit = false;
                             break;
                         default:
-                            hit = planeIntersection(sceneInfo, primitive, materials, textures, r, intersection, normal,
+                            hit = planeIntersection(sceneInfo, primitive,
+                                                    materials, textures, r,
+                                                    intersection, normal,
                                                     shadowIntensity, false);
                             break;
                         }
                     }
                     else
                     {
-                        hit = triangleIntersection(sceneInfo, primitive, r, intersection, normal, areas,
+                        hit = triangleIntersection(sceneInfo, primitive, r,
+                                                   intersection, normal, areas,
                                                    shadowIntensity, true);
                     }
 
@@ -876,19 +987,36 @@ __device__ __INLINE__ float processShadows(const SceneInfo &sceneInfo, BoundingB
                         float l = length(O_I);
                         if (l > sceneInfo.geometryEpsilon && l < length(O_L))
                         {
-                            float ratio = shadowIntensity * sceneInfo.shadowIntensity;
-                            if (materials[primitive.materialId].transparency != 0.f)
+                            float ratio =
+                                shadowIntensity * sceneInfo.shadowIntensity;
+                            if (materials[primitive.materialId].transparency !=
+                                0.f)
                             {
                                 // Shadow color
                                 O_L = normalize(O_L);
                                 float a = fabs(dot(O_L, normal));
-                                float r = (materials[primitive.materialId].transparency == 0.f)
-                                              ? 1.f
-                                              : (1.f - materials[primitive.materialId].transparency);
+                                float r =
+                                    (materials[primitive.materialId]
+                                         .transparency == 0.f)
+                                        ? 1.f
+                                        : (1.f - materials[primitive.materialId]
+                                                     .transparency);
                                 ratio *= r * a;
-                                color.x += ratio * (0.3f - 0.3f * materials[primitive.materialId].color.x);
-                                color.y += ratio * (0.3f - 0.3f * materials[primitive.materialId].color.y);
-                                color.z += ratio * (0.3f - 0.3f * materials[primitive.materialId].color.z);
+                                color.x +=
+                                    ratio *
+                                    (0.3f -
+                                     0.3f * materials[primitive.materialId]
+                                                .color.x);
+                                color.y +=
+                                    ratio *
+                                    (0.3f -
+                                     0.3f * materials[primitive.materialId]
+                                                .color.y);
+                                color.z +=
+                                    ratio *
+                                    (0.3f -
+                                     0.3f * materials[primitive.materialId]
+                                                .color.z);
                             }
                             result += ratio;
                         }
@@ -914,12 +1042,16 @@ Primitive shader
 ________________________________________________________________________________
 */
 __device__ __INLINE__ vec4f primitiveShader(
-    const int &index, const SceneInfo &sceneInfo, const PostProcessingInfo &postProcessingInfo,
-    BoundingBox *boundingBoxes, const int &nbActiveBoxes, Primitive *primitives, const int &nbActivePrimitives,
-    LightInformation *lightInformation, const int &lightInformationSize, const int &nbActiveLamps, Material *materials,
-    BitmapBuffer *textures, RandomBuffer *randoms, const vec3f &origin, vec3f &normal, const int &objectId,
-    vec3f &intersection, const vec3f &areas, vec4f &closestColor, const int &iteration, vec4f &refractionFromColor,
-    float &shadowIntensity, vec4f &totalBlinn, vec4f &attributes)
+    const int &index, const SceneInfo &sceneInfo,
+    const PostProcessingInfo &postProcessingInfo, BoundingBox *boundingBoxes,
+    const int &nbActiveBoxes, Primitive *primitives,
+    const int &nbActivePrimitives, LightInformation *lightInformation,
+    const int &lightInformationSize, const int &nbActiveLamps,
+    Material *materials, BitmapBuffer *textures, RandomBuffer *randoms,
+    const vec3f &origin, vec3f &normal, const int &objectId,
+    vec3f &intersection, const vec3f &areas, vec4f &closestColor,
+    const int &iteration, vec4f &refractionFromColor, float &shadowIntensity,
+    vec4f &totalBlinn, vec4f &attributes)
 {
     Primitive &primitive = primitives[objectId];
     Material &material = materials[primitive.materialId];
@@ -939,8 +1071,10 @@ __device__ __INLINE__ vec4f primitiveShader(
     specular.z = material.specular.z;
 
     // Intersection color
-    vec4f intersectionColor = intersectionShader(sceneInfo, primitive, materials, textures, intersection, areas,
-                                                 bumpNormal, specular, attributes, advancedAttributes);
+    vec4f intersectionColor =
+        intersectionShader(sceneInfo, primitive, materials, textures,
+                           intersection, areas, bumpNormal, specular,
+                           attributes, advancedAttributes);
     normal += bumpNormal;
     normal = normalize(normal);
 
@@ -955,9 +1089,10 @@ __device__ __INLINE__ vec4f primitiveShader(
         closestColor *= material.innerIllumination.x;
         for (int cpt = 0; cpt < lightInformationSize; ++cpt)
         {
-            int cptLamp = (sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
-                              ? (sceneInfo.pathTracingIteration % lightInformationSize)
-                              : 0;
+            int cptLamp =
+                (sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
+                    ? (sceneInfo.pathTracingIteration % lightInformationSize)
+                    : 0;
             if (lightInformation[cptLamp].primitiveId != primitive.index)
             {
                 vec3f center;
@@ -968,7 +1103,8 @@ __device__ __INLINE__ vec4f primitiveShader(
                 Material &m = materials[lightInformation[cptLamp].materialId];
                 if (sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
                 {
-                    float a = m.innerIllumination.y * 10.f * sceneInfo.pathTracingIteration /
+                    float a = m.innerIllumination.y * 10.f *
+                              sceneInfo.pathTracingIteration /
                               sceneInfo.maxPathTracingIterations;
                     center.x += randoms[t] * a;
                     center.y += randoms[t + 1] * a;
@@ -984,51 +1120,68 @@ __device__ __INLINE__ vec4f primitiveShader(
                     // Lambert
                     // --------------------------------------------------------------------------------
                     lightRay = normalize(lightRay);
-                    float lambert = material.innerIllumination.x + dot(normal, lightRay);
+                    float lambert =
+                        material.innerIllumination.x + dot(normal, lightRay);
 
                     if (lambert > 0.f && sceneInfo.graphicsLevel > 3 &&
-                        iteration < 4 && // No need to process shadows after 4 generations
-                                         // of rays... cannot be seen anyway.
+                        iteration < 4 && // No need to process shadows after 4
+                                         // generations of rays... cannot be
+                                         // seen anyway.
                         material.innerIllumination.x == 0.f)
                     {
-                        shadowIntensity =
-                            processShadows(sceneInfo, boundingBoxes, nbActiveBoxes, primitives, materials, textures,
-                                           nbActivePrimitives, center, intersection,
-                                           lightInformation[cptLamp].primitiveId, iteration, shadowColor, objectId);
+                        shadowIntensity = processShadows(
+                            sceneInfo, boundingBoxes, nbActiveBoxes, primitives,
+                            materials, textures, nbActivePrimitives, center,
+                            intersection, lightInformation[cptLamp].primitiveId,
+                            iteration, shadowColor, objectId);
                     }
 
                     if (sceneInfo.graphicsLevel > glNoShading)
                     {
-                        float photonEnergy = sqrt(lightRayLength / m.innerIllumination.z);
-                        photonEnergy = (photonEnergy > 1.f) ? 1.f : photonEnergy;
-                        photonEnergy = (photonEnergy < 0.f) ? 0.f : photonEnergy;
+                        float photonEnergy =
+                            sqrt(lightRayLength / m.innerIllumination.z);
+                        photonEnergy =
+                            (photonEnergy > 1.f) ? 1.f : photonEnergy;
+                        photonEnergy =
+                            (photonEnergy < 0.f) ? 0.f : photonEnergy;
 
-                        // Transparent materials are lighted on both sides but the amount
-                        // of light received by the "dark side"
+                        // Transparent materials are lighted on both sides but
+                        // the amount of light received by the "dark side"
                         // depends on the transparency rate.
-                        lambert *= (lambert < 0.f) ? -materials[primitive.materialId].transparency : 1.f;
+                        lambert *=
+                            (lambert < 0.f)
+                                ? -materials[primitive.materialId].transparency
+                                : 1.f;
 
-                        if (lightInformation[cptLamp].materialId != MATERIAL_NONE)
+                        if (lightInformation[cptLamp].materialId !=
+                            MATERIAL_NONE)
                         {
-                            Material &m = materials[lightInformation[cptLamp].materialId];
-                            lambert *= m.innerIllumination.x; // Lamp illumination
+                            Material &m =
+                                materials[lightInformation[cptLamp].materialId];
+                            lambert *=
+                                m.innerIllumination.x; // Lamp illumination
                         }
                         else
                             lambert *= lightInformation[cptLamp].color.w;
 
                         if (material.innerIllumination.w != 0.f)
-                            // Randomize lamp intensity depending on material noise, for
-                            // more realistic rendering
-                            lambert *= (1.f + randoms[t] * material.innerIllumination.w * 100.f);
+                            // Randomize lamp intensity depending on material
+                            // noise, for more realistic rendering
+                            lambert *= (1.f + randoms[t] *
+                                                  material.innerIllumination.w *
+                                                  100.f);
 
                         lambert *= (1.f - shadowIntensity);
                         lambert += sceneInfo.backgroundColor.w;
                         lambert *= (1.f - photonEnergy);
 
                         // Lighted object, not in the shades
-                        lampsColor += lambert * lightInformation[cptLamp].color - shadowColor;
+                        lampsColor +=
+                            lambert * lightInformation[cptLamp].color -
+                            shadowColor;
 
-                        if (sceneInfo.graphicsLevel > 1 && shadowIntensity < sceneInfo.shadowIntensity)
+                        if (sceneInfo.graphicsLevel > 1 &&
+                            shadowIntensity < sceneInfo.shadowIntensity)
                         {
                             // --------------------------------------------------------------------------------
                             // Blinn - Phong
@@ -1043,10 +1196,13 @@ __device__ __INLINE__ vec4f primitiveShader(
                                 float blinnTerm = dot(blinnDir, normal);
                                 blinnTerm = (blinnTerm < 0.f) ? 0.f : blinnTerm;
 
-                                blinnTerm = specular.x * pow(blinnTerm, specular.y);
+                                blinnTerm =
+                                    specular.x * pow(blinnTerm, specular.y);
                                 blinnTerm *= (1.f - photonEnergy);
                                 totalBlinn +=
-                                    lightInformation[cptLamp].color * lightInformation[cptLamp].color.w * blinnTerm;
+                                    lightInformation[cptLamp].color *
+                                    lightInformation[cptLamp].color.w *
+                                    blinnTerm;
 
                                 // Get transparency from specular map
                                 totalBlinn.w = specular.z;
@@ -1068,7 +1224,8 @@ __device__ __INLINE__ vec4f primitiveShader(
             // Saturate color
             saturateVector(closestColor);
 
-            refractionFromColor = intersectionColor; // Refraction depending on color;
+            refractionFromColor =
+                intersectionColor; // Refraction depending on color;
             saturateVector(totalBlinn);
         }
     }
@@ -1086,10 +1243,12 @@ Intersections with primitives
 ________________________________________________________________________________
 */
 __device__ __INLINE__ vec4f intersectionsWithPrimitives(
-    const int &index, const SceneInfo &sceneInfo, BoundingBox *boundingBoxes, const int &nbActiveBoxes,
-    Primitive *primitives, const int &nbActivePrimitives, Material *materials, BitmapBuffer *textures,
-    LightInformation *lightInformation, const int &lightInformationSize, const int &nbActiveLamps,
-    RandomBuffer *randoms, const PostProcessingInfo &postProcessingInfo, const Ray &ray)
+    const int &index, const SceneInfo &sceneInfo, BoundingBox *boundingBoxes,
+    const int &nbActiveBoxes, Primitive *primitives,
+    const int &nbActivePrimitives, Material *materials, BitmapBuffer *textures,
+    LightInformation *lightInformation, const int &lightInformationSize,
+    const int &nbActiveLamps, RandomBuffer *randoms,
+    const PostProcessingInfo &postProcessingInfo, const Ray &ray)
 {
     Ray r;
     r.origin = ray.origin;
@@ -1123,10 +1282,12 @@ __device__ __INLINE__ vec4f intersectionsWithPrimitives(
         if (boxIntersection(box, r, 0.f, sceneInfo.viewDistance))
         {
             // Intersection with primitive within boxes
-            for (int cptPrimitives = 0; cptPrimitives < box.nbPrimitives; ++cptPrimitives)
+            for (int cptPrimitives = 0; cptPrimitives < box.nbPrimitives;
+                 ++cptPrimitives)
             {
                 i = false;
-                Primitive &primitive = primitives[box.startIndex + cptPrimitives];
+                Primitive &primitive =
+                    primitives[box.startIndex + cptPrimitives];
                 Material &material = materials[primitive.materialId];
                 vec3f areas = {0.f, 0.f, 0.f};
                 if (sceneInfo.extendedGeometry)
@@ -1135,34 +1296,42 @@ __device__ __INLINE__ vec4f intersectionsWithPrimitives(
                     {
                     case ptEnvironment:
                     case ptSphere:
-                        i = sphereIntersection(sceneInfo, primitive, materials, r, intersection, normal,
+                        i = sphereIntersection(sceneInfo, primitive, materials,
+                                               r, intersection, normal,
                                                shadowIntensity);
                         break;
                     case ptCylinder:
-                        i = cylinderIntersection(sceneInfo, primitive, materials, r, intersection, normal,
-                                                 shadowIntensity);
+                        i = cylinderIntersection(sceneInfo, primitive,
+                                                 materials, r, intersection,
+                                                 normal, shadowIntensity);
                         break;
                     case ptCone:
-                        i = coneIntersection(sceneInfo, primitive, materials, r, intersection, normal, shadowIntensity);
+                        i = coneIntersection(sceneInfo, primitive, materials, r,
+                                             intersection, normal,
+                                             shadowIntensity);
                         break;
                     case ptEllipsoid:
-                        i = ellipsoidIntersection(sceneInfo, primitive, materials, r, intersection, normal,
-                                                  shadowIntensity);
+                        i = ellipsoidIntersection(sceneInfo, primitive,
+                                                  materials, r, intersection,
+                                                  normal, shadowIntensity);
                         break;
                     case ptTriangle:
-                        i = triangleIntersection(sceneInfo, primitive, r, intersection, normal, areas, shadowIntensity,
-                                                 false);
+                        i = triangleIntersection(sceneInfo, primitive, r,
+                                                 intersection, normal, areas,
+                                                 shadowIntensity, false);
                         break;
                     default:
-                        i = planeIntersection(sceneInfo, primitive, materials, textures, r, intersection, normal,
+                        i = planeIntersection(sceneInfo, primitive, materials,
+                                              textures, r, intersection, normal,
                                               shadowIntensity, false);
                         break;
                     }
                 }
                 else
                 {
-                    i = triangleIntersection(sceneInfo, primitive, r, intersection, normal, areas, shadowIntensity,
-                                             false);
+                    i = triangleIntersection(sceneInfo, primitive, r,
+                                             intersection, normal, areas,
+                                             shadowIntensity, false);
                 }
                 if (i)
                 {
@@ -1183,18 +1352,23 @@ __device__ __INLINE__ vec4f intersectionsWithPrimitives(
                             vec4f refractionFromColor;
                             vec4f closestColor = material.color;
                             shadowIntensity = 0.f;
-                            color =
-                                primitiveShader(index, sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoxes,
-                                                primitives, nbActivePrimitives, lightInformation, lightInformationSize,
-                                                nbActiveLamps, materials, textures, randoms, r.origin, normal,
-                                                box.startIndex + cptPrimitives, intersection, areas, closestColor, 0,
-                                                refractionFromColor, shadowIntensity, rBlinn, attributes);
+                            color = primitiveShader(
+                                index, sceneInfo, postProcessingInfo,
+                                boundingBoxes, nbActiveBoxes, primitives,
+                                nbActivePrimitives, lightInformation,
+                                lightInformationSize, nbActiveLamps, materials,
+                                textures, randoms, r.origin, normal,
+                                box.startIndex + cptPrimitives, intersection,
+                                areas, closestColor, 0, refractionFromColor,
+                                shadowIntensity, rBlinn, attributes);
                         }
                         for (int i(0); i < MAXDEPTH; ++i)
                         {
                             if (dist < colors[i].w)
                             {
-                                float a = dot(normalize(ray.direction - ray.origin), normal);
+                                float a =
+                                    dot(normalize(ray.direction - ray.origin),
+                                        normal);
                                 for (int j(MAXDEPTH - 1); j >= i; --j)
                                 {
                                     colors[j + 1] = colors[j];

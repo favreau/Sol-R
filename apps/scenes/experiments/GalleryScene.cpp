@@ -80,37 +80,53 @@ void GalleryScene::doInitialize()
             p3.y = y + step.y - frame.y; // sin(y+step.y);
             p3.z = sin(x + frame.x);
 
-            const vec3f normal0 = make_vec3f(position.x - p0.x, position.y - p0.y, position.z - p0.z);
-            const vec3f normal1 = make_vec3f(position.x - p1.x, position.y - p1.y, position.z - p1.z);
-            const vec3f normal2 = make_vec3f(position.x - p2.x, position.y - p2.y, position.z - p2.z);
-            const vec3f normal3 = make_vec3f(position.x - p3.x, position.y - p3.y, position.z - p3.z);
+            const vec3f normal0 =
+                make_vec3f(position.x - p0.x, position.y - p0.y,
+                           position.z - p0.z);
+            const vec3f normal1 =
+                make_vec3f(position.x - p1.x, position.y - p1.y,
+                           position.z - p1.z);
+            const vec3f normal2 =
+                make_vec3f(position.x - p2.x, position.y - p2.y,
+                           position.z - p2.z);
+            const vec3f normal3 =
+                make_vec3f(position.x - p3.x, position.y - p3.y,
+                           position.z - p3.z);
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptTriangle);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, position.x + p0.x * size.x, position.y + p0.y * size.y,
-                                      position.z + p0.z * size.z, position.x + p1.x * size.x,
-                                      position.y + p1.y * size.y, position.z + p1.z * size.z,
-                                      position.x + p2.x * size.x, position.y + p2.y * size.y,
-                                      position.z + p2.z * size.z, 0.f, 0.f, 0.f, m);
-            m_gpuKernel->setPrimitiveNormals(m_nbPrimitives, normal0, normal1, normal2);
+            m_gpuKernel->setPrimitive(
+                m_nbPrimitives, position.x + p0.x * size.x,
+                position.y + p0.y * size.y, position.z + p0.z * size.z,
+                position.x + p1.x * size.x, position.y + p1.y * size.y,
+                position.z + p1.z * size.z, position.x + p2.x * size.x,
+                position.y + p2.y * size.y, position.z + p2.z * size.z, 0.f,
+                0.f, 0.f, m);
+            m_gpuKernel->setPrimitiveNormals(m_nbPrimitives, normal0, normal1,
+                                             normal2);
 
             {
                 const vec2f tc0 = make_vec2f(1.f, 1.f);
                 const vec2f tc1 = make_vec2f(0.f, 1.f);
                 const vec2f tc2 = make_vec2f(0.f, 0.f);
-                m_gpuKernel->setPrimitiveTextureCoordinates(m_nbPrimitives, tc0, tc1, tc2);
+                m_gpuKernel->setPrimitiveTextureCoordinates(m_nbPrimitives, tc0,
+                                                            tc1, tc2);
             }
 
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptTriangle);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, position.x + p2.x * size.x, position.y + p2.y * size.y,
-                                      position.z + p2.z * size.z, position.x + p3.x * size.x,
-                                      position.y + p3.y * size.y, position.z + p3.z * size.z,
-                                      position.x + p0.x * size.x, position.y + p0.y * size.y,
-                                      position.z + p0.z * size.z, 0.f, 0.f, 0.f, m);
-            m_gpuKernel->setPrimitiveNormals(m_nbPrimitives, normal2, normal3, normal0);
+            m_gpuKernel->setPrimitive(
+                m_nbPrimitives, position.x + p2.x * size.x,
+                position.y + p2.y * size.y, position.z + p2.z * size.z,
+                position.x + p3.x * size.x, position.y + p3.y * size.y,
+                position.z + p3.z * size.z, position.x + p0.x * size.x,
+                position.y + p0.y * size.y, position.z + p0.z * size.z, 0.f,
+                0.f, 0.f, m);
+            m_gpuKernel->setPrimitiveNormals(m_nbPrimitives, normal2, normal3,
+                                             normal0);
             {
                 const vec2f tc0 = make_vec2f(0.f, 0.f);
                 const vec2f tc1 = make_vec2f(1.f, 0.f);
                 const vec2f tc2 = make_vec2f(1.f, 1.f);
-                m_gpuKernel->setPrimitiveTextureCoordinates(m_nbPrimitives, tc0, tc1, tc2);
+                m_gpuKernel->setPrimitiveTextureCoordinates(m_nbPrimitives, tc0,
+                                                            tc1, tc2);
             }
             ++i;
         }
@@ -118,8 +134,10 @@ void GalleryScene::doInitialize()
     for (int i(0); i < 40; ++i)
     {
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, rand() % 10000 - 5000.f, rand() % 10000 - 5000.f,
-                                  rand() % 10000 - 5000.f, 200.f + rand() % 200, 0.f, 0.f, 41 + rand() % 2);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, rand() % 10000 - 5000.f,
+                                  rand() % 10000 - 5000.f,
+                                  rand() % 10000 - 5000.f, 200.f + rand() % 200,
+                                  0.f, 0.f, 41 + rand() % 2);
     }
 }
 
@@ -134,6 +152,7 @@ void GalleryScene::doAddLights()
 {
     // Lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 0, 0, 0, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 0, 0, 0,
+                              DEFAULT_LIGHT_MATERIAL);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
 }

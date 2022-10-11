@@ -21,10 +21,10 @@
 #ifndef SOLR_H
 #define SOLR_H
 
-#include "solr_defines.h"
 #include "consts.h"
-#include <vector>
+#include "solr_defines.h"
 #include <map>
+#include <vector>
 
 namespace solr
 {
@@ -54,7 +54,8 @@ inline vec3i make_vec3i(const int x = 0, const int y = 0, const int z = 0)
 {
     return {{x, y, z}};
 }
-inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0, const int w = 0)
+inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0,
+                        const int w = 0)
 {
     return {{x, y, z, w}};
 }
@@ -62,11 +63,13 @@ inline vec2f make_vec2f(const float x = 0.f, const float y = 0.f)
 {
     return {{x, y}};
 }
-inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f)
+inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f,
+                        const float z = 0.f)
 {
     return {{x, y, z}};
 }
-inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f, const float z = 0.f, const float w = 0.f)
+inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f,
+                        const float z = 0.f, const float w = 0.f)
 {
     return {{x, y, z, w}};
 }
@@ -93,7 +96,8 @@ inline vec3i make_vec3i(const int x = 0, const int y = 0, const int z = 0)
 {
     return {x, y, z};
 }
-inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0, const int w = 0)
+inline vec4i make_vec4i(const int x = 0, const int y = 0, const int z = 0,
+                        const int w = 0)
 {
     return {x, y, z, w};
 }
@@ -101,11 +105,13 @@ inline vec2f make_vec2f(const float x = 0.f, const float y = 0.f)
 {
     return {x, y};
 }
-inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f)
+inline vec3f make_vec3f(const float x = 0.f, const float y = 0.f,
+                        const float z = 0.f)
 {
     return {x, y, z};
 }
-inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f, const float z = 0.f, const float w = 0.f)
+inline vec4f make_vec4f(const float x = 0.f, const float y = 0.f,
+                        const float z = 0.f, const float w = 0.f)
 {
     return {x, y, z, w};
 }
@@ -177,32 +183,37 @@ enum AtmosphericEffect
 // Scene information
 struct __ALIGN16__ SceneInfo
 {
-    vec2i size;                  // Image size
-    CameraType cameraType;       // Camera type( Perspective, Orthographic, Anaglyph, VR, Panoramic, Antialiazed, Volume
-                                 // rendering )
-    GraphicsLevel graphicsLevel; // Graphics level( No Shading=0, Lambert=1, Specular=2, textured=3, Reflections and
+    vec2i size;            // Image size
+    CameraType cameraType; // Camera type( Perspective, Orthographic, Anaglyph,
+                           // VR, Panoramic, Antialiazed, Volume rendering )
+    GraphicsLevel graphicsLevel; // Graphics level( No Shading=0, Lambert=1,
+                                 // Specular=2, textured=3, Reflections and
                                  // Refractions=4, Shadows=5)
-    vec1i nbRayIterations;       // Maximum number of ray iterations for current frame
-    vec1f transparentColor;      // Value above which r+g+b color is considered as transparent
-    vec1f viewDistance;          // Maximum viewing distance
-    vec1f shadowIntensity;       // Shadow intensity( off=0, pitch black=1)
-    vec1f eyeSeparation;         // Distance between both eyes (3D stereo)
-    vec1i renderBoxes;           // Activate bounding box rendering
-    vec1i pathTracingIteration;  // Current iteration for current frame
-    vec1i maxPathTracingIterations;            // Maximum number of iterations for current frame
-    FrameBufferType frameBufferType;           // Frame buffer type( RGB or BGR )
-    vec1i timestamp;                           // Timestamp
+    vec1i nbRayIterations; // Maximum number of ray iterations for current frame
+    vec1f transparentColor; // Value above which r+g+b color is considered as
+                            // transparent
+    vec1f viewDistance;     // Maximum viewing distance
+    vec1f shadowIntensity;  // Shadow intensity( off=0, pitch black=1)
+    vec1f eyeSeparation;    // Distance between both eyes (3D stereo)
+    vec1i renderBoxes;      // Activate bounding box rendering
+    vec1i pathTracingIteration;      // Current iteration for current frame
+    vec1i maxPathTracingIterations;  // Maximum number of iterations for current
+                                     // frame
+    FrameBufferType frameBufferType; // Frame buffer type( RGB or BGR )
+    vec1i timestamp;                 // Timestamp
     AtmosphericEffect atmosphericEffect;       // Atmospheric effects
     vec1i doubleSidedTriangles;                // Use double-sided triangles
     vec1i extendedGeometry;                    // Use extended geometry
-    AdvancedIllumination advancedIllumination; // Advanced features (Global illumination, random lightning, etc)
-    vec1i draftMode;                           // Draft mode when camera in motion
-    vec1i skyboxRadius;                        // Skybox sphere radius
-    vec1i skyboxMaterialId;                    // Skybox material Id
-    vec1i gradientBackground;                  // Gradient background
-    vec1f geometryEpsilon;                     // Geometry epsilon
-    vec1f rayEpsilon;                          // Ray epsilon
-    vec4f backgroundColor;                     // Background color
+    AdvancedIllumination advancedIllumination; // Advanced features (Global
+                                               // illumination, random
+                                               // lightning, etc)
+    vec1i draftMode;          // Draft mode when camera in motion
+    vec1i skyboxRadius;       // Skybox sphere radius
+    vec1i skyboxMaterialId;   // Skybox material Id
+    vec1i gradientBackground; // Gradient background
+    vec1f geometryEpsilon;    // Geometry epsilon
+    vec1f rayEpsilon;         // Ray epsilon
+    vec4f backgroundColor;    // Background color
 };
 
 // Ray structure
@@ -256,15 +267,15 @@ struct __ALIGN16__ Material
                              // y: Power
                              // z: <not used>
                              // w: <not used>
-    vec1f reflection;        // Reflection rate( No reflection=0 -> Full reflection=1 )
-    vec1f refraction;        // Refraction index( ex: glass=1.33 )
-    vec1f transparency;      // Transparency rate( Opaque=0 -> Full transparency=1 )
-    vec1f opacity;           // Opacity strength
-    vec4i attributes;        // x: Fast transparency( off=0, on=1 ). Fast transparency
-    // produces no shadows and drops intersections if rays intersects primitive with the same material ID
-    // y: Procedural textures( off=0, on=1 )
-    // z: Wireframe( off=0, on=1 ). Wire frame produces no shading
-    // w: Wireframe Width
+    vec1f reflection; // Reflection rate( No reflection=0 -> Full reflection=1 )
+    vec1f refraction; // Refraction index( ex: glass=1.33 )
+    vec1f transparency; // Transparency rate( Opaque=0 -> Full transparency=1 )
+    vec1f opacity;      // Opacity strength
+    vec4i attributes; // x: Fast transparency( off=0, on=1 ). Fast transparency
+    // produces no shadows and drops intersections if rays intersects primitive
+    // with the same material ID y: Procedural textures( off=0, on=1 ) z:
+    // Wireframe( off=0, on=1 ). Wire frame produces no shading w: Wireframe
+    // Width
     vec4i textureMapping;        // x: U padding
                                  // y: V padding
                                  // z: Texture ID (Deprecated)
@@ -285,7 +296,7 @@ struct __ALIGN16__ Material
                                  // y: Transparency map
                                  // z: Ambiant Occulusion
                                  // w: not used
-    vec2f mappingOffset;         // Texture mapping offsets based on sceneInfo.timestamp
+    vec2f mappingOffset; // Texture mapping offsets based on sceneInfo.timestamp
 };
 
 // Bounding Box Structure
@@ -294,7 +305,8 @@ struct __ALIGN16__ BoundingBox
     vec3f parameters[2];   // Bottom-Left and Top-Right corners
     vec1i nbPrimitives;    // Number of primitives in the box
     vec1i startIndex;      // Index of the first primitive in the box
-    vec2i indexForNextBox; // If no intersection, how many of the following boxes can be skipped?
+    vec2i indexForNextBox; // If no intersection, how many of the following
+                           // boxes can be skipped?
 };
 typedef std::map<size_t, BoundingBox> BoundingBoxes;
 
@@ -339,10 +351,10 @@ enum TextureType
 struct __ALIGN16__ TextureInfo
 {
     unsigned char *buffer; // Pointer to the texture
-    vec1i offset;          // Offset of the texture in the global texture buffer (the one
-                           // that will be transfered to the GPU)
-    vec3i size;            // Size of the texture
-    TextureType type;      // Texture type (diffuse, normal, bump, etc.)
+    vec1i offset; // Offset of the texture in the global texture buffer (the one
+                  // that will be transfered to the GPU)
+    vec3i size;   // Size of the texture
+    TextureType type; // Texture type (diffuse, normal, bump, etc.)
 };
 
 // Post processing types

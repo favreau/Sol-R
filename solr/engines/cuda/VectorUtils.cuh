@@ -24,8 +24,8 @@
 #include "../../solr.h"
 
 // Cuda
-#include "helper_math.h"
 #include "helper_cuda.h"
+#include "helper_math.h"
 
 using namespace solr;
 
@@ -55,24 +55,27 @@ __device__ __INLINE__ vec3f crossProduct(const vec3f &b, const vec3f &c)
 
 /*
 ________________________________________________________________________________________________________________________
-incident  : le vecteur normal inverse a la direction d'incidence de la source lumineuse
-normal    : la normale a l'interface orientee dans le materiau ou se propage le rayon incident
-reflected : le vecteur normal reflechi
+incident  : le vecteur normal inverse a la direction d'incidence de la source
+lumineuse normal    : la normale a l'interface orientee dans le materiau ou se
+propage le rayon incident reflected : le vecteur normal reflechi
 ________________________________________________________________________________________________________________________
 */
-__device__ __INLINE__ void vectorReflection(vec3f &r, const vec3f &i, const vec3f &n)
+__device__ __INLINE__ void vectorReflection(vec3f &r, const vec3f &i,
+                                            const vec3f &n)
 {
     r = i - 2.f * dot(i, n) * n;
 }
 
 /*
 ________________________________________________________________________________________________________________________
-incident: le vecteur norm? inverse ? la direction d?incidence de la source lumineuse
-n1      : index of refraction of original medium
-n2      : index of refraction of new medium
+incident: le vecteur norm? inverse ? la direction d?incidence de la source
+lumineuse n1      : index of refraction of original medium n2      : index of
+refraction of new medium
 ________________________________________________________________________________________________________________________
 */
-__device__ __INLINE__ void vectorRefraction(vec3f &refracted, const vec3f incident, const float n1, const vec3f normal,
+__device__ __INLINE__ void vectorRefraction(vec3f &refracted,
+                                            const vec3f incident,
+                                            const float n1, const vec3f normal,
                                             const float n2)
 {
     refracted = incident;
@@ -103,7 +106,8 @@ __c : Center of rotations
 __a : Angles
 ________________________________________________________________________________________________________________________
 */
-__device__ __INLINE__ void vectorRotation(vec3f &v, const vec3f &rotationCenter, const vec4f &angles)
+__device__ __INLINE__ void vectorRotation(vec3f &v, const vec3f &rotationCenter,
+                                          const vec4f &angles)
 {
     vec4f cosAngles, sinAngles;
 

@@ -40,7 +40,8 @@ ________________________________________________________________________________
 Create tree
 ________________________________________________________________________________
 */
-void XmasScene::createTree(int iteration, int boxId, int maxIterations, vec3f center, int material, float interval,
+void XmasScene::createTree(int iteration, int boxId, int maxIterations,
+                           vec3f center, int material, float interval,
                            float radius)
 {
     if (iteration > 0)
@@ -54,37 +55,46 @@ void XmasScene::createTree(int iteration, int boxId, int maxIterations, vec3f ce
             int box = (iteration < maxIterations) ? boxId : i;
 
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y, a.z, b.x, b.y, b.z, radius / 2.f, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y, a.z, b.x, b.y,
+                                      b.z, radius / 2.f, 0.f, 0.f, material);
 
-            const vec4f angles = make_vec4f(((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
-                                            ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
-                                            ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f));
-            const vec3f cosAngles = make_vec3f(cosf(angles.x), cosf(angles.y), cosf(angles.z));
-            const vec3f sinAngles = make_vec3f(sinf(angles.x), sinf(angles.y), sinf(angles.z));
+            const vec4f angles = make_vec4f(
+                ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
+                ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f),
+                ((i == 0) ? 0.5f : 2.f) * (rand() % 100 / 100.f - 0.5f));
+            const vec3f cosAngles =
+                make_vec3f(cosf(angles.x), cosf(angles.y), cosf(angles.z));
+            const vec3f sinAngles =
+                make_vec3f(sinf(angles.x), sinf(angles.y), sinf(angles.z));
             CPUPrimitive* p = m_gpuKernel->getPrimitive(m_nbPrimitives);
             m_gpuKernel->rotatePrimitive(*p, a, cosAngles, sinAngles);
             b.y += interval;
             m_gpuKernel->getPrimitiveOtherCenter(m_nbPrimitives, b);
 
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, b.x, b.y, b.z, radius / 2.f, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(m_nbPrimitives, b.x, b.y, b.z,
+                                      radius / 2.f, 0.f, 0.f, material);
 
             if (iteration == 1 && rand() % 3 == 0)
             {
                 // Boule de noel
                 m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder);
-                m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y, a.z, a.x, a.y - 300.f, a.z, 5, 0.f, 0.f, 1016);
+                m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y, a.z, a.x,
+                                          a.y - 300.f, a.z, 5, 0.f, 0.f, 1016);
                 m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-                m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y - 400.f, a.z, 200, 0.f, 0.f, 1010 + rand() % 6);
+                m_gpuKernel->setPrimitive(m_nbPrimitives, a.x, a.y - 400.f, a.z,
+                                          200, 0.f, 0.f, 1010 + rand() % 6);
             }
 
             if (iteration == 1 && rand() % 3 == 0)
             {
                 // Leaves
                 m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-                m_gpuKernel->setPrimitive(m_nbPrimitives, b.x, b.y, b.z, 50.f + rand() % 500, 0.f, 0.f, 1002);
+                m_gpuKernel->setPrimitive(m_nbPrimitives, b.x, b.y, b.z,
+                                          50.f + rand() % 500, 0.f, 0.f, 1002);
             }
-            createTree(iteration - 1, box, maxIterations, b, material, interval * (0.8f + rand() % iteration / 10.f),
+            createTree(iteration - 1, box, maxIterations, b, material,
+                       interval * (0.8f + rand() % iteration / 10.f),
                        radius * (0.4f + rand() % iteration / 10.f));
         }
     }
@@ -93,30 +103,40 @@ void XmasScene::createTree(int iteration, int boxId, int maxIterations, vec3f ce
 void XmasScene::doInitialize()
 {
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptYZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4200.f, 0.f, 0.f, 0.f, 2000.f, 200.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4200.f, 0.f, 0.f, 0.f, 2000.f,
+                              200.f, 1000);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXYPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4100.f, 0.f, 200.f, 100.f, 2000.f, 0.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4100.f, 0.f, 200.f, 100.f,
+                              2000.f, 0.f, 1000);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXYPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4100.f, 0.f, -200.f, 100.f, 2000.f, 0.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4100.f, 0.f, -200.f, 100.f,
+                              2000.f, 0.f, 1000);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4100.f, 2000.f, 0.f, 100.f, 0.f, 200.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4100.f, 2000.f, 0.f, 100.f, 0.f,
+                              200.f, 1000);
 
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptYZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4200.f, 0.f, 0.f, 0.f, 2000.f, 200.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4200.f, 0.f, 0.f, 0.f, 2000.f,
+                              200.f, 1000);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXYPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4100.f, 0.f, 200.f, 100.f, 2000.f, 0.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4100.f, 0.f, 200.f, 100.f, 2000.f,
+                              0.f, 1000);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXYPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4100.f, 0.f, -200.f, 100.f, 2000.f, 0.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4100.f, 0.f, -200.f, 100.f,
+                              2000.f, 0.f, 1000);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4100.f, 2000.f, 0.f, 100.f, 0.f, 200.f, 1000);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4100.f, 2000.f, 0.f, 100.f, 0.f,
+                              200.f, 1000);
 
     int material = 1001;
 
     // Tree
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, m_groundHeight, 0.f, 0.f, -1000.f, 0.f, 250.f, 0.f, 0.f, material);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, m_groundHeight, 0.f, 0.f,
+                              -1000.f, 0.f, 250.f, 0.f, 0.f, material);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, -1000.f, 0.f, 250.f, 0.f, 0.f, material);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, -1000.f, 0.f, 250.f, 0.f,
+                              0.f, material);
     int nbIterations = 2 + rand() % 3;
     vec3f center = make_vec3f(0.f, -1000.f, 0.f);
     createTree(nbIterations, 10, nbIterations, center, material,
@@ -131,5 +151,6 @@ void XmasScene::doAddLights()
 {
     // lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000.f, 0.f, 0.f, 0.f, 2000.f, 200.f, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000.f, 0.f, 0.f, 0.f, 2000.f,
+                              200.f, DEFAULT_LIGHT_MATERIAL);
 }

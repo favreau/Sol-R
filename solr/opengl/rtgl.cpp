@@ -26,9 +26,9 @@
 #include <GL/freeglut.h>
 #endif
 
+#include "../Logging.h"
 #include "rtgl.h"
 #include "solr.h"
-#include "../Logging.h"
 #include <engines/GPUKernel.h>
 
 #include <math.h>
@@ -66,7 +66,8 @@ void setOpenCLDevice(const int device)
 void Initialize(const int width, const int height, const char *openCLKernel = 0)
 {
 #ifdef USE_OPENCL
-    LOG_INFO(1, "Intializing Raytracing engine: " << gOpenCLPlatform << "," << gOpenCLDevice);
+    LOG_INFO(1, "Intializing Raytracing engine: " << gOpenCLPlatform << ","
+                                                  << gOpenCLDevice);
 #else
     LOG_INFO(1, "Intializing Raytracing engine");
 #endif // USE_OPENCL
@@ -137,7 +138,8 @@ void createRandomMaterials(bool update, bool lightsOnly)
         float refraction = 0.f;
         float transparency = 0.f;
         int textureId = TEXTURE_NONE;
-        vec4f innerIllumination = make_vec4f(0.f, 40000.f, gSceneInfo.viewDistance);
+        vec4f innerIllumination =
+            make_vec4f(0.f, 40000.f, gSceneInfo.viewDistance);
         bool procedural = false;
         bool wireframe = false;
         int wireframeDepth = 0;
@@ -169,11 +171,13 @@ void createRandomMaterials(bool update, bool lightsOnly)
         }
 
         int material = update ? i : SingletonKernel::kernel()->addMaterial();
-        SingletonKernel::kernel()->setMaterial(material, r, g, b, gloss, reflection, refraction, procedural, wireframe,
-                                               wireframeDepth, transparency, opacity, textureId, TEXTURE_NONE,
-                                               TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
-                                               specular.x, specular.y, specular.w, innerIllumination.x,
-                                               innerIllumination.y, innerIllumination.z, fastTransparency);
+        SingletonKernel::kernel()->setMaterial(
+            material, r, g, b, gloss, reflection, refraction, procedural,
+            wireframe, wireframeDepth, transparency, opacity, textureId,
+            TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+            TEXTURE_NONE, TEXTURE_NONE, specular.x, specular.y, specular.w,
+            innerIllumination.x, innerIllumination.y, innerIllumination.z,
+            fastTransparency);
     }
 }
 
@@ -196,8 +200,9 @@ void glEnable(GLenum cap)
         if (!gLighting)
         {
             int p = SingletonKernel::kernel()->addPrimitive(ptSphere);
-            SingletonKernel::kernel()->setPrimitive(p, 20.f * gScale, 20.f * gScale, -20.f * gScale, 0.1f * gScale,
-                                                    0.1f * gScale, 0.1f * gScale, DEFAULT_LIGHT_MATERIAL);
+            SingletonKernel::kernel()->setPrimitive(
+                p, 20.f * gScale, 20.f * gScale, -20.f * gScale, 0.1f * gScale,
+                0.1f * gScale, 0.1f * gScale, DEFAULT_LIGHT_MATERIAL);
             gLighting = true;
             LOG_INFO(3, "[OpenGL] Light Added");
         }
@@ -226,7 +231,8 @@ void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
 void glVertex3fv(const GLfloat *v)
 {
     //::glVertex3f(x,y,z);
-    SingletonKernel::kernel()->addVertex(v[0] * gScale, v[1] * gScale, v[2] * gScale);
+    SingletonKernel::kernel()->addVertex(v[0] * gScale, v[1] * gScale,
+                                         v[2] * gScale);
 }
 
 void glNormal3f(GLfloat x, GLfloat y, GLfloat z)
@@ -272,10 +278,11 @@ void glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     {
         int m = SingletonKernel::kernel()->getCurrentMaterial();
         ++m;
-        SingletonKernel::kernel()->setMaterial(m, red, green, blue, 0.f, 0.f, 1.2f, false, 0.f, 0, alpha,
-                                               gSceneInfo.viewDistance, MATERIAL_NONE, MATERIAL_NONE, MATERIAL_NONE,
-                                               MATERIAL_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, 1.f, 200.f,
-                                               1000.f, 0.f, 0.f, 0.f, false);
+        SingletonKernel::kernel()->setMaterial(
+            m, red, green, blue, 0.f, 0.f, 1.2f, false, 0.f, 0, alpha,
+            gSceneInfo.viewDistance, MATERIAL_NONE, MATERIAL_NONE,
+            MATERIAL_NONE, MATERIAL_NONE, TEXTURE_NONE, TEXTURE_NONE,
+            TEXTURE_NONE, 1.f, 200.f, 1000.f, 0.f, 0.f, 0.f, false);
         SingletonKernel::kernel()->setCurrentMaterial(m);
     }
 }
@@ -312,10 +319,12 @@ void glTexEnvf(GLenum target, GLenum pname, GLfloat param)
     ::glTexEnvf(target, pname, param);
 }
 
-void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border,
-                  GLenum format, GLenum type, const GLvoid *pixels)
+void glTexImage2D(GLenum target, GLint level, GLint internalformat,
+                  GLsizei width, GLsizei height, GLint border, GLenum format,
+                  GLenum type, const GLvoid *pixels)
 {
-    ::glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+    ::glTexImage2D(target, level, internalformat, width, height, border, format,
+                   type, pixels);
 }
 
 /*
@@ -470,7 +479,9 @@ void gluSphere(void *, GLfloat radius, GLint, GLint)
     int p = SingletonKernel::kernel()->addPrimitive(ptSphere);
     vec3f translation = SingletonKernel::kernel()->getTranslation();
     int m = SingletonKernel::kernel()->getCurrentMaterial();
-    SingletonKernel::kernel()->setPrimitive(p, translation.x * gScale, translation.y * gScale, translation.z * gScale,
+    SingletonKernel::kernel()->setPrimitive(p, translation.x * gScale,
+                                            translation.y * gScale,
+                                            translation.z * gScale,
                                             radius * gScale, 0.f, 0.f, m);
 }
 
@@ -479,8 +490,11 @@ void glutWireSphere(GLdouble radius, GLint, GLint)
     int p = SingletonKernel::kernel()->addPrimitive(ptSphere);
     vec3f translation = SingletonKernel::kernel()->getTranslation();
     int m = SingletonKernel::kernel()->getCurrentMaterial();
-    SingletonKernel::kernel()->setPrimitive(p, translation.x * gScale, translation.y * gScale, translation.z * gScale,
-                                            static_cast<float>(radius) * gScale, 0.f, 0.f, m);
+    SingletonKernel::kernel()->setPrimitive(p, translation.x * gScale,
+                                            translation.y * gScale,
+                                            translation.z * gScale,
+                                            static_cast<float>(radius) * gScale,
+                                            0.f, 0.f, m);
 }
 
 GLUquadricObj *gluNewQuadric(void)
@@ -523,7 +537,8 @@ void glBindTexture(GLenum target, GLuint texture)
     }
 }
 
-int gluBuild2DMipmaps(GLenum target, GLint components, GLint width, GLint height, GLenum format, GLenum type,
+int gluBuild2DMipmaps(GLenum target, GLint components, GLint width,
+                      GLint height, GLenum format, GLenum type,
                       const void *data)
 {
     TextureInfo textureInfo;
@@ -558,8 +573,9 @@ void glFlush()
     ::glFlush();
 }
 
-void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
-                     GLenum format, GLenum type, const GLvoid *data);
+void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
+                     GLsizei width, GLsizei height, GLenum format, GLenum type,
+                     const GLvoid *data);
 
 void glPushAttrib(GLbitfield mask) {}
 
@@ -585,7 +601,8 @@ void glVertex2i(GLint x, GLint y)
     glVertex3f(static_cast<GLfloat>(x), static_cast<GLfloat>(y), 0.f);
 }
 
-void glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble nearVal, GLdouble farVal)
+void glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
+             GLdouble nearVal, GLdouble farVal)
 {
     SingletonKernel::kernel()->getSceneInfo().cameraType = ctOrthographic;
 }
@@ -602,8 +619,9 @@ void render()
         {
             // if no light is defined, I add one
             int p = SingletonKernel::kernel()->addPrimitive(ptSphere);
-            SingletonKernel::kernel()->setPrimitive(p, 20.f * gScale, 20.f * gScale, 20.f * gScale, 0.1f * gScale,
-                                                    0.1f * gScale, 0.1f * gScale, DEFAULT_LIGHT_MATERIAL);
+            SingletonKernel::kernel()->setPrimitive(
+                p, 20.f * gScale, 20.f * gScale, 20.f * gScale, 0.1f * gScale,
+                0.1f * gScale, 0.1f * gScale, DEFAULT_LIGHT_MATERIAL);
 
             // p = ::SingletonKernel::kernel()->addPrimitive(ptSphere);
             // ::SingletonKernel::kernel()->setPrimitive(p,0.f,0.f,0.f,0.1f*gScale,0.1f*gScale,0.1f*gScale,0);
@@ -623,16 +641,20 @@ void render()
 
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z)
 {
-    SingletonKernel::kernel()->translate(x * gScale, y * gScale, -z * gScale); // Z is inverted!!
+    SingletonKernel::kernel()->translate(x * gScale, y * gScale,
+                                         -z * gScale); // Z is inverted!!
 }
 
 void glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
-    SingletonKernel::kernel()->rotate(angle * x * PI / 180.f, angle * y * PI / 180.f, angle * z * PI / 180.f);
+    SingletonKernel::kernel()->rotate(angle * x * PI / 180.f,
+                                      angle * y * PI / 180.f,
+                                      angle * z * PI / 180.f);
 }
 
-void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ,
-               GLdouble upX, GLdouble upY, GLdouble upZ)
+void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX,
+               GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY,
+               GLdouble upZ)
 {
     gEye.x = static_cast<float>(eyeX * gScale);
     gEye.y = static_cast<float>(eyeY * gScale);
@@ -642,10 +664,12 @@ void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GL
     gDir.z = static_cast<float>(centerZ * gScale);
 }
 
-void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
-                     GLenum format, GLenum type, const GLvoid *data)
+void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
+                     GLsizei width, GLsizei height, GLenum format, GLenum type,
+                     const GLvoid *data)
 {
-    ::glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, data);
+    ::glTexSubImage2D(target, level, xoffset, yoffset, width, height, format,
+                      type, data);
 }
 
 void *gluNewNurbsRenderer()
@@ -668,11 +692,14 @@ void glutIdleFunc(void (*func)(void))
     ::glutIdleFunc(func);
 }
 
-void gluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
+void gluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear,
+                    GLdouble zFar)
 {
-    gEye.z = -20.f * static_cast<float>(aspect) / tanf(static_cast<float>(fovy)) * gScale;
+    gEye.z = -20.f * static_cast<float>(aspect) /
+             tanf(static_cast<float>(fovy)) * gScale;
     gDir.z = static_cast<float>(gEye.z + zNear * gScale + 5000.f);
-    gSceneInfo.viewDistance = static_cast<float>(gDir.z + zFar * gScale + 5000.f);
+    gSceneInfo.viewDistance =
+        static_cast<float>(gDir.z + zFar * gScale + 5000.f);
 }
 
 void glutSetCursor(int cursor)
@@ -685,8 +712,9 @@ void glPointSize(GLfloat size)
     SingletonKernel::kernel()->setPointSize(size);
 }
 
-void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data)
+void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
+                  GLenum format, GLenum type, GLvoid *data)
 {
     ::glReadPixels(x, y, width, height, format, type, data);
 }
-}
+} // namespace solr

@@ -10,7 +10,8 @@ TesseractScene::TesseractScene(const std::string& name)
 
 TesseractScene::~TesseractScene() {}
 
-vec3f TesseractScene::computeCoordinates(const vec3f& p1, const vec3f& p2, const vec3f& p3, const vec3f& p4)
+vec3f TesseractScene::computeCoordinates(const vec3f& p1, const vec3f& p2,
+                                         const vec3f& p3, const vec3f& p4)
 {
     vec3f newVec;
 
@@ -45,27 +46,46 @@ vec3f TesseractScene::computeCoordinates(const vec3f& p1, const vec3f& p2, const
 void TesseractScene::createGeometry()
 {
     vec3f tesseract[16] = {
-        {-0.5, -0.5, -0.5}, {0.5, -0.5, -0.5}, {0.5, 0.5, -0.5}, {-0.5, 0.5, -0.5}, {-0.5, -0.5, 0.5}, {0.5, -0.5, 0.5},
-        {0.5, 0.5, 0.5},    {-0.5, 0.5, 0.5},  {-1, -1, -1},     {1, -1, -1},       {1, 1, -1},        {-1, 1, -1},
-        {-1, -1, 1},        {1, -1, 1},        {1, 1, 1},        {-1, 1, 1},
+        {-0.5, -0.5, -0.5}, {0.5, -0.5, -0.5}, {0.5, 0.5, -0.5},
+        {-0.5, 0.5, -0.5},  {-0.5, -0.5, 0.5}, {0.5, -0.5, 0.5},
+        {0.5, 0.5, 0.5},    {-0.5, 0.5, 0.5},  {-1, -1, -1},
+        {1, -1, -1},        {1, 1, -1},        {-1, 1, -1},
+        {-1, -1, 1},        {1, -1, 1},        {1, 1, 1},
+        {-1, 1, 1},
     };
 
-    vec3f vertices[16] = {computeCoordinates(tesseract[8], tesseract[9], tesseract[1], tesseract[0]),
-                          computeCoordinates(tesseract[0], tesseract[8], tesseract[9], tesseract[1]),
-                          computeCoordinates(tesseract[3], tesseract[11], tesseract[10], tesseract[2]),
-                          computeCoordinates(tesseract[11], tesseract[10], tesseract[2], tesseract[3]),
-                          computeCoordinates(tesseract[12], tesseract[13], tesseract[5], tesseract[4]),
-                          computeCoordinates(tesseract[4], tesseract[12], tesseract[13], tesseract[5]),
-                          computeCoordinates(tesseract[7], tesseract[15], tesseract[14], tesseract[6]),
-                          computeCoordinates(tesseract[15], tesseract[14], tesseract[6], tesseract[7]),
-                          computeCoordinates(tesseract[9], tesseract[1], tesseract[0], tesseract[8]),
-                          computeCoordinates(tesseract[1], tesseract[0], tesseract[8], tesseract[9]),
-                          computeCoordinates(tesseract[2], tesseract[3], tesseract[11], tesseract[10]),
-                          computeCoordinates(tesseract[10], tesseract[2], tesseract[3], tesseract[11]),
-                          computeCoordinates(tesseract[13], tesseract[5], tesseract[4], tesseract[12]),
-                          computeCoordinates(tesseract[5], tesseract[4], tesseract[12], tesseract[13]),
-                          computeCoordinates(tesseract[6], tesseract[7], tesseract[15], tesseract[14]),
-                          computeCoordinates(tesseract[14], tesseract[6], tesseract[7], tesseract[15])};
+    vec3f vertices[16] = {computeCoordinates(tesseract[8], tesseract[9],
+                                             tesseract[1], tesseract[0]),
+                          computeCoordinates(tesseract[0], tesseract[8],
+                                             tesseract[9], tesseract[1]),
+                          computeCoordinates(tesseract[3], tesseract[11],
+                                             tesseract[10], tesseract[2]),
+                          computeCoordinates(tesseract[11], tesseract[10],
+                                             tesseract[2], tesseract[3]),
+                          computeCoordinates(tesseract[12], tesseract[13],
+                                             tesseract[5], tesseract[4]),
+                          computeCoordinates(tesseract[4], tesseract[12],
+                                             tesseract[13], tesseract[5]),
+                          computeCoordinates(tesseract[7], tesseract[15],
+                                             tesseract[14], tesseract[6]),
+                          computeCoordinates(tesseract[15], tesseract[14],
+                                             tesseract[6], tesseract[7]),
+                          computeCoordinates(tesseract[9], tesseract[1],
+                                             tesseract[0], tesseract[8]),
+                          computeCoordinates(tesseract[1], tesseract[0],
+                                             tesseract[8], tesseract[9]),
+                          computeCoordinates(tesseract[2], tesseract[3],
+                                             tesseract[11], tesseract[10]),
+                          computeCoordinates(tesseract[10], tesseract[2],
+                                             tesseract[3], tesseract[11]),
+                          computeCoordinates(tesseract[13], tesseract[5],
+                                             tesseract[4], tesseract[12]),
+                          computeCoordinates(tesseract[5], tesseract[4],
+                                             tesseract[12], tesseract[13]),
+                          computeCoordinates(tesseract[6], tesseract[7],
+                                             tesseract[15], tesseract[14]),
+                          computeCoordinates(tesseract[14], tesseract[6],
+                                             tesseract[7], tesseract[15])};
 
     const float s = 2000.f;
     float radius = s / 10.f;
@@ -73,13 +93,16 @@ void TesseractScene::createGeometry()
     {
         vec3f t = vertices[i];
         size_t primitiveIndex = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(primitiveIndex, s * t.x, s * t.y, s * t.z, radius, 0.f, 0.f, METAL_MATERIAL);
+        m_gpuKernel->setPrimitive(primitiveIndex, s * t.x, s * t.y, s * t.z,
+                                  radius, 0.f, 0.f, METAL_MATERIAL);
     }
 
     const size_t joints[32][2] = {
-        {0, 1},   {1, 2},  {2, 3},  {3, 0},  {0, 4},   {1, 5},   {2, 6},   {3, 7},   {4, 5},   {5, 6},   {6, 7},
-        {7, 4},   {0, 8},  {1, 9},  {2, 10}, {3, 11},  {4, 12},  {5, 13},  {6, 14},  {7, 15},  {8, 9},   {9, 10},
-        {10, 11}, {11, 8}, {8, 12}, {9, 13}, {10, 14}, {11, 15}, {12, 13}, {13, 14}, {14, 15}, {15, 12},
+        {0, 1},   {1, 2},   {2, 3},   {3, 0},   {0, 4},  {1, 5},   {2, 6},
+        {3, 7},   {4, 5},   {5, 6},   {6, 7},   {7, 4},  {0, 8},   {1, 9},
+        {2, 10},  {3, 11},  {4, 12},  {5, 13},  {6, 14}, {7, 15},  {8, 9},
+        {9, 10},  {10, 11}, {11, 8},  {8, 12},  {9, 13}, {10, 14}, {11, 15},
+        {12, 13}, {13, 14}, {14, 15}, {15, 12},
     };
 
     radius = s / 20.f;
@@ -89,8 +112,9 @@ void TesseractScene::createGeometry()
         vec3f u = vertices[joints[i][1]];
 
         size_t primitiveIndex = m_gpuKernel->addPrimitive(ptCylinder);
-        m_gpuKernel->setPrimitive(primitiveIndex, s * t.x, s * t.y, s * t.z, s * u.x, s * u.y, s * u.z, radius, 0.f,
-                                  0.f, METAL_MATERIAL);
+        m_gpuKernel->setPrimitive(primitiveIndex, s * t.x, s * t.y, s * t.z,
+                                  s * u.x, s * u.y, s * u.z, radius, 0.f, 0.f,
+                                  METAL_MATERIAL);
     }
 
     size_t material = BASIC_REFLECTION_MATERIAL_002;
@@ -138,6 +162,7 @@ void TesseractScene::doAddLights()
 {
     // lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 10000.f, -10000.f, 1000.f, 0.f, 0, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 10000.f, -10000.f, 1000.f,
+                              0.f, 0, DEFAULT_LIGHT_MATERIAL);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
 }

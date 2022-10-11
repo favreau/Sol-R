@@ -45,11 +45,13 @@ protected:
 private:
     float powerOfTwo(const size_t n);
     void createGeometry();
-    void makeSubFaces(const size_t a, const size_t b, size_t& c, const size_t n);
+    void makeSubFaces(const size_t a, const size_t b, size_t& c,
+                      const size_t n);
     void makeMatrix();
     Matrix identityMatrix();
     Matrix multiplyMatrices(const Matrix&, const Matrix&);
-    Matrix makeRotationMatrix(const size_t ID, const size_t IDD, const float angle);
+    Matrix makeRotationMatrix(const size_t ID, const size_t IDD,
+                              const float angle);
 
     Vector cross(const Vector& u, const Vector& v);
     Vector multiplyVector(const Matrix& m, const Vector& v);

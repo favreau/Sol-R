@@ -41,14 +41,18 @@ public:
     virtual ~PDBReader(void);
 
 public:
-    vec4f loadAtomsFromFile(const std::string &filename, GPUKernel &cudaKernel, GeometryType geometryType,
-                             const float defaultAtomSize, const float defaultStickSize, const int materialType,
-                             const vec4f scale, const bool useModels = false);
+    vec4f loadAtomsFromFile(const std::string &filename, GPUKernel &cudaKernel,
+                            GeometryType geometryType,
+                            const float defaultAtomSize,
+                            const float defaultStickSize,
+                            const int materialType, const vec4f scale,
+                            const bool useModels = false);
 
     int getNbBoxes() { return m_nbBoxes; }
     int getNbPrimitives() { return m_nbPrimitives; }
+
 private:
     int m_nbPrimitives;
     int m_nbBoxes;
 };
-}
+} // namespace solr

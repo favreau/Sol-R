@@ -76,4 +76,4 @@ public:
 
     vec4f loadFromFile(const std::string &filename, GPUKernel &cudaKernel);
 };
-}
+} // namespace solr

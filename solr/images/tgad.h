@@ -25,17 +25,20 @@ typedef struct
 typedef struct
 {
     unsigned char header[6];    // First 6 Useful Bytes From The Header
-    unsigned int bytesPerPixel; // Holds Number Of Bytes Per Pixel Used In The TGA File
-    unsigned int imageSize;     // Used To Store The Image Size When Setting Aside Ram
-    unsigned int temp;          // Temporary Variable
+    unsigned int bytesPerPixel; // Holds Number Of Bytes Per Pixel Used In The
+                                // TGA File
+    unsigned int imageSize; // Used To Store The Image Size When Setting Aside
+                            // Ram
+    unsigned int temp;      // Temporary Variable
     unsigned int type;
     unsigned int Height; // Height of Image
     unsigned int Width;  // Width ofImage
     unsigned int Bpp;    // Bits Per Pixel
 } TGA;
 
-bool LoadTGA(Texture *texture, char *filename);      // Load a TGA file
-bool LoadUncompressedTGA(Texture *, char *, FILE *); // Load an Uncompressed file
-bool LoadCompressedTGA(Texture *, char *, FILE *);   // Load a Compressed file
+bool LoadTGA(Texture *texture, char *filename); // Load a TGA file
+bool LoadUncompressedTGA(Texture *, char *,
+                         FILE *);                  // Load an Uncompressed file
+bool LoadCompressedTGA(Texture *, char *, FILE *); // Load a Compressed file
 
 #endif

@@ -53,14 +53,16 @@ void GraphScene::buildGraph(const bool update)
         for (int i = 0; i < m_nbGraphElements; ++i)
         {
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, -1000.f, -4000.f, 0.f, -1000.f, 1000.f, 0.f, 20.f, 0.f, 0.f,
+            m_gpuKernel->setPrimitive(m_nbPrimitives, -1000.f, -4000.f, 0.f,
+                                      -1000.f, 1000.f, 0.f, 20.f, 0.f, 0.f,
                                       material);
 
             if (i == 0)
                 m_startGraph = m_nbPrimitives;
 
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, -1000.f, 1000.f, 0.f, 20.f, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(m_nbPrimitives, -1000.f, 1000.f, 0.f,
+                                      20.f, 0.f, 0.f, material);
             ++material;
         }
 
@@ -70,50 +72,73 @@ void GraphScene::buildGraph(const bool update)
     material = m_graphMaterial;
     for (int i(0); i < m_nbGraphElements; ++i)
     {
-        m_graphValues[i] = (cos(m_gpuKernel->getSceneInfo().timestamp * 0.00402f + i * 0.2f) *
-                            sin(m_gpuKernel->getSceneInfo().timestamp * 0.00208f + i * 0.5f)) *
-                           2000.f;
+        m_graphValues[i] =
+            (cos(m_gpuKernel->getSceneInfo().timestamp * 0.00402f + i * 0.2f) *
+             sin(m_gpuKernel->getSceneInfo().timestamp * 0.00208f + i * 0.5f)) *
+            2000.f;
         maxY = (m_graphValues[i] > maxY ? m_graphValues[i] : maxY);
 
         switch (m_currentModel % 3)
         {
         case 0:
         {
-            float z = 4.f * m_graphSize.x * (i / (m_nbGraphElements / 2)) - 2.f * m_graphSize.x;
+            float z = 4.f * m_graphSize.x * (i / (m_nbGraphElements / 2)) -
+                      2.f * m_graphSize.x;
             int j = (i * 2) % (m_nbGraphElements / 2);
-            m_gpuKernel->setPrimitive(m_startGraph + (i * 2), m_graphSpace + j * 2.f * m_graphSpace - x / 2.f, y, z,
-                                      m_graphSpace + j * 2.f * m_graphSpace - x / 2.f, m_graphValues[i], z,
-                                      m_graphSize.x, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(
+                m_startGraph + (i * 2),
+                m_graphSpace + j * 2.f * m_graphSpace - x / 2.f, y, z,
+                m_graphSpace + j * 2.f * m_graphSpace - x / 2.f,
+                m_graphValues[i], z, m_graphSize.x, 0.f, 0.f, material);
 
-            m_gpuKernel->setPrimitive(m_startGraph + (i * 2) + 1, m_graphSpace + j * 2.f * m_graphSpace - x / 2.f,
-                                      m_graphValues[i], z, m_graphSize.x, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(m_startGraph + (i * 2) + 1,
+                                      m_graphSpace + j * 2.f * m_graphSpace -
+                                          x / 2.f,
+                                      m_graphValues[i], z, m_graphSize.x, 0.f,
+                                      0.f, material);
 
             break;
         }
         case 1:
         {
             if (i > 0)
-                m_gpuKernel->setPrimitive(m_startGraph + (i * 2), m_graphSpace / 2.f + (i - 1) * m_graphSpace - x / 2.f,
-                                          m_graphValues[i - 1], 0.f, m_graphSpace / 2.f + i * m_graphSpace - x / 2.f,
-                                          m_graphValues[i], 0.f, m_graphSize.x / 2.f, 0.f, 0.f, material);
+                m_gpuKernel->setPrimitive(
+                    m_startGraph + (i * 2),
+                    m_graphSpace / 2.f + (i - 1) * m_graphSpace - x / 2.f,
+                    m_graphValues[i - 1], 0.f,
+                    m_graphSpace / 2.f + i * m_graphSpace - x / 2.f,
+                    m_graphValues[i], 0.f, m_graphSize.x / 2.f, 0.f, 0.f,
+                    material);
             else
-                m_gpuKernel->setPrimitive(m_startGraph + (i * 2), 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+                m_gpuKernel->setPrimitive(m_startGraph + (i * 2), 0.f, 0.f, 0.f,
+                                          0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
                                           material);
-            m_gpuKernel->setPrimitive(m_startGraph + (i * 2) + 1, m_graphSpace / 2.f + i * m_graphSpace - x / 2.f,
-                                      m_graphValues[i], 0.f, m_graphSize.x / 2.f, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(m_startGraph + (i * 2) + 1,
+                                      m_graphSpace / 2.f + i * m_graphSpace -
+                                          x / 2.f,
+                                      m_graphValues[i], 0.f,
+                                      m_graphSize.x / 2.f, 0.f, 0.f, material);
             break;
         }
         case 2:
         {
             if (i > 0)
-                m_gpuKernel->setPrimitive(m_startGraph + (i * 2), m_graphSpace / 2.f + (i - 1) * m_graphSpace - x / 2.f,
-                                          m_graphValues[i - 1], 0.f, m_graphSpace / 2.f + i * m_graphSpace - x / 2.f,
-                                          m_graphValues[i], 0.f, m_graphSize.x / 4.f, 0.f, 0.f, material);
+                m_gpuKernel->setPrimitive(
+                    m_startGraph + (i * 2),
+                    m_graphSpace / 2.f + (i - 1) * m_graphSpace - x / 2.f,
+                    m_graphValues[i - 1], 0.f,
+                    m_graphSpace / 2.f + i * m_graphSpace - x / 2.f,
+                    m_graphValues[i], 0.f, m_graphSize.x / 4.f, 0.f, 0.f,
+                    material);
             else
-                m_gpuKernel->setPrimitive(m_startGraph + (i * 2), 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+                m_gpuKernel->setPrimitive(m_startGraph + (i * 2), 0.f, 0.f, 0.f,
+                                          0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
                                           material);
-            m_gpuKernel->setPrimitive(m_startGraph + (i * 2) + 1, m_graphSpace / 2.f + i * m_graphSpace - x / 2.f,
-                                      m_graphValues[i], 0.f, m_graphSize.x, 0.f, 0.f, material);
+            m_gpuKernel->setPrimitive(m_startGraph + (i * 2) + 1,
+                                      m_graphSpace / 2.f + i * m_graphSpace -
+                                          x / 2.f,
+                                      m_graphValues[i], 0.f, m_graphSize.x, 0.f,
+                                      0.f, material);
             break;
         }
         }
@@ -188,18 +213,28 @@ void GraphScene::buildChart(const std::string& filename)
     for (int z = 0; z < m_valueSize.x; ++z)
     {
         glBegin(GL_TRIANGLES);
-        glTranslatef(-m_graphScale.x * m_graphCenter.x, m_graphScale.y * m_graphCenter.y,
+        glTranslatef(-m_graphScale.x * m_graphCenter.x,
+                     m_graphScale.y * m_graphCenter.y,
                      -m_graphScale.z * m_graphCenter.z);
         m_gpuKernel->setCurrentMaterial(RANDOM_MATERIALS_OFFSET + 4 + m);
         for (int x = 0; x < m_valueSize.y; ++x)
         {
-            glVertex3f(m_graphScale.x * x, m_graphScale.y * m_values[x][z], -m_graphScale.z * z);
-            glVertex3f(m_graphScale.x * (x + 1), m_graphScale.y * m_values[x + 1][z], -m_graphScale.z * z);
-            glVertex3f(m_graphScale.x * (x + 1), m_graphScale.y * m_values[x + 1][z + 1], -m_graphScale.z * (z + 1));
+            glVertex3f(m_graphScale.x * x, m_graphScale.y * m_values[x][z],
+                       -m_graphScale.z * z);
+            glVertex3f(m_graphScale.x * (x + 1),
+                       m_graphScale.y * m_values[x + 1][z],
+                       -m_graphScale.z * z);
+            glVertex3f(m_graphScale.x * (x + 1),
+                       m_graphScale.y * m_values[x + 1][z + 1],
+                       -m_graphScale.z * (z + 1));
 
-            glVertex3f(m_graphScale.x * (x + 1), m_graphScale.y * m_values[x + 1][z + 1], -m_graphScale.z * (z + 1));
-            glVertex3f(m_graphScale.x * x, m_graphScale.y * m_values[x][z + 1], -m_graphScale.z * (z + 1));
-            glVertex3f(m_graphScale.x * x, m_graphScale.y * m_values[x][z], -m_graphScale.z * z);
+            glVertex3f(m_graphScale.x * (x + 1),
+                       m_graphScale.y * m_values[x + 1][z + 1],
+                       -m_graphScale.z * (z + 1));
+            glVertex3f(m_graphScale.x * x, m_graphScale.y * m_values[x][z + 1],
+                       -m_graphScale.z * (z + 1));
+            glVertex3f(m_graphScale.x * x, m_graphScale.y * m_values[x][z],
+                       -m_graphScale.z * z);
         }
         glEnd();
         ++m;
@@ -208,10 +243,12 @@ void GraphScene::buildChart(const std::string& filename)
         for (int x = 0; x < m_valueSize.y; ++x)
         {
             int p = m_gpuKernel->addPrimitive(ptXYPlane);
-            m_gpuKernel->setPrimitive(p, -m_graphScale.x * m_graphCenter.x + m_graphScale.x * x,
-                                      500.f + m_graphScale.y * m_graphCenter.y + m_graphScale.y * m_values[x][z],
-                                      m_graphScale.z * m_graphCenter.z - m_graphScale.z * z, 200.f, 100.f, 0.f,
-                                      RANDOM_MATERIALS_OFFSET + 3);
+            m_gpuKernel->setPrimitive(
+                p, -m_graphScale.x * m_graphCenter.x + m_graphScale.x * x,
+                500.f + m_graphScale.y * m_graphCenter.y +
+                    m_graphScale.y * m_values[x][z],
+                m_graphScale.z * m_graphCenter.z - m_graphScale.z * z, 200.f,
+                100.f, 0.f, RANDOM_MATERIALS_OFFSET + 3);
         }
     }
 
@@ -331,5 +368,6 @@ void GraphScene::doAddLights()
 {
     // Lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 50.f, 0, 0, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 50.f, 0, 0,
+                              DEFAULT_LIGHT_MATERIAL);
 }

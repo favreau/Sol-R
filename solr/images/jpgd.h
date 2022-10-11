@@ -3,9 +3,9 @@
 #ifndef JPEG_DECODER_H
 #define JPEG_DECODER_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <setjmp.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef _MSC_VER
 #define JPGD_NORETURN __declspec(noreturn)
@@ -25,14 +25,20 @@ typedef signed int int32;
 
 // Loads a JPEG image from a memory buffer or a file.
 // req_comps can be 1 (grayscale), 3 (RGB), or 4 (RGBA).
-// On return, width/height will be set to the image's dimensions, and actual_comps will be set to the either 1
-// (grayscale) or 3 (RGB). Notes: For more control over where and how the source data is read, see the
-// decompress_jpeg_image_from_stream() function below, or call the jpeg_decoder class directly. Requesting a 8 or 32bpp
-// image is currently a little faster than 24bpp because the jpeg_decoder class itself currently always unpacks to
+// On return, width/height will be set to the image's dimensions, and
+// actual_comps will be set to the either 1 (grayscale) or 3 (RGB). Notes: For
+// more control over where and how the source data is read, see the
+// decompress_jpeg_image_from_stream() function below, or call the jpeg_decoder
+// class directly. Requesting a 8 or 32bpp image is currently a little faster
+// than 24bpp because the jpeg_decoder class itself currently always unpacks to
 // either 8 or 32bpp.
-unsigned char *decompress_jpeg_image_from_memory(const unsigned char *pSrc_data, int src_data_size, int *width,
-                                                 int *height, int *actual_comps, int req_comps);
-unsigned char *decompress_jpeg_image_from_file(const char *pSrc_filename, int *width, int *height, int *actual_comps,
+unsigned char *decompress_jpeg_image_from_memory(const unsigned char *pSrc_data,
+                                                 int src_data_size, int *width,
+                                                 int *height, int *actual_comps,
+                                                 int req_comps);
+unsigned char *decompress_jpeg_image_from_file(const char *pSrc_filename,
+                                               int *width, int *height,
+                                               int *actual_comps,
                                                int req_comps);
 
 // Success/failure error codes.
@@ -77,10 +83,12 @@ enum jpgd_status
 };
 
 // Input stream interface.
-// Derive from this class to read input data from sources other than files or memory. Set m_eof_flag to true when no
-// more data is available. The decoder is rather greedy: it will keep on calling this method until its internal input
-// buffer is full, or until the EOF flag is set. It the input stream contains data after the JPEG stream's EOI (end of
-// image) marker it will probably be pulled into the internal buffer. Call the get_total_bytes_read() method to
+// Derive from this class to read input data from sources other than files or
+// memory. Set m_eof_flag to true when no more data is available. The decoder is
+// rather greedy: it will keep on calling this method until its internal input
+// buffer is full, or until the EOF flag is set. It the input stream contains
+// data after the JPEG stream's EOI (end of image) marker it will probably be
+// pulled into the internal buffer. Call the get_total_bytes_read() method to
 // determine the actual size of the JPEG stream after successful decoding.
 class jpeg_decoder_stream
 {
@@ -92,9 +100,11 @@ public:
     // Parameters:
     // pBuf - input buffer
     // max_bytes_to_read - maximum bytes that can be written to pBuf
-    // pEOF_flag - set this to true if at end of stream (no more bytes remaining)
-    // Returns -1 on error, otherwise return the number of bytes actually written to the buffer (which may be 0).
-    // Notes: This method will be called in a loop until you set *pEOF_flag to true or the internal buffer is full.
+    // pEOF_flag - set this to true if at end of stream (no more bytes
+    // remaining) Returns -1 on error, otherwise return the number of bytes
+    // actually written to the buffer (which may be 0). Notes: This method will
+    // be called in a loop until you set *pEOF_flag to true or the internal
+    // buffer is full.
     virtual int read(uint8 *pBuf, int max_bytes_to_read, bool *pEOF_flag) = 0;
 };
 
@@ -151,8 +161,10 @@ public:
 };
 
 // Loads JPEG file from a jpeg_decoder_stream.
-unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream, int *width, int *height,
-                                                 int *actual_comps, int req_comps);
+unsigned char *decompress_jpeg_image_from_stream(jpeg_decoder_stream *pStream,
+                                                 int *width, int *height,
+                                                 int *actual_comps,
+                                                 int req_comps);
 
 enum
 {
@@ -173,9 +185,11 @@ typedef int16 jpgd_block_t;
 class jpeg_decoder
 {
 public:
-    // Call get_error_code() after constructing to determine if the stream is valid or not. You may call the
-    // get_width(), get_height(), etc. methods after the constructor is called. You may then either destruct the object,
-    // or begin decoding the image by calling begin_decoding(), then decode() on each scanline.
+    // Call get_error_code() after constructing to determine if the stream is
+    // valid or not. You may call the get_width(), get_height(), etc. methods
+    // after the constructor is called. You may then either destruct the object,
+    // or begin decoding the image by calling begin_decoding(), then decode() on
+    // each scanline.
     jpeg_decoder(jpeg_decoder_stream *pStream);
 
     ~jpeg_decoder();
@@ -185,11 +199,13 @@ public:
     int begin_decoding();
 
     // Returns the next scan line.
-    // For grayscale images, pScan_line will point to a buffer containing 8-bit pixels (get_bytes_per_pixel() will
-    // return 1). Otherwise, it will always point to a buffer containing 32-bit RGBA pixels (A will always be 255, and
-    // get_bytes_per_pixel() will return 4). Returns JPGD_SUCCESS if a scan line has been returned. Returns JPGD_DONE if
-    // all scan lines have been returned. Returns JPGD_FAILED if an error occurred. Call get_error_code() for a more
-    // info.
+    // For grayscale images, pScan_line will point to a buffer containing 8-bit
+    // pixels (get_bytes_per_pixel() will return 1). Otherwise, it will always
+    // point to a buffer containing 32-bit RGBA pixels (A will always be 255,
+    // and get_bytes_per_pixel() will return 4). Returns JPGD_SUCCESS if a scan
+    // line has been returned. Returns JPGD_DONE if all scan lines have been
+    // returned. Returns JPGD_FAILED if an error occurred. Call get_error_code()
+    // for a more info.
     int decode(const void **pScan_line, uint *pScan_line_len);
 
     inline jpgd_status get_error_code() const { return m_error_code; }
@@ -200,10 +216,13 @@ public:
     inline int get_num_components() const { return m_comps_in_frame; }
 
     inline int get_bytes_per_pixel() const { return m_dest_bytes_per_pixel; }
-    inline int get_bytes_per_scan_line() const { return m_image_x_size * get_bytes_per_pixel(); }
+    inline int get_bytes_per_scan_line() const
+    {
+        return m_image_x_size * get_bytes_per_pixel();
+    }
 
-    // Returns the total number of bytes actually consumed by the decoder (which should equal the actual size of the
-    // JPEG file).
+    // Returns the total number of bytes actually consumed by the decoder (which
+    // should equal the actual size of the JPEG file).
     inline int get_total_bytes_read() const { return m_total_bytes_read; }
 
 private:
@@ -244,21 +263,30 @@ private:
     jpeg_decoder_stream *m_pStream;
     int m_progressive_flag;
     uint8 m_huff_ac[JPGD_MAX_HUFF_TABLES];
-    uint8 *m_huff_num[JPGD_MAX_HUFF_TABLES];      // pointer to number of Huffman codes per bit size
-    uint8 *m_huff_val[JPGD_MAX_HUFF_TABLES];      // pointer to Huffman codes per bit size
-    jpgd_quant_t *m_quant[JPGD_MAX_QUANT_TABLES]; // pointer to quantization tables
-    int m_scan_type;                        // Gray, Yh1v1, Yh1v2, Yh2v1, Yh2v2 (CMYK111, CMYK4114 no longer supported)
+    uint8 *m_huff_num[JPGD_MAX_HUFF_TABLES]; // pointer to number of Huffman
+                                             // codes per bit size
+    uint8 *m_huff_val[JPGD_MAX_HUFF_TABLES]; // pointer to Huffman codes per bit
+                                             // size
+    jpgd_quant_t *m_quant[JPGD_MAX_QUANT_TABLES]; // pointer to quantization
+                                                  // tables
+    int m_scan_type; // Gray, Yh1v1, Yh1v2, Yh2v1, Yh2v2 (CMYK111, CMYK4114 no
+                     // longer supported)
     int m_comps_in_frame;                   // # of components in frame
-    int m_comp_h_samp[JPGD_MAX_COMPONENTS]; // component's horizontal sampling factor
-    int m_comp_v_samp[JPGD_MAX_COMPONENTS]; // component's vertical sampling factor
-    int m_comp_quant[JPGD_MAX_COMPONENTS];  // component's quantization table selector
+    int m_comp_h_samp[JPGD_MAX_COMPONENTS]; // component's horizontal sampling
+                                            // factor
+    int m_comp_v_samp[JPGD_MAX_COMPONENTS]; // component's vertical sampling
+                                            // factor
+    int m_comp_quant[JPGD_MAX_COMPONENTS];  // component's quantization table
+                                            // selector
     int m_comp_ident[JPGD_MAX_COMPONENTS];  // component's ID
     int m_comp_h_blocks[JPGD_MAX_COMPONENTS];
     int m_comp_v_blocks[JPGD_MAX_COMPONENTS];
     int m_comps_in_scan;                     // # of components in scan
     int m_comp_list[JPGD_MAX_COMPS_IN_SCAN]; // components in this scan
-    int m_comp_dc_tab[JPGD_MAX_COMPONENTS];  // component's DC Huffman coding table selector
-    int m_comp_ac_tab[JPGD_MAX_COMPONENTS];  // component's AC Huffman coding table selector
+    int m_comp_dc_tab[JPGD_MAX_COMPONENTS];  // component's DC Huffman coding
+                                             // table selector
+    int m_comp_ac_tab[JPGD_MAX_COMPONENTS];  // component's AC Huffman coding
+                                             // table selector
     int m_spectral_start;                    // spectral selection start
     int m_spectral_end;                      // spectral selection end
     int m_successive_low;                    // successive approximation low
@@ -333,8 +361,10 @@ private:
     void fix_in_buffer();
     void transform_mcu(int mcu_row);
     void transform_mcu_expand(int mcu_row);
-    coeff_buf *coeff_buf_open(int block_num_x, int block_num_y, int block_len_x, int block_len_y);
-    inline jpgd_block_t *coeff_buf_getp(coeff_buf *cb, int block_x, int block_y);
+    coeff_buf *coeff_buf_open(int block_num_x, int block_num_y, int block_len_x,
+                              int block_len_y);
+    inline jpgd_block_t *coeff_buf_getp(coeff_buf *cb, int block_x,
+                                        int block_y);
     void load_next_row();
     void decode_next_row();
     void make_huff_table(int index, huff_tables *pH);
@@ -365,10 +395,14 @@ private:
     inline int huff_decode(huff_tables *pH);
     inline int huff_decode(huff_tables *pH, int &extrabits);
     static inline uint8 clamp(int i);
-    static void decode_block_dc_first(jpeg_decoder *pD, int component_id, int block_x, int block_y);
-    static void decode_block_dc_refine(jpeg_decoder *pD, int component_id, int block_x, int block_y);
-    static void decode_block_ac_first(jpeg_decoder *pD, int component_id, int block_x, int block_y);
-    static void decode_block_ac_refine(jpeg_decoder *pD, int component_id, int block_x, int block_y);
+    static void decode_block_dc_first(jpeg_decoder *pD, int component_id,
+                                      int block_x, int block_y);
+    static void decode_block_dc_refine(jpeg_decoder *pD, int component_id,
+                                       int block_x, int block_y);
+    static void decode_block_ac_first(jpeg_decoder *pD, int component_id,
+                                      int block_x, int block_y);
+    static void decode_block_ac_refine(jpeg_decoder *pD, int component_id,
+                                       int block_x, int block_y);
 };
 
 } // namespace jpgd

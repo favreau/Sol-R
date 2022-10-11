@@ -21,10 +21,10 @@
 #include "TrianglesScene.h"
 
 #include <common/Utils.h>
-#include <math.h>
 #include <io/FileMarshaller.h>
 #include <io/OBJReader.h>
 #include <io/PDBReader.h>
+#include <math.h>
 
 TrianglesScene::TrianglesScene(const std::string& name)
     : Scene(name)
@@ -40,14 +40,17 @@ void TrianglesScene::doInitialize()
 {
     Strings extensions;
     extensions.push_back(".irt");
-    const Strings fileNames = getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/irt", extensions);
+    const Strings fileNames =
+        getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/irt",
+                           extensions);
     if (fileNames.size() != 0)
     {
         const vec4f center = make_vec4f();
         const float objectScale = 1.f;
         m_currentModel = m_currentModel % fileNames.size();
         FileMarshaller fm;
-        fm.loadFromFile(*m_gpuKernel, fileNames[m_currentModel], center, objectScale * 5000.f);
+        fm.loadFromFile(*m_gpuKernel, fileNames[m_currentModel], center,
+                        objectScale * 5000.f);
         m_groundHeight = -2500.f;
     }
 }
@@ -67,7 +70,8 @@ void TrianglesScene::doAddLights()
     {
         LOG_INFO(3, "Adding sun light");
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, 5000.f, 5000.f, -5000.f, 10.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, 5000.f, 5000.f, -5000.f, 10.f,
+                                  0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

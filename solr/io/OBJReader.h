@@ -55,17 +55,22 @@ public:
     OBJReader();
     ~OBJReader();
 
-    unsigned int loadMaterialsFromFile(const std::string &filename, std::map<std::string, MaterialMTL> &m_materials,
-                                       GPUKernel &GPUKernel, int materialId);
+    unsigned int loadMaterialsFromFile(
+        const std::string &filename,
+        std::map<std::string, MaterialMTL> &m_materials, GPUKernel &GPUKernel,
+        int materialId);
 
-    vec4f loadModelFromFile(const std::string &filename, GPUKernel &cudaKernel, const vec4f &center,
-                            const bool autoScale, const vec4f &scale, bool loadMaterials, int materialId,
-                            bool allSpheres, bool autoCenter, CPUBoundingBox &aabb, const bool &checkInAABB,
+    vec4f loadModelFromFile(const std::string &filename, GPUKernel &cudaKernel,
+                            const vec4f &center, const bool autoScale,
+                            const vec4f &scale, bool loadMaterials,
+                            int materialId, bool allSpheres, bool autoCenter,
+                            CPUBoundingBox &aabb, const bool &checkInAABB,
                             const CPUBoundingBox &inAABB);
 
 private:
-    void addLightComponent(GPUKernel &kernel, std::vector<vec4f> &solrVertices, const vec4f &center,
-                           const vec4f &objectCenter, const vec4f &objectScale, const int material,
+    void addLightComponent(GPUKernel &kernel, std::vector<vec4f> &solrVertices,
+                           const vec4f &center, const vec4f &objectCenter,
+                           const vec4f &objectScale, const int material,
                            CPUBoundingBox &aabb);
 };
-}
+} // namespace solr

@@ -73,22 +73,29 @@ void ColumnScene::doInitialize()
     Strings extensions;
     extensions.push_back(".obj");
     extensions.push_back(".mtl");
-    const Strings fileNames = getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/obj", extensions);
+    const Strings fileNames =
+        getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/obj",
+                           extensions);
 
     const std::string star("neuron_12558.obj");
     OBJReader objectReader;
     CPUBoundingBox inAABB;
     memset(&inAABB, 0, sizeof(CPUBoundingBox));
-    const vec4f size = objectReader.loadModelFromFile(path + "\\" + star, *m_gpuKernel, objectPosition, false,
-                                                      m_objectScale, false, 10, false, false, AABB, false, inAABB);
+    const vec4f size =
+        objectReader.loadModelFromFile(path + "\\" + star, *m_gpuKernel,
+                                       objectPosition, false, m_objectScale,
+                                       false, 10, false, false, AABB, false,
+                                       inAABB);
 
-    const vec4f halfSize = make_vec4f((AABB.parameters[1].x - AABB.parameters[0].x) / 2.f,
-                                      (AABB.parameters[1].y - AABB.parameters[0].y) / 2.f,
-                                      (AABB.parameters[1].z - AABB.parameters[0].z) / 2.f);
+    const vec4f halfSize =
+        make_vec4f((AABB.parameters[1].x - AABB.parameters[0].x) / 2.f,
+                   (AABB.parameters[1].y - AABB.parameters[0].y) / 2.f,
+                   (AABB.parameters[1].z - AABB.parameters[0].z) / 2.f);
 
-    const vec4f boxCenter = make_vec4f((AABB.parameters[0].x + AABB.parameters[1].x) / 2.f,
-                                       (AABB.parameters[0].y + AABB.parameters[1].y) / 2.f,
-                                       (AABB.parameters[0].z + AABB.parameters[1].z) / 2.f);
+    const vec4f boxCenter =
+        make_vec4f((AABB.parameters[0].x + AABB.parameters[1].x) / 2.f,
+                   (AABB.parameters[0].y + AABB.parameters[1].y) / 2.f,
+                   (AABB.parameters[0].z + AABB.parameters[1].z) / 2.f);
 
     inAABB.parameters[0].x = (boxCenter.x - halfSize.x * boxScale);
     inAABB.parameters[0].y = (boxCenter.y - halfSize.y * boxScale);
@@ -98,7 +105,9 @@ void ColumnScene::doInitialize()
     inAABB.parameters[1].z = (boxCenter.z + halfSize.z * boxScale);
 
     m_actorPosition = boxCenter;
-    LOG_INFO(1, "Actor Position: " << m_actorPosition.x << "," << m_actorPosition.y << "," << m_actorPosition.z << ")");
+    LOG_INFO(1, "Actor Position: " << m_actorPosition.x << ","
+                                   << m_actorPosition.y << ","
+                                   << m_actorPosition.z << ")");
 
     for (int i(0); i < fileNames.size(); ++i)
     {
@@ -108,8 +117,9 @@ void ColumnScene::doInitialize()
         if (m_name.find(star) == -1)
         {
             CPUBoundingBox aabb;
-            objectReader.loadModelFromFile(m_name, *m_gpuKernel, objectPosition, false, m_objectScale, false, 11, false,
-                                           false, aabb, true, inAABB);
+            objectReader.loadModelFromFile(m_name, *m_gpuKernel, objectPosition,
+                                           false, m_objectScale, false, 11,
+                                           false, false, aabb, true, inAABB);
 
             m_groundHeight = -size.y / 2.f - sceneInfo.geometryEpsilon;
 
@@ -149,8 +159,10 @@ void ColumnScene::doAddLights()
     {
         // lights
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, rand() % 20000 - 10000.f, rand() % 5000 - m_groundHeight,
-                                  rand() % 20000 - 10000.f, 10.f, 0.f, 0.f, 120 + i);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, rand() % 20000 - 10000.f,
+                                  rand() % 5000 - m_groundHeight,
+                                  rand() % 20000 - 10000.f, 10.f, 0.f, 0.f,
+                                  120 + i);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

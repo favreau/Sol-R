@@ -26,19 +26,19 @@
 #include <GL/freeglut.h>
 #endif
 
-#include <consts.h>
-#include <Logging.h>
 #include "CudaKernel.h"
 #include "CudaRayTracer.h"
+#include <Logging.h>
+#include <consts.h>
 
 #ifdef WIN32
 #include <windows.h>
 #else
-#include <stdio.h>
 #include <iostream>
 #include <math.h>
 #include <omp.h>
 #include <sstream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -94,9 +94,12 @@ CudaKernel::CudaKernel()
 
 #ifdef LOGGING
     // Initialize Log
-    LOG_INITIALIZE_ETW(&GPU_CudaRAYTRACERMODULE, &GPU_CudaRAYTRACERMODULE_EVENT_DEBUG,
-                       &GPU_CudaRAYTRACERMODULE_EVENT_VERBOSE, &GPU_CudaRAYTRACERMODULE_EVENT_INFO,
-                       &GPU_CudaRAYTRACERMODULE_EVENT_WARNING, &GPU_CudaRAYTRACERMODULE_EVENT_ERROR);
+    LOG_INITIALIZE_ETW(&GPU_CudaRAYTRACERMODULE,
+                       &GPU_CudaRAYTRACERMODULE_EVENT_DEBUG,
+                       &GPU_CudaRAYTRACERMODULE_EVENT_VERBOSE,
+                       &GPU_CudaRAYTRACERMODULE_EVENT_INFO,
+                       &GPU_CudaRAYTRACERMODULE_EVENT_WARNING,
+                       &GPU_CudaRAYTRACERMODULE_EVENT_ERROR);
 #endif
 }
 
@@ -135,12 +138,13 @@ ________________________________________________________________________________
 void CudaKernel::initializeDevice()
 {
     LOG_INFO(3, "CudaKernel::initializeDevice");
-    initialize_scene(m_occupancyParameters, m_sceneInfo, NB_MAX_PRIMITIVES, NB_MAX_LAMPS, NB_MAX_MATERIALS
+    initialize_scene(m_occupancyParameters, m_sceneInfo, NB_MAX_PRIMITIVES,
+                     NB_MAX_LAMPS, NB_MAX_MATERIALS
 #ifdef USE_MANAGED_MEMORY
                      ,
                      m_hBoundingBoxes, m_hPrimitives
 #endif
-                     );
+    );
     reshape_scene(m_occupancyParameters, m_sceneInfo);
 }
 
@@ -162,7 +166,7 @@ void CudaKernel::releaseDevice()
                    ,
                    m_hBoundingBoxes, m_hPrimitives
 #endif
-                   );
+    );
 }
 
 /*
@@ -186,22 +190,34 @@ void CudaKernel::render_begin(const float timer)
         int nbLamps = m_nbActiveLamps[m_frame];
         int nbMaterials = m_nbActiveMaterials + 1;
 
-        LOG_INFO(3, "Data sizes [" << m_frame << "]: " << nbBoxes << ", " << nbPrimitives << ", " << nbMaterials << ", "
-                                   << nbLamps);
-        LOG_INFO(3, "Pos = " << m_viewPos.x << "," << m_viewPos.y << "," << m_viewPos.z);
-        LOG_INFO(3, "Dir = " << m_viewDir.x << "," << m_viewDir.y << "," << m_viewDir.z);
-        LOG_INFO(3, "Ang = " << m_angles.x << "," << m_angles.y << "," << m_angles.z);
-        LOG_INFO(3, "Min = " << m_minPos[m_frame].x << "," << m_minPos[m_frame].y << "," << m_minPos[m_frame].z);
-        LOG_INFO(3, "Max = " << m_maxPos[m_frame].x << "," << m_maxPos[m_frame].y << "," << m_maxPos[m_frame].z);
+        LOG_INFO(3, "Data sizes [" << m_frame << "]: " << nbBoxes << ", "
+                                   << nbPrimitives << ", " << nbMaterials
+                                   << ", " << nbLamps);
+        LOG_INFO(3, "Pos = " << m_viewPos.x << "," << m_viewPos.y << ","
+                             << m_viewPos.z);
+        LOG_INFO(3, "Dir = " << m_viewDir.x << "," << m_viewDir.y << ","
+                             << m_viewDir.z);
+        LOG_INFO(3, "Ang = " << m_angles.x << "," << m_angles.y << ","
+                             << m_angles.z);
+        LOG_INFO(3, "Min = " << m_minPos[m_frame].x << ","
+                             << m_minPos[m_frame].y << ","
+                             << m_minPos[m_frame].z);
+        LOG_INFO(3, "Max = " << m_maxPos[m_frame].x << ","
+                             << m_maxPos[m_frame].y << ","
+                             << m_maxPos[m_frame].z);
 
         if (!m_primitivesTransfered)
         {
-            LOG_INFO(3, "Transfering " << nbBoxes << " boxes, " << nbPrimitives << " primitives and " << nbLamps
+            LOG_INFO(3, "Transfering " << nbBoxes << " boxes, " << nbPrimitives
+                                       << " primitives and " << nbLamps
                                        << " lamps");
-            h2d_scene(m_occupancyParameters, m_hBoundingBoxes, nbBoxes, m_hPrimitives, nbPrimitives, m_hLamps, nbLamps);
+            h2d_scene(m_occupancyParameters, m_hBoundingBoxes, nbBoxes,
+                      m_hPrimitives, nbPrimitives, m_hLamps, nbLamps);
 
-            LOG_INFO(3, "Transfering " << m_lightInformationSize << " light elements");
-            h2d_lightInformation(m_occupancyParameters, m_lightInformation, m_lightInformationSize);
+            LOG_INFO(3, "Transfering " << m_lightInformationSize
+                                       << " light elements");
+            h2d_lightInformation(m_occupancyParameters, m_lightInformation,
+                                 m_lightInformationSize);
             m_primitivesTransfered = true;
         }
 
@@ -223,8 +239,9 @@ void CudaKernel::render_begin(const float timer)
 
         if (!m_texturesTransfered)
         {
-            LOG_INFO(3, "Transfering " << m_nbActiveTextures << " textures, and " << m_lightInformationSize
-                                       << " light information");
+            LOG_INFO(3, "Transfering "
+                            << m_nbActiveTextures << " textures, and "
+                            << m_lightInformationSize << " light information");
             h2d_textures(m_occupancyParameters, NB_MAX_TEXTURES, m_hTextures);
             m_texturesTransfered = true;
         }
@@ -236,7 +253,8 @@ void CudaKernel::render_begin(const float timer)
             m_hVideo = 0;
             const NUI_IMAGE_FRAME *pImageFrame = 0;
             WaitForSingleObject(m_hNextVideoFrameEvent, INFINITE);
-            HRESULT status = NuiImageStreamGetNextFrame(m_pVideoStreamHandle, 0, &pImageFrame);
+            HRESULT status = NuiImageStreamGetNextFrame(m_pVideoStreamHandle, 0,
+                                                        &pImageFrame);
             if ((status == S_OK) && pImageFrame)
             {
                 INuiFrameTexture *pTexture = pImageFrame->pFrameTexture;
@@ -252,7 +270,8 @@ void CudaKernel::render_begin(const float timer)
             m_hDepth = 0;
             const NUI_IMAGE_FRAME *pDepthFrame = 0;
             WaitForSingleObject(m_hNextDepthFrameEvent, INFINITE);
-            status = NuiImageStreamGetNextFrame(m_pDepthStreamHandle, 0, &pDepthFrame);
+            status = NuiImageStreamGetNextFrame(m_pDepthStreamHandle, 0,
+                                                &pDepthFrame);
             if ((status == S_OK) && pDepthFrame)
             {
                 INuiFrameTexture *pTexture = pDepthFrame->pFrameTexture;
@@ -287,35 +306,41 @@ void CudaKernel::render_begin(const float timer)
         SceneInfo sceneInfo = m_sceneInfo;
         if (m_sceneInfo.draftMode && m_sceneInfo.pathTracingIteration == 0)
             sceneInfo.graphicsLevel = glNoShading;
-        if (m_sceneInfo.draftMode && m_sceneInfo.pathTracingIteration == m_sceneInfo.maxPathTracingIterations)
+        if (m_sceneInfo.draftMode && m_sceneInfo.pathTracingIteration ==
+                                         m_sceneInfo.maxPathTracingIterations)
             sceneInfo.cameraType = ctAntialiazed;
 
-        cudaRender(m_occupancyParameters, m_blockSize, sceneInfo, objects, m_postProcessingInfo, m_viewPos, m_viewDir,
-                   m_angles
+        cudaRender(m_occupancyParameters, m_blockSize, sceneInfo, objects,
+                   m_postProcessingInfo, m_viewPos, m_viewDir, m_angles
 #ifdef USE_MANAGED_MEMORY
                    ,
                    m_hBoundingBoxes, m_hPrimitives
 #endif
-                   );
+        );
     }
-    m_refresh = (m_sceneInfo.pathTracingIteration < m_sceneInfo.maxPathTracingIterations);
+    m_refresh = (m_sceneInfo.pathTracingIteration <
+                 m_sceneInfo.maxPathTracingIterations);
 }
 
 void CudaKernel::render_end()
 {
     // GPU -> CPU Data transfers
-    d2h_bitmap(m_occupancyParameters, m_sceneInfo, m_bitmap, m_hPrimitivesXYIds);
+    d2h_bitmap(m_occupancyParameters, m_sceneInfo, m_bitmap,
+               m_hPrimitivesXYIds);
 
 #ifdef WIN32
-    if (m_sceneInfo.pathTracingIteration == m_sceneInfo.maxPathTracingIterations - 1)
-        LOG_INFO(1, "Rendering completed in " << GetTickCount() - m_counter << " ms");
+    if (m_sceneInfo.pathTracingIteration ==
+        m_sceneInfo.maxPathTracingIterations - 1)
+        LOG_INFO(1, "Rendering completed in " << GetTickCount() - m_counter
+                                              << " ms");
 #endif // WIN32
     if (m_sceneInfo.frameBufferType == ftRGB)
     {
         ::glEnable(GL_TEXTURE_2D);
         ::glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        ::glTexImage2D(GL_TEXTURE_2D, 0, gColorDepth, m_sceneInfo.size.x, m_sceneInfo.size.y, 0, GL_RGB,
-                       GL_UNSIGNED_BYTE, m_bitmap);
+        ::glTexImage2D(GL_TEXTURE_2D, 0, gColorDepth, m_sceneInfo.size.x,
+                       m_sceneInfo.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                       m_bitmap);
 
         if (m_sceneInfo.cameraType == ctVR)
         {
@@ -335,10 +360,14 @@ void CudaKernel::render_end()
                     for (float y(0); y < 1; y += step)
                     {
                         vec2f s = {scale, scale};
-                        const vec2f p0 = {s.x * x - halfStep, s.y * y - halfStep};
-                        const vec2f p1 = {s.x * (x + step) - halfStep, s.y * y - halfStep};
-                        const vec2f p2 = {s.x * (x + step) - halfStep, s.y * (y + step) - halfStep};
-                        const vec2f p3 = {s.x * x - halfStep, s.y * (y + step) - halfStep};
+                        const vec2f p0 = {s.x * x - halfStep,
+                                          s.y * y - halfStep};
+                        const vec2f p1 = {s.x * (x + step) - halfStep,
+                                          s.y * y - halfStep};
+                        const vec2f p2 = {s.x * (x + step) - halfStep,
+                                          s.y * (y + step) - halfStep};
+                        const vec2f p3 = {s.x * x - halfStep,
+                                          s.y * (y + step) - halfStep};
 
                         float d0 = sqrt(pow(p0.x, 2) + pow(p0.y, 2));
                         float d1 = sqrt(pow(p1.x, 2) + pow(p1.y, 2));
@@ -352,16 +381,20 @@ void CudaKernel::render_end()
 
                         ::glBegin(GL_QUADS);
                         ::glTexCoord2f(1.f - (b + (x / 2.f)), y);
-                        ::glVertex3f(center.x + 0.5f * p0.x * d0, center.y + p0.y * d0, 0.f);
+                        ::glVertex3f(center.x + 0.5f * p0.x * d0,
+                                     center.y + p0.y * d0, 0.f);
 
                         ::glTexCoord2f(1.f - (b + (x + step) / 2.f), y);
-                        ::glVertex3f(center.x + 0.5f * p1.x * d1, center.y + p1.y * d1, 0.f);
+                        ::glVertex3f(center.x + 0.5f * p1.x * d1,
+                                     center.y + p1.y * d1, 0.f);
 
                         ::glTexCoord2f(1.f - (b + (x + step) / 2.f), y + step);
-                        ::glVertex3f(center.x + 0.5f * p2.x * d2, center.y + p2.y * d2, 0.f);
+                        ::glVertex3f(center.x + 0.5f * p2.x * d2,
+                                     center.y + p2.y * d2, 0.f);
 
                         ::glTexCoord2f(1.f - (b + (x / 2.f)), y + step);
-                        ::glVertex3f(center.x + 0.5f * p3.x * d3, center.y + p3.y * d3, 0.f);
+                        ::glVertex3f(center.x + 0.5f * p3.x * d3,
+                                     center.y + p3.y * d3, 0.f);
                         ::glEnd();
                     }
                 }
@@ -390,13 +423,16 @@ void CudaKernel::render_end()
 
 void CudaKernel::queryDevice()
 {
-    LOG_INFO(3, "CUDA Device Query (Runtime API) version (CUDART static linking)");
+    LOG_INFO(3,
+             "CUDA Device Query (Runtime API) version (CUDART static linking)");
 
     int deviceCount = 0;
     cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
 
     if (error_id != cudaSuccess)
-        LOG_INFO(3, "cudaGetDeviceCount returned " << (int)error_id << " -> " << cudaGetErrorString(error_id));
+        LOG_INFO(3, "cudaGetDeviceCount returned "
+                        << (int)error_id << " -> "
+                        << cudaGetErrorString(error_id));
 
     // This function call returns 0 if there are no CUDA capable devices.
     if (deviceCount == 0)
@@ -419,61 +455,90 @@ void CudaKernel::queryDevice()
         cudaDriverGetVersion(&driverVersion);
         cudaRuntimeGetVersion(&runtimeVersion);
         LOG_INFO(1, " - CUDA Driver Version / Runtime Version..........: "
-                        << driverVersion / 1000 << "." << (driverVersion % 100) / 10 << " / " << runtimeVersion / 1000
-                        << "." << (runtimeVersion % 100) / 10);
-        LOG_INFO(1, " - CUDA Capability Major/Minor version number.....: " << deviceProp.major << "."
-                                                                           << deviceProp.minor);
+                        << driverVersion / 1000 << "."
+                        << (driverVersion % 100) / 10 << " / "
+                        << runtimeVersion / 1000 << "."
+                        << (runtimeVersion % 100) / 10);
+        LOG_INFO(1, " - CUDA Capability Major/Minor version number.....: "
+                        << deviceProp.major << "." << deviceProp.minor);
         LOG_INFO(1, " - Total amount of global memory..................: "
-                        << (float)deviceProp.totalGlobalMem / 1048576.0f << "MBytes ("
-                        << (unsigned long long)deviceProp.totalGlobalMem << " bytes)");
+                        << (float)deviceProp.totalGlobalMem / 1048576.0f
+                        << "MBytes ("
+                        << (unsigned long long)deviceProp.totalGlobalMem
+                        << " bytes)");
         LOG_INFO(3, " - Max Texture Dimension Size (x,y,z).............: 1D=("
-                        << deviceProp.maxTexture1D << "), 2D=(" << deviceProp.maxTexture2D[0] << ","
-                        << deviceProp.maxTexture2D[1] << "), 3D=(" << deviceProp.maxTexture3D[0] << ","
-                        << deviceProp.maxTexture3D[1] << "," << deviceProp.maxTexture3D[2] << ")");
+                        << deviceProp.maxTexture1D << "), 2D=("
+                        << deviceProp.maxTexture2D[0] << ","
+                        << deviceProp.maxTexture2D[1] << "), 3D=("
+                        << deviceProp.maxTexture3D[0] << ","
+                        << deviceProp.maxTexture3D[1] << ","
+                        << deviceProp.maxTexture3D[2] << ")");
         LOG_INFO(3, " - Max Layered Texture Size (dim) x layers........: 1D=("
-                        << deviceProp.maxTexture1DLayered[0] << ") x " << deviceProp.maxTexture1DLayered[1] << ", 2D=("
-                        << deviceProp.maxTexture2DLayered[0] << "," << deviceProp.maxTexture2DLayered[1] << ") x "
+                        << deviceProp.maxTexture1DLayered[0] << ") x "
+                        << deviceProp.maxTexture1DLayered[1] << ", 2D=("
+                        << deviceProp.maxTexture2DLayered[0] << ","
+                        << deviceProp.maxTexture2DLayered[1] << ") x "
                         << deviceProp.maxTexture2DLayered[2]);
-        LOG_INFO(3, " - Total amount of constant memory................: " << deviceProp.totalConstMem << "bytes");
-        LOG_INFO(3, " - Total amount of shared memory per block........: " << deviceProp.sharedMemPerBlock << "bytes");
-        LOG_INFO(3, " - Total number of registers available per block..: " << deviceProp.regsPerBlock);
-        LOG_INFO(3, " - Warp size......................................: " << deviceProp.warpSize);
-        LOG_INFO(3, " - Maximum number of threads per multiprocessor...: " << deviceProp.maxThreadsPerMultiProcessor);
-        LOG_INFO(3, " - Maximum number of threads per block............: " << deviceProp.maxThreadsPerBlock);
-        LOG_INFO(3, " - Maximum sizes of each dimension of a block.....: " << deviceProp.maxThreadsDim[0] << " x "
-                                                                           << deviceProp.maxThreadsDim[1] << " x "
-                                                                           << deviceProp.maxThreadsDim[2]);
-        LOG_INFO(3, " - Maximum sizes of each dimension of a grid......: " << deviceProp.maxGridSize[0] << " x "
-                                                                           << deviceProp.maxGridSize[1] << " x "
-                                                                           << deviceProp.maxGridSize[2]);
-        LOG_INFO(3, " - Maximum memory pitch...........................: " << deviceProp.memPitch << "bytes");
-        LOG_INFO(3, " - Texture alignment..............................: " << deviceProp.textureAlignment << "bytes");
-        LOG_INFO(3, " - Concurrent copy and execution..................: " << (deviceProp.deviceOverlap ? "Yes" : "No")
-                                                                           << " with " << deviceProp.asyncEngineCount
-                                                                           << "copy engine(s)");
-        LOG_INFO(3, " - Run time limit on kernels......................: "
-                        << (deviceProp.kernelExecTimeoutEnabled ? "Yes" : "No"));
-        LOG_INFO(3, " - Integrated GPU sharing Host Memory.............: " << (deviceProp.integrated ? "Yes" : "No"));
-        LOG_INFO(3, " - Support host page-locked memory mapping........: " << (deviceProp.canMapHostMemory ? "Yes"
-                                                                                                           : "No"));
-        LOG_INFO(3, " - Concurrent GPUKernel execution.................: " << (deviceProp.concurrentKernels ? "Yes"
-                                                                                                            : "No"));
-        LOG_INFO(3, " - Alignment requirement for Surfaces.............: " << (deviceProp.surfaceAlignment ? "Yes"
-                                                                                                           : "No"));
-        LOG_INFO(3, " - Device has ECC support enabled.................: " << (deviceProp.ECCEnabled ? "Yes" : "No"));
-        LOG_INFO(3, " - Device is using TCC driver mode................: " << (deviceProp.tccDriver ? "Yes" : "No"));
-        LOG_INFO(3, " - Device supports Unified Addressing (UVA).......: " << (deviceProp.unifiedAddressing ? "Yes"
-                                                                                                            : "No"));
-        LOG_INFO(3, " - Device PCI Bus ID / PCI location ID............: " << deviceProp.pciBusID << "/"
-                                                                           << deviceProp.pciDeviceID);
+        LOG_INFO(3, " - Total amount of constant memory................: "
+                        << deviceProp.totalConstMem << "bytes");
+        LOG_INFO(3, " - Total amount of shared memory per block........: "
+                        << deviceProp.sharedMemPerBlock << "bytes");
+        LOG_INFO(3, " - Total number of registers available per block..: "
+                        << deviceProp.regsPerBlock);
+        LOG_INFO(3, " - Warp size......................................: "
+                        << deviceProp.warpSize);
+        LOG_INFO(3, " - Maximum number of threads per multiprocessor...: "
+                        << deviceProp.maxThreadsPerMultiProcessor);
+        LOG_INFO(3, " - Maximum number of threads per block............: "
+                        << deviceProp.maxThreadsPerBlock);
+        LOG_INFO(3, " - Maximum sizes of each dimension of a block.....: "
+                        << deviceProp.maxThreadsDim[0] << " x "
+                        << deviceProp.maxThreadsDim[1] << " x "
+                        << deviceProp.maxThreadsDim[2]);
+        LOG_INFO(3, " - Maximum sizes of each dimension of a grid......: "
+                        << deviceProp.maxGridSize[0] << " x "
+                        << deviceProp.maxGridSize[1] << " x "
+                        << deviceProp.maxGridSize[2]);
+        LOG_INFO(3, " - Maximum memory pitch...........................: "
+                        << deviceProp.memPitch << "bytes");
+        LOG_INFO(3, " - Texture alignment..............................: "
+                        << deviceProp.textureAlignment << "bytes");
+        LOG_INFO(3, " - Concurrent copy and execution..................: "
+                        << (deviceProp.deviceOverlap ? "Yes" : "No") << " with "
+                        << deviceProp.asyncEngineCount << "copy engine(s)");
+        LOG_INFO(3,
+                 " - Run time limit on kernels......................: "
+                     << (deviceProp.kernelExecTimeoutEnabled ? "Yes" : "No"));
+        LOG_INFO(3, " - Integrated GPU sharing Host Memory.............: "
+                        << (deviceProp.integrated ? "Yes" : "No"));
+        LOG_INFO(3, " - Support host page-locked memory mapping........: "
+                        << (deviceProp.canMapHostMemory ? "Yes" : "No"));
+        LOG_INFO(3, " - Concurrent GPUKernel execution.................: "
+                        << (deviceProp.concurrentKernels ? "Yes" : "No"));
+        LOG_INFO(3, " - Alignment requirement for Surfaces.............: "
+                        << (deviceProp.surfaceAlignment ? "Yes" : "No"));
+        LOG_INFO(3, " - Device has ECC support enabled.................: "
+                        << (deviceProp.ECCEnabled ? "Yes" : "No"));
+        LOG_INFO(3, " - Device is using TCC driver mode................: "
+                        << (deviceProp.tccDriver ? "Yes" : "No"));
+        LOG_INFO(3, " - Device supports Unified Addressing (UVA).......: "
+                        << (deviceProp.unifiedAddressing ? "Yes" : "No"));
+        LOG_INFO(3, " - Device PCI Bus ID / PCI location ID............: "
+                        << deviceProp.pciBusID << "/"
+                        << deviceProp.pciDeviceID);
 
         const char *sComputeMode[] = {
-            "Default (multiple host threads can use ::cudaSetDevice() with device simultaneously)",
-            "Exclusive (only one host thread in one process is able to use ::cudaSetDevice() with this device)",
-            "Prohibited (no host thread can use ::cudaSetDevice() with this device)",
-            "Exclusive Process (many threads in one process is able to use ::cudaSetDevice() with this device) Unknown",
+            "Default (multiple host threads can use ::cudaSetDevice() with "
+            "device simultaneously)",
+            "Exclusive (only one host thread in one process is able to use "
+            "::cudaSetDevice() with this device)",
+            "Prohibited (no host thread can use ::cudaSetDevice() with this "
+            "device)",
+            "Exclusive Process (many threads in one process is able to use "
+            "::cudaSetDevice() with this device) Unknown",
             NULL};
-        LOG_INFO(3, " - Compute Mode...................................: " << sComputeMode[deviceProp.computeMode]);
+        LOG_INFO(3, " - Compute Mode...................................: "
+                        << sComputeMode[deviceProp.computeMode]);
         LOG_INFO(3, "");
         LOG_INFO(3, "Data type sizes (in bytes)");
         LOG_INFO(3, " - float             : " << sizeof(float));
@@ -501,7 +566,8 @@ void CudaKernel::queryDevice()
     // driver version
     sProfileString += ", CUDA Driver Version = ";
 #ifdef WIN32
-    sprintf_s(cTemp, 10, "%d.%d", driverVersion / 1000, (driverVersion % 100) / 10);
+    sprintf_s(cTemp, 10, "%d.%d", driverVersion / 1000,
+              (driverVersion % 100) / 10);
 #else
     sprintf(cTemp, "%d.%d", driverVersion / 1000, (driverVersion % 100) / 10);
 #endif
@@ -510,7 +576,8 @@ void CudaKernel::queryDevice()
     // Runtime version
     sProfileString += ", CUDA Runtime Version = ";
 #ifdef WIN32
-    sprintf_s(cTemp, 10, "%d.%d", runtimeVersion / 1000, (runtimeVersion % 100) / 10);
+    sprintf_s(cTemp, 10, "%d.%d", runtimeVersion / 1000,
+              (runtimeVersion % 100) / 10);
 #else
     sprintf(cTemp, "%d.%d", runtimeVersion / 1000, (runtimeVersion % 100) / 10);
 #endif
@@ -533,7 +600,8 @@ void CudaKernel::queryDevice()
         sProfileString += ", Device = ";
         sProfileString += deviceProp.name;
     }
-    LOG_INFO(3, " - Profile........................................: " << sProfileString);
+    LOG_INFO(3, " - Profile........................................: "
+                    << sProfileString);
 }
 
 void CudaKernel::reshape()
@@ -546,4 +614,4 @@ std::string CudaKernel::getGPUDescription()
 {
     return m_gpuDescription;
 }
-}
+} // namespace solr

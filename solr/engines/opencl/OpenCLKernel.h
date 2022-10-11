@@ -55,7 +55,10 @@ public:
 
     virtual void setPlatformId(const int platform) { m_platform = platform; }
     virtual void setDeviceId(const int device) { m_device = device; }
-    virtual void setKernelFilename(const std::string &kernelFilename) { m_kernelFilename = kernelFilename; }
+    virtual void setKernelFilename(const std::string &kernelFilename)
+    {
+        m_kernelFilename = kernelFilename;
+    }
 
 public:
     // ---------- Devices ----------
@@ -79,7 +82,8 @@ public:
     static int getNumPlatforms();
     static std::string getPlatformDescription(const int platform);
     static int getNumDevices(const int platform);
-    static std::string getDeviceDescription(const int platform, const int device);
+    static std::string getDeviceDescription(const int platform,
+                                            const int device);
 
 private:
     // Platforms

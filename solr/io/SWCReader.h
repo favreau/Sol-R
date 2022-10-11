@@ -44,11 +44,15 @@ public:
     SWCReader();
     ~SWCReader();
 
-    CPUBoundingBox loadMorphologyFromFile(const std::string &filename, GPUKernel &cudaKernel, const vec4f &position,
-                                          const vec4f &scale, const int materialId);
+    CPUBoundingBox loadMorphologyFromFile(const std::string &filename,
+                                          GPUKernel &cudaKernel,
+                                          const vec4f &position,
+                                          const vec4f &scale,
+                                          const int materialId);
 
     Morphologies getMorphologies() { return m_morphologies; }
+
 private:
     Morphologies m_morphologies;
 };
-}
+} // namespace solr

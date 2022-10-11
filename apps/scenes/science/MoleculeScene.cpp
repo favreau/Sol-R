@@ -54,7 +54,9 @@ void MoleculeScene::doInitialize()
 
     Strings extensions;
     extensions.push_back(".pdb");
-    const Strings fileNames = getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/pdb", extensions);
+    const Strings fileNames =
+        getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/pdb",
+                           extensions);
     if (fileNames.size() != 0)
     {
         m_currentModel = m_currentModel % fileNames.size();
@@ -65,8 +67,10 @@ void MoleculeScene::doInitialize()
 
         // PDB
         PDBReader pdbReader;
-        pdbReader.loadAtomsFromFile(m_name, *m_gpuKernel, static_cast<GeometryType>(geometryType), defaultAtomSize,
-                                    defaultStickSize, atomMaterialType, scale, loadModels);
+        pdbReader.loadAtomsFromFile(m_name, *m_gpuKernel,
+                                    static_cast<GeometryType>(geometryType),
+                                    defaultAtomSize, defaultStickSize,
+                                    atomMaterialType, scale, loadModels);
     }
 }
 
@@ -82,6 +86,7 @@ void MoleculeScene::doAddLights()
 {
     // Lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -5000.f, 5000.f, -15000.f, 1.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -5000.f, 5000.f, -15000.f, 1.f,
+                              0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
 }

@@ -27,7 +27,8 @@
 // ----------
 // Normal mapping
 // --------------------
-__device__ __INLINE__ void normalMap(const int &index, const Material &material, BitmapBuffer *textures, vec3f &normal,
+__device__ __INLINE__ void normalMap(const int &index, const Material &material,
+                                     BitmapBuffer *textures, vec3f &normal,
                                      const float strength)
 {
     int i = material.textureOffset.y + index;
@@ -42,8 +43,9 @@ __device__ __INLINE__ void normalMap(const int &index, const Material &material,
 // ----------
 // Bump mapping
 // --------------------
-__device__ __INLINE__ void bumpMap(const int &index, const Material &material, BitmapBuffer *textures,
-                                   vec3f &intersection, float &value)
+__device__ __INLINE__ void bumpMap(const int &index, const Material &material,
+                                   BitmapBuffer *textures, vec3f &intersection,
+                                   float &value)
 {
     int i = material.textureOffset.z + index;
     BitmapBuffer r, g, b;
@@ -59,8 +61,9 @@ __device__ __INLINE__ void bumpMap(const int &index, const Material &material, B
 // ----------
 // Normal mapping
 // --------------------
-__device__ __INLINE__ void specularMap(const int &index, const Material &material, BitmapBuffer *textures,
-                                       vec4f &specular)
+__device__ __INLINE__ void specularMap(const int &index,
+                                       const Material &material,
+                                       BitmapBuffer *textures, vec4f &specular)
 {
     int i = material.textureOffset.w + index;
     BitmapBuffer r, g, b;
@@ -75,7 +78,9 @@ __device__ __INLINE__ void specularMap(const int &index, const Material &materia
 // ----------
 // Reflection mapping
 // --------------------
-__device__ __INLINE__ void reflectionMap(const int &index, const Material &material, BitmapBuffer *textures,
+__device__ __INLINE__ void reflectionMap(const int &index,
+                                         const Material &material,
+                                         BitmapBuffer *textures,
                                          vec4f &attributes)
 {
     int i = material.advancedTextureOffset.x + index;
@@ -89,7 +94,9 @@ __device__ __INLINE__ void reflectionMap(const int &index, const Material &mater
 // ----------
 // Transparency mapping
 // --------------------
-__device__ __INLINE__ void transparencyMap(const int &index, const Material &material, BitmapBuffer *textures,
+__device__ __INLINE__ void transparencyMap(const int &index,
+                                           const Material &material,
+                                           BitmapBuffer *textures,
                                            vec4f &attributes)
 {
     int i = material.advancedTextureOffset.y + index;
@@ -104,7 +111,9 @@ __device__ __INLINE__ void transparencyMap(const int &index, const Material &mat
 // ----------
 // Ambient occlusion
 // --------------------
-__device__ __INLINE__ void ambientOcclusionMap(const int &index, const Material &material, BitmapBuffer *textures,
+__device__ __INLINE__ void ambientOcclusionMap(const int &index,
+                                               const Material &material,
+                                               BitmapBuffer *textures,
                                                vec4f &advancedAttributes)
 {
     int i = material.advancedTextureOffset.z + index;
@@ -115,15 +124,17 @@ __device__ __INLINE__ void ambientOcclusionMap(const int &index, const Material 
     advancedAttributes.x = (r + g + b) / 768.f;
 }
 
-__device__ __INLINE__ void juliaSet(const Primitive &primitive, Material *materials, const SceneInfo &sceneInfo,
-                                    const float x, const float y, float4 &color)
+__device__ __INLINE__ void juliaSet(const Primitive &primitive,
+                                    Material *materials,
+                                    const SceneInfo &sceneInfo, const float x,
+                                    const float y, float4 &color)
 {
     Material &material = materials[primitive.materialId];
     float W = (float)material.textureMapping.x;
     float H = (float)material.textureMapping.y;
 
-    // pick some values for the constant c, this determines the shape of the Julia
-    // Set
+    // pick some values for the constant c, this determines the shape of the
+    // Julia Set
     float cRe = -0.7f + 0.4f * sinf(sceneInfo.timestamp / 1500.f);
     float cIm = 0.27015f + 0.4f * cosf(sceneInfo.timestamp / 2000.f);
 
@@ -147,18 +158,19 @@ __device__ __INLINE__ void juliaSet(const Primitive &primitive, Material *materi
         if ((newRe * newRe + newIm * newIm) > 4.f)
             break;
     }
-    // use color model conversion to get rainbow palette, make brightness black if
-    // maxIterations reached
-    // color.x += newRe/4.f;
-    // color.z += newIm/4.f;
+    // use color model conversion to get rainbow palette, make brightness black
+    // if maxIterations reached color.x += newRe/4.f; color.z += newIm/4.f;
     color.x = 1.f - color.x * (n / maxIterations);
     color.y = 1.f - color.y * (n / maxIterations);
     color.z = 1.f - color.z * (n / maxIterations);
     color.w = 1.f - (n / maxIterations);
 }
 
-__device__ __INLINE__ void mandelbrotSet(const Primitive &primitive, Material *materials, const SceneInfo &sceneInfo,
-                                         const float x, const float y, float4 &color)
+__device__ __INLINE__ void mandelbrotSet(const Primitive &primitive,
+                                         Material *materials,
+                                         const SceneInfo &sceneInfo,
+                                         const float x, const float y,
+                                         float4 &color)
 {
     Material &material = materials[primitive.materialId];
     float W = (float)material.textureMapping.x;
@@ -202,16 +214,18 @@ ________________________________________________________________________________
 Triangle texture Mapping
 ________________________________________________________________________________
 */
-__device__ __INLINE__ float4 triangleUVMapping(const SceneInfo &sceneInfo, const Primitive &primitive,
-                                               Material *materials, BitmapBuffer *textures, vec3f &intersection,
-                                               const vec3f &areas, vec3f &normal, vec4f &specular, vec4f &attributes,
-                                               vec4f &advancedAttributes)
+__device__ __INLINE__ float4 triangleUVMapping(
+    const SceneInfo &sceneInfo, const Primitive &primitive, Material *materials,
+    BitmapBuffer *textures, vec3f &intersection, const vec3f &areas,
+    vec3f &normal, vec4f &specular, vec4f &attributes,
+    vec4f &advancedAttributes)
 {
     Material &material = materials[primitive.materialId];
     float4 result = material.color;
 
-    vec2f T =
-        (primitive.vt0 * areas.x + primitive.vt1 * areas.y + primitive.vt2 * areas.z) / (areas.x + areas.y + areas.z);
+    vec2f T = (primitive.vt0 * areas.x + primitive.vt1 * areas.y +
+               primitive.vt2 * areas.z) /
+              (areas.x + areas.y + areas.z);
     float2 mappingOffset = {0.f, 0.f};
     if (material.attributes.y == 1)
     {
@@ -223,7 +237,8 @@ __device__ __INLINE__ float4 triangleUVMapping(const SceneInfo &sceneInfo, const
 
     u = u % material.textureMapping.x;
     v = v % material.textureMapping.y;
-    if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.y)
+    if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+        v < material.textureMapping.y)
     {
         switch (material.textureIds.x)
         {
@@ -235,8 +250,10 @@ __device__ __INLINE__ float4 triangleUVMapping(const SceneInfo &sceneInfo, const
             break;
         default:
         {
-            int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-            int B = material.textureMapping.x * material.textureMapping.y * material.textureMapping.w;
+            int A =
+                (v * material.textureMapping.x + u) * material.textureMapping.w;
+            int B = material.textureMapping.x * material.textureMapping.y *
+                    material.textureMapping.w;
             int index = A % B;
 
             // Diffuse
@@ -275,7 +292,8 @@ __device__ __INLINE__ float4 triangleUVMapping(const SceneInfo &sceneInfo, const
                 transparencyMap(index, material, textures, attributes);
             // Ambient occulusion mapping
             if (material.advancedTextureIds.z != TEXTURE_NONE)
-                ambientOcclusionMap(index, material, textures, advancedAttributes);
+                ambientOcclusionMap(index, material, textures,
+                                    advancedAttributes);
         }
         }
     }
@@ -288,8 +306,11 @@ ________________________________________________________________________________
 Sphere texture Mapping
 ________________________________________________________________________________
 */
-__device__ __INLINE__ float4 sphereUVMapping(const Primitive &primitive, Material *materials, BitmapBuffer *textures,
-                                             vec3f &intersection, vec3f &normal, vec4f &specular, vec4f &attributes,
+__device__ __INLINE__ float4 sphereUVMapping(const Primitive &primitive,
+                                             Material *materials,
+                                             BitmapBuffer *textures,
+                                             vec3f &intersection, vec3f &normal,
+                                             vec4f &specular, vec4f &attributes,
                                              vec4f &advancedAttributes)
 {
     Material &material = materials[primitive.materialId];
@@ -306,10 +327,12 @@ __device__ __INLINE__ float4 sphereUVMapping(const Primitive &primitive, Materia
         u = u % material.textureMapping.x;
     if (material.textureMapping.y != 0)
         v = v % material.textureMapping.y;
-    if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.y)
+    if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+        v < material.textureMapping.y)
     {
         int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-        int B = material.textureMapping.x * material.textureMapping.y * material.textureMapping.w;
+        int B = material.textureMapping.x * material.textureMapping.y *
+                material.textureMapping.w;
         int index = A % B;
 
         // Diffuse
@@ -351,9 +374,10 @@ ________________________________________________________________________________
 Cube texture mapping
 ________________________________________________________________________________
 */
-__device__ __INLINE__ float4 cubeMapping(const SceneInfo &sceneInfo, const Primitive &primitive, Material *materials,
-                                         BitmapBuffer *textures, vec3f &intersection, vec3f &normal, vec4f &specular,
-                                         vec4f &attributes, vec4f &advancedAttributes)
+__device__ __INLINE__ float4 cubeMapping(
+    const SceneInfo &sceneInfo, const Primitive &primitive, Material *materials,
+    BitmapBuffer *textures, vec3f &intersection, vec3f &normal, vec4f &specular,
+    vec4f &attributes, vec4f &advancedAttributes)
 {
     Material &material = materials[primitive.materialId];
     float4 result = material.color;
@@ -361,16 +385,22 @@ __device__ __INLINE__ float4 cubeMapping(const SceneInfo &sceneInfo, const Primi
 #ifdef USE_KINECT
     if (primitive.type == ptCamera)
     {
-        int x = (intersection.x - primitive.p0.x + primitive.size.x) * material.textureMapping.x;
-        int y = KINECT_COLOR_HEIGHT - (intersection.y - primitive.p0.y + primitive.size.y) * material.textureMapping.y;
+        int x = (intersection.x - primitive.p0.x + primitive.size.x) *
+                material.textureMapping.x;
+        int y = KINECT_COLOR_HEIGHT -
+                (intersection.y - primitive.p0.y + primitive.size.y) *
+                    material.textureMapping.y;
 
         x = (x + KINECT_COLOR_WIDTH) % KINECT_COLOR_WIDTH;
         y = (y + KINECT_COLOR_HEIGHT) % KINECT_COLOR_HEIGHT;
 
-        if (x >= 0 && x < KINECT_COLOR_WIDTH && y >= 0 && y < KINECT_COLOR_HEIGHT)
+        if (x >= 0 && x < KINECT_COLOR_WIDTH && y >= 0 &&
+            y < KINECT_COLOR_HEIGHT)
         {
             int index = (y * KINECT_COLOR_WIDTH + x) * KINECT_COLOR_DEPTH;
-            index = index % (material.textureMapping.x * material.textureMapping.y * material.textureMapping.w);
+            index =
+                index % (material.textureMapping.x * material.textureMapping.y *
+                         material.textureMapping.w);
             BitmapBuffer r = textures[index + 2];
             BitmapBuffer g = textures[index + 1];
             BitmapBuffer b = textures[index + 0];
@@ -382,20 +412,23 @@ __device__ __INLINE__ float4 cubeMapping(const SceneInfo &sceneInfo, const Primi
     else
 #endif // USE_KINECT
     {
-        int u = ((primitive.type == ptCheckboard) || (primitive.type == ptXZPlane) || (primitive.type == ptXYPlane))
+        int u = ((primitive.type == ptCheckboard) ||
+                 (primitive.type == ptXZPlane) || (primitive.type == ptXYPlane))
                     ? (intersection.x - primitive.p0.x + primitive.size.x)
                     : (intersection.z - primitive.p0.z + primitive.size.z);
 
-        int v = ((primitive.type == ptCheckboard) || (primitive.type == ptXZPlane))
-                    ? (intersection.z + primitive.p0.z + primitive.size.z)
-                    : (intersection.y - primitive.p0.y + primitive.size.y);
+        int v =
+            ((primitive.type == ptCheckboard) || (primitive.type == ptXZPlane))
+                ? (intersection.z + primitive.p0.z + primitive.size.z)
+                : (intersection.y - primitive.p0.y + primitive.size.y);
 
         if (material.textureMapping.x != 0)
             u = u % material.textureMapping.x;
         if (material.textureMapping.y != 0)
             v = v % material.textureMapping.y;
 
-        if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.x)
+        if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+            v < material.textureMapping.x)
         {
             switch (material.textureIds.x)
             {
@@ -407,8 +440,10 @@ __device__ __INLINE__ float4 cubeMapping(const SceneInfo &sceneInfo, const Primi
                 break;
             default:
             {
-                int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-                int B = material.textureMapping.x * material.textureMapping.y * material.textureMapping.w;
+                int A = (v * material.textureMapping.x + u) *
+                        material.textureMapping.w;
+                int B = material.textureMapping.x * material.textureMapping.y *
+                        material.textureMapping.w;
                 int index = A % B;
                 int i = material.textureOffset.x + index;
                 BitmapBuffer r, g, b;
@@ -437,7 +472,8 @@ __device__ __INLINE__ float4 cubeMapping(const SceneInfo &sceneInfo, const Primi
                     transparencyMap(index, material, textures, attributes);
                 // Ambient occulusion mapping
                 if (material.advancedTextureIds.z != TEXTURE_NONE)
-                    ambientOcclusionMap(index, material, textures, advancedAttributes);
+                    ambientOcclusionMap(index, material, textures,
+                                        advancedAttributes);
             }
             break;
             }
@@ -446,7 +482,8 @@ __device__ __INLINE__ float4 cubeMapping(const SceneInfo &sceneInfo, const Primi
     return result;
 }
 
-__device__ __INLINE__ bool wireFrameMapping(float x, float y, int width, const Primitive &primitive)
+__device__ __INLINE__ bool wireFrameMapping(float x, float y, int width,
+                                            const Primitive &primitive)
 {
     int X = abs(x);
     int Y = abs(y);

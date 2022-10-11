@@ -28,20 +28,16 @@
 #include <string.h>
 #include <vector>
 
-#include "../consts.h"
 #include "../Logging.h"
+#include "../consts.h"
 
 #include "MapReader.h"
 
 namespace solr
 {
-MapReader::MapReader(void)
-{
-}
+MapReader::MapReader(void) {}
 
-MapReader::~MapReader(void)
-{
-}
+MapReader::~MapReader(void) {}
 
 vec3i readInt3(const std::string &value)
 {
@@ -114,7 +110,8 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
                 {
                     ++index_jewel;
                     MapJewel malJewel;
-                    s >> item >> item >> malJewel.location.x >> malJewel.location.z >>
+                    s >> item >> item >> malJewel.location.x >>
+                        malJewel.location.z >>
                         malJewel.location.y; // Caution y <-> z
                     jewels[index_jewel] = malJewel;
                 }
@@ -123,23 +120,26 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
                     // <ZONE LOCATION 0 0 0 DIMENSIONS 54 37 23 COLOURSCHEME 0>
                     ++index_zone;
                     MapZone mapZone;
-                    s >> item >> item >> mapZone.location.x >> mapZone.location.z >>
+                    s >> item >> item >> mapZone.location.x >>
+                        mapZone.location.z >>
                         mapZone.location.y >> // Caution y <-> z
-                        item >> mapZone.dimension.x >> mapZone.dimension.y >> mapZone.dimension.z >> item >>
-                        mapZone.colorScene;
+                        item >> mapZone.dimension.x >> mapZone.dimension.y >>
+                        mapZone.dimension.z >> item >> mapZone.colorScene;
                     zones[index_zone] = mapZone;
                 }
                 else if (line.find("<BLOCK ") == 0)
                 {
                     // Read block
                     LOG_INFO(2, line);
-                    // <BLOCK LOCATION 8 0 0 DIMENSION 53 36 0 NORTH 0 SOUTH 0 EAST 0 WEST
-                    // 0 SPLIT 0 HOLLOW 0>
+                    // <BLOCK LOCATION 8 0 0 DIMENSION 53 36 0 NORTH 0 SOUTH 0
+                    // EAST 0 WEST 0 SPLIT 0 HOLLOW 0>
                     ++index_block;
                     MapBlock block;
                     memset(&block, 0, sizeof(MapBlock));
-                    s >> item >> item >> block.location.x >> block.location.z >> block.location.y >> // Caution y <-> z
-                        item >> block.dimension.x >> block.dimension.z >> block.dimension.y;
+                    s >> item >> item >> block.location.x >> block.location.z >>
+                        block.location.y >> // Caution y <-> z
+                        item >> block.dimension.x >> block.dimension.z >>
+                        block.dimension.y;
 
                     if (line.find("TYPE") != -1)
                     {
@@ -147,8 +147,9 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
                     }
                     else
                     {
-                        s >> item >> block.north >> item >> block.south >> item >> block.east >> item >> block.west >>
-                            item >> block.split >> item >> block.hollow;
+                        s >> item >> block.north >> item >> block.south >>
+                            item >> block.east >> item >> block.west >> item >>
+                            block.split >> item >> block.hollow;
                     }
                     block.zone = index_zone;
                     blocks[index_block] = block;
@@ -170,8 +171,10 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
         position.y = jewel.location.y * blockSize.y;
         position.z = jewel.location.z * blockSize.z;
         int nbPrimitives = kernel.addPrimitive(ptSphere);
-        kernel.setPrimitive(nbPrimitives, position.x + blockSize.x / 2.f, position.y + blockSize.x / 2.f,
-                            position.z + blockSize.x / 2.f, blockSize.x / 4.f, 0.f, 0.f, jewelMaterial);
+        kernel.setPrimitive(nbPrimitives, position.x + blockSize.x / 2.f,
+                            position.y + blockSize.x / 2.f,
+                            position.z + blockSize.x / 2.f, blockSize.x / 4.f,
+                            0.f, 0.f, jewelMaterial);
         ++itj;
     }
 
@@ -230,43 +233,63 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
 #if 1
         // Front
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, position.x, position.y, position.z, dimension.x, position.y, position.z,
-                            dimension.x, dimension.y, position.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, position.x, position.y, position.z,
+                            dimension.x, position.y, position.z, dimension.x,
+                            dimension.y, position.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, position.z, position.x, dimension.y, position.z,
-                            position.x, position.y, position.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, position.z,
+                            position.x, dimension.y, position.z, position.x,
+                            position.y, position.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
 
         // Back
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, position.x, position.y, dimension.z, dimension.x, position.y, dimension.z,
-                            dimension.x, dimension.y, dimension.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, position.x, position.y, dimension.z,
+                            dimension.x, position.y, dimension.z, dimension.x,
+                            dimension.y, dimension.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, dimension.z, position.x, dimension.y, dimension.z,
-                            position.x, position.y, dimension.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, dimension.z,
+                            position.x, dimension.y, dimension.z, position.x,
+                            position.y, dimension.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
 
         // Left
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, position.x, position.y, position.z, position.x, position.y, dimension.z,
-                            position.x, dimension.y, dimension.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, position.x, position.y, position.z,
+                            position.x, position.y, dimension.z, position.x,
+                            dimension.y, dimension.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, position.x, dimension.y, dimension.z, position.x, dimension.y, position.z,
-                            position.x, position.y, position.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, position.x, dimension.y, dimension.z,
+                            position.x, dimension.y, position.z, position.x,
+                            position.y, position.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
 
         // Right
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, dimension.x, position.y, position.z, dimension.x, position.y, dimension.z,
-                            dimension.x, dimension.y, dimension.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, dimension.x, position.y, position.z,
+                            dimension.x, position.y, dimension.z, dimension.x,
+                            dimension.y, dimension.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, dimension.z, dimension.x, dimension.y, position.z,
-                            dimension.x, position.y, position.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, dimension.z,
+                            dimension.x, dimension.y, position.z, dimension.x,
+                            position.y, position.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
 
         // Top
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, position.x, dimension.y, position.z, dimension.x, dimension.y, position.z,
-                            dimension.x, dimension.y, dimension.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, position.x, dimension.y, position.z,
+                            dimension.x, dimension.y, position.z, dimension.x,
+                            dimension.y, dimension.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
         nbPrimitives = kernel.addPrimitive(ptTriangle);
-        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, dimension.z, position.x, dimension.y, dimension.z,
-                            position.x, dimension.y, position.z, 0.f, 0.f, 0.f, blockMaterial);
+        kernel.setPrimitive(nbPrimitives, dimension.x, dimension.y, dimension.z,
+                            position.x, dimension.y, dimension.z, position.x,
+                            dimension.y, position.z, 0.f, 0.f, 0.f,
+                            blockMaterial);
 
 #else
         // Blocks
@@ -275,11 +298,15 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
         case 19:
         {
             int nbPrimitives = kernel.addPrimitive(ptTriangle);
-            kernel.setPrimitive(nbPrimitives, position.x, position.y, position.z, dimension.x, position.y, position.z,
-                                dimension.x, position.y, dimension.z, 0.f, 0.f, 0.f, zoneMaterial, 1, 1);
+            kernel.setPrimitive(nbPrimitives, position.x, position.y,
+                                position.z, dimension.x, position.y, position.z,
+                                dimension.x, position.y, dimension.z, 0.f, 0.f,
+                                0.f, zoneMaterial, 1, 1);
             nbPrimitives = kernel.addPrimitive(ptTriangle);
-            kernel.setPrimitive(nbPrimitives, dimension.x, position.y, dimension.z, position.x, position.y, dimension.z,
-                                position.x, position.y, position.z, 0.f, 0.f, 0.f, zoneMaterial, 1, 1);
+            kernel.setPrimitive(nbPrimitives, dimension.x, position.y,
+                                dimension.z, position.x, position.y,
+                                dimension.z, position.x, position.y, position.z,
+                                0.f, 0.f, 0.f, zoneMaterial, 1, 1);
             break;
         }
         default:
@@ -297,4 +324,4 @@ vec4f MapReader::loadFromFile(const std::string &filename, GPUKernel &kernel)
     objectSize.z = (maxPos.z - minPos.z);
     return objectSize;
 }
-}
+} // namespace solr

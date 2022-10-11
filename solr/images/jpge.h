@@ -15,7 +15,8 @@ typedef unsigned short uint16;
 typedef unsigned int uint32;
 typedef unsigned int uint;
 
-// JPEG chroma subsampling factors. Y_ONLY (grayscale images) and H2V2 (color images) are the most common.
+// JPEG chroma subsampling factors. Y_ONLY (grayscale images) and H2V2 (color
+// images) are the most common.
 enum subsampling_t
 {
     Y_ONLY = 0,
@@ -62,19 +63,24 @@ struct params
 };
 
 // Writes JPEG image to a file.
-// num_channels must be 1 (Y) or 3 (RGB), image pitch must be width*num_channels.
-bool SOLR_API compress_image_to_jpeg_file(const char *pFilename, int width, int height, int num_channels,
-                                          const uint8 *pImage_data, const params &comp_params = params());
+// num_channels must be 1 (Y) or 3 (RGB), image pitch must be
+// width*num_channels.
+bool SOLR_API compress_image_to_jpeg_file(const char *pFilename, int width,
+                                          int height, int num_channels,
+                                          const uint8 *pImage_data,
+                                          const params &comp_params = params());
 
 // Writes JPEG image to memory buffer.
-// On entry, buf_size is the size of the output buffer pointed at by pBuf, which should be at least ~1024 bytes.
-// If return value is true, buf_size will be set to the size of the compressed data.
-bool SOLR_API compress_image_to_jpeg_file_in_memory(void *pBuf, int &buf_size, int width, int height, int num_channels,
-                                                    const uint8 *pImage_data, const params &comp_params = params());
+// On entry, buf_size is the size of the output buffer pointed at by pBuf, which
+// should be at least ~1024 bytes. If return value is true, buf_size will be set
+// to the size of the compressed data.
+bool SOLR_API compress_image_to_jpeg_file_in_memory(
+    void *pBuf, int &buf_size, int width, int height, int num_channels,
+    const uint8 *pImage_data, const params &comp_params = params());
 
-// Output stream abstract class - used by the jpeg_encoder class to write to the output stream.
-// put_buf() is generally called with len==JPGE_OUT_BUF_SIZE bytes, but for headers it'll be called with smaller
-// amounts.
+// Output stream abstract class - used by the jpeg_encoder class to write to the
+// output stream. put_buf() is generally called with len==JPGE_OUT_BUF_SIZE
+// bytes, but for headers it'll be called with smaller amounts.
 class output_stream
 {
 public:
@@ -87,7 +93,8 @@ public:
     }
 };
 
-// Lower level jpeg_encoder class - useful if more control is needed than the above helper functions.
+// Lower level jpeg_encoder class - useful if more control is needed than the
+// above helper functions.
 class jpeg_encoder
 {
 public:
@@ -98,13 +105,15 @@ public:
     // pStream: The stream object to use for writing compressed data.
     // params - Compression parameters structure, defined above.
     // width, height  - Image dimensions.
-    // channels - May be 1, or 3. 1 indicates grayscale, 3 indicates RGB source data.
-    // Returns false on out of memory or if a stream write fails.
-    bool init(output_stream *pStream, int width, int height, int src_channels, const params &comp_params = params());
+    // channels - May be 1, or 3. 1 indicates grayscale, 3 indicates RGB source
+    // data. Returns false on out of memory or if a stream write fails.
+    bool init(output_stream *pStream, int width, int height, int src_channels,
+              const params &comp_params = params());
 
     const params &get_params() const { return m_params; }
 
-    // Deinitializes the compressor, freeing any allocated memory. May be called at any time.
+    // Deinitializes the compressor, freeing any allocated memory. May be called
+    // at any time.
     void deinit();
 
     uint get_total_passes() const { return m_params.m_two_pass_flag ? 2 : 1; }
@@ -112,8 +121,8 @@ public:
 
     // Call this method with each source scanline.
     // width * src_channels bytes per scanline is expected (RGB or Y format).
-    // You must call with NULL after all scanlines are processed to finish compression.
-    // Returns false on out of memory or if a stream write fails.
+    // You must call with NULL after all scanlines are processed to finish
+    // compression. Returns false on out of memory or if a stream write fails.
     bool process_scanline(const void *pScanline);
 
 private:
@@ -165,7 +174,8 @@ private:
     void emit_dhts();
     void emit_sos();
     void emit_markers();
-    void compute_huffman_table(uint *codes, uint8 *code_sizes, uint8 *bits, uint8 *val);
+    void compute_huffman_table(uint *codes, uint8 *code_sizes, uint8 *bits,
+                               uint8 *val);
     void compute_quant_table(int32 *dst, int16 *src);
     void adjust_quant_table(int32 *dst, int32 *src);
     void first_pass_init();

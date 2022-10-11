@@ -37,10 +37,13 @@ void TransparentScene::doInitialize()
 {
     // Caustic material
     int caustic = 0;
-    m_gpuKernel->setMaterial(caustic, 1.f, 1.f, 0.f, 0.f, 0.f, 1.33f, false, false, 0, 0.8f,
-                             m_gpuKernel->getSceneInfo().viewDistance, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
-                             TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, 0.f, 100.f, 0.f, 0.f, 10.f,
-                             10000.f, false);
+    m_gpuKernel->setMaterial(caustic, 1.f, 1.f, 0.f, 0.f, 0.f, 1.33f, false,
+                             false, 0, 0.8f,
+                             m_gpuKernel->getSceneInfo().viewDistance,
+                             TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+                             TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+                             TEXTURE_NONE, 0.f, 100.f, 0.f, 0.f, 10.f, 10000.f,
+                             false);
 
     vec3f center;
     center.x = 3000.f;
@@ -78,7 +81,8 @@ void TransparentScene::doAddLights()
     if (m_gpuKernel->getNbActiveLamps() == 0)
     {
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f, 500.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f,
+                                  500.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

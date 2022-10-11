@@ -65,7 +65,10 @@ public:
         m_blockSize.y = y;
         m_blockSize.z = z;
     }
-    void setSharedMemSize(int sharedMemSize) { m_sharedMemSize = sharedMemSize; }
+    void setSharedMemSize(int sharedMemSize)
+    {
+        m_sharedMemSize = sharedMemSize;
+    }
 
 private:
     // Runtime kernel execution parameters

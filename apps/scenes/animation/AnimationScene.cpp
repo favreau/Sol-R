@@ -80,13 +80,14 @@ void AnimationScene::doInitialize()
         m_gpuKernel->resetFrame();
         solr::CPUBoundingBox aabb;
         solr::CPUBoundingBox inAABB;
-        objReader.loadModelFromFile(fileName, *m_gpuKernel, center, false, objectSize, (frame == 0), m, false, true,
+        objReader.loadModelFromFile(fileName, *m_gpuKernel, center, false,
+                                    objectSize, (frame == 0), m, false, true,
                                     aabb, false, inAABB);
 
         // lights
         m_nbPrimitives = m_gpuKernel->addPrimitive(solr::ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f, 10000.f, -10000.f, 100.f, 100.f, 100.f,
-                                  DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f, 10000.f, -10000.f,
+                                  100.f, 100.f, 100.f, DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
 
         addCornellBox(m_cornellBoxType);

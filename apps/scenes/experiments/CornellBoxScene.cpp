@@ -38,14 +38,18 @@ void CornellBoxScene::doInitialize()
     m_groundHeight = -5000.f;
     // Spheres
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 2200.f, 0.f, 0.f, 2000.f, 0.f, 0.f, rand() % 50);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 2200.f, 0.f, 0.f, 2000.f, 0.f,
+                              0.f, rand() % 50);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2200.f, 0.f, 0.f, 2000.f, 0.f, 0.f, rand() % 50);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2200.f, 0.f, 0.f, 2000.f, 0.f,
+                              0.f, rand() % 50);
 
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 2200.f, 0.f, 2000.f, 0.f, 0.f, rand() % 50);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 2200.f, 0.f, 2000.f, 0.f,
+                              0.f, rand() % 50);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, -2200.f, 0.f, 2000.f, 0.f, 0.f, rand() % 50);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, -2200.f, 0.f, 2000.f, 0.f,
+                              0.f, rand() % 50);
 
     m_gpuKernel->getSceneInfo().nbRayIterations = 20;
 }
@@ -65,8 +69,10 @@ void CornellBoxScene::doAddLights()
     {
         // lights
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, rand() % 20000 - 10000.f, rand() % 5000 - m_groundHeight,
-                                  rand() % 20000 - 10000.f, 10.f, 0.f, 0.f, 120 + i);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, rand() % 20000 - 10000.f,
+                                  rand() % 5000 - m_groundHeight,
+                                  rand() % 20000 - 10000.f, 10.f, 0.f, 0.f,
+                                  120 + i);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

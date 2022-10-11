@@ -61,7 +61,8 @@ void CubesScene::doAddLights()
     if (m_gpuKernel->getNbActiveLamps() == 0)
     {
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f, 500.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f,
+                                  500.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

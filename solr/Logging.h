@@ -51,30 +51,34 @@ inline std::string getTimestamp()
 
 #ifdef WIN32
 #if 0
-#define LOG_INFO(__level, __msg)                                                                \
-    {                                                                                           \
-        if (__level == 1)                                                                       \
-            std::cout << getTimestamp() << " INFO  [" << __level << "] " << __msg << std::endl; \
+#define LOG_INFO(__level, __msg)                                         \
+    {                                                                    \
+        if (__level == 1)                                                \
+            std::cout << getTimestamp() << " INFO  [" << __level << "] " \
+                      << __msg << std::endl;                             \
     }
-#define LOG_ERROR(__msg) std::cout << getTimestamp() << " ERROR [1] " << __msg << std::endl;
+#define LOG_ERROR(__msg) \
+    std::cout << getTimestamp() << " ERROR [1] " << __msg << std::endl;
 #else
-#define LOG_INFO(__level, __msg)                                                            \
-    {                                                                                       \
-        if (__level == 1)                                                                   \
-        {                                                                                   \
-            std::stringstream __s;                                                          \
-            __s << getTimestamp() << " [" << GetCurrentThreadId() << "] [INFO]  " << __msg; \
-            OutputDebugString(__s.str().c_str());                                           \
-            std::cout << "[INFO ] " << __s.str() << std::endl;                              \
-        }                                                                                   \
+#define LOG_INFO(__level, __msg)                                  \
+    {                                                             \
+        if (__level == 1)                                         \
+        {                                                         \
+            std::stringstream __s;                                \
+            __s << getTimestamp() << " [" << GetCurrentThreadId() \
+                << "] [INFO]  " << __msg;                         \
+            OutputDebugString(__s.str().c_str());                 \
+            std::cout << "[INFO ] " << __s.str() << std::endl;    \
+        }                                                         \
     }
 
-#define LOG_ERROR(__msg)                                                                \
-    {                                                                                   \
-        std::stringstream __s;                                                          \
-        __s << getTimestamp() << " [" << GetCurrentThreadId() << "] [ERROR] " << __msg; \
-        OutputDebugString(__s.str().c_str());                                           \
-        std::cerr << "[ERROR] " << __s.str() << std::endl;                              \
+#define LOG_ERROR(__msg)                                                      \
+    {                                                                         \
+        std::stringstream __s;                                                \
+        __s << getTimestamp() << " [" << GetCurrentThreadId() << "] [ERROR] " \
+            << __msg;                                                         \
+        OutputDebugString(__s.str().c_str());                                 \
+        std::cerr << "[ERROR] " << __s.str() << std::endl;                    \
     }
 #endif // 0
 #else

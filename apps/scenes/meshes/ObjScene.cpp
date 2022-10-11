@@ -62,15 +62,20 @@ void ObjScene::doInitialize()
         CPUBoundingBox aabb;
         CPUBoundingBox inAABB;
         memset(&inAABB, 0, sizeof(CPUBoundingBox));
-        vec4f size = objectReader.loadModelFromFile(m_filename, *m_gpuKernel, objectPosition, true, m_objectScale, true,
-                                                    RANDOM_MATERIALS_OFFSET, false, true, aabb, false, inAABB);
+        vec4f size =
+            objectReader.loadModelFromFile(m_filename, *m_gpuKernel,
+                                           objectPosition, true, m_objectScale,
+                                           true, RANDOM_MATERIALS_OFFSET, false,
+                                           true, aabb, false, inAABB);
         m_groundHeight = -size.y / 2.f - sceneInfo.geometryEpsilon;
     }
     else
     {
         Strings extensions;
         extensions.push_back(".obj");
-        const Strings fileNames = getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/obj", extensions);
+        const Strings fileNames =
+            getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/obj",
+                               extensions);
         if (!fileNames.empty())
         {
             m_filename = fileNames[m_currentModel % fileNames.size()];
@@ -78,8 +83,11 @@ void ObjScene::doInitialize()
             CPUBoundingBox aabb;
             CPUBoundingBox inAABB;
             memset(&inAABB, 0, sizeof(CPUBoundingBox));
-            vec4f size = objectReader.loadModelFromFile(m_filename, *m_gpuKernel, objectPosition, true, m_objectScale,
-                                                        true, 1000, false, true, aabb, false, inAABB);
+            vec4f size =
+                objectReader.loadModelFromFile(m_filename, *m_gpuKernel,
+                                               objectPosition, true,
+                                               m_objectScale, true, 1000, false,
+                                               true, aabb, false, inAABB);
             m_groundHeight = -size.y / 2.f - sceneInfo.geometryEpsilon * 10.f;
         }
     }
@@ -95,6 +103,7 @@ void ObjScene::doAddLights()
     if (m_gpuKernel->getNbActiveLamps() == 0)
     {
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f, 10.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f, 10.f,
+                                  0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
     }
 }

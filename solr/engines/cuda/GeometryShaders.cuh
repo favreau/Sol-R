@@ -33,12 +33,17 @@ ________________________________________________________________________________
 Intersection Shader
 ________________________________________________________________________________
 */
-__device__ vec4f intersectionShader(const SceneInfo &sceneInfo, const Primitive &primitive, Material *materials,
-                                    BitmapBuffer *textures, vec3f &intersection, const vec3f &areas, vec3f &normal,
-                                    vec4f &specular, vec4f &attributes, vec4f &advancedAttributes)
+__device__ vec4f intersectionShader(const SceneInfo &sceneInfo,
+                                    const Primitive &primitive,
+                                    Material *materials, BitmapBuffer *textures,
+                                    vec3f &intersection, const vec3f &areas,
+                                    vec3f &normal, vec4f &specular,
+                                    vec4f &attributes,
+                                    vec4f &advancedAttributes)
 {
     vec4f colorAtIntersection = materials[primitive.materialId].color;
-    colorAtIntersection.w = 0.f; // w attribute is used to dtermine light intensity of the material
+    colorAtIntersection.w =
+        0.f; // w attribute is used to dtermine light intensity of the material
 
     if (sceneInfo.extendedGeometry)
     {
@@ -52,8 +57,10 @@ __device__ vec4f intersectionShader(const SceneInfo &sceneInfo, const Primitive 
         {
             if (materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
             {
-                colorAtIntersection = sphereUVMapping(primitive, materials, textures, intersection, normal, specular,
-                                                      attributes, advancedAttributes);
+                colorAtIntersection =
+                    sphereUVMapping(primitive, materials, textures,
+                                    intersection, normal, specular, attributes,
+                                    advancedAttributes);
             }
             break;
         }
@@ -61,13 +68,17 @@ __device__ vec4f intersectionShader(const SceneInfo &sceneInfo, const Primitive 
         {
             if (materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
             {
-                colorAtIntersection = cubeMapping(sceneInfo, primitive, materials, textures, intersection, normal,
-                                                  specular, attributes, advancedAttributes);
+                colorAtIntersection =
+                    cubeMapping(sceneInfo, primitive, materials, textures,
+                                intersection, normal, specular, attributes,
+                                advancedAttributes);
             }
             else
             {
-                int x = sceneInfo.viewDistance + ((intersection.x - primitive.p0.x) / primitive.size.x);
-                int z = sceneInfo.viewDistance + ((intersection.z - primitive.p0.z) / primitive.size.x);
+                int x = sceneInfo.viewDistance +
+                        ((intersection.x - primitive.p0.x) / primitive.size.x);
+                int z = sceneInfo.viewDistance +
+                        ((intersection.z - primitive.p0.z) / primitive.size.x);
                 if (x % 2 == 0)
                 {
                     if (z % 2 == 0)
@@ -96,8 +107,10 @@ __device__ vec4f intersectionShader(const SceneInfo &sceneInfo, const Primitive 
         {
             if (materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
             {
-                colorAtIntersection = cubeMapping(sceneInfo, primitive, materials, textures, intersection, normal,
-                                                  specular, attributes, advancedAttributes);
+                colorAtIntersection =
+                    cubeMapping(sceneInfo, primitive, materials, textures,
+                                intersection, normal, specular, attributes,
+                                advancedAttributes);
             }
             break;
         }
@@ -105,8 +118,10 @@ __device__ vec4f intersectionShader(const SceneInfo &sceneInfo, const Primitive 
         {
             if (materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
             {
-                colorAtIntersection = triangleUVMapping(sceneInfo, primitive, materials, textures, intersection, areas,
-                                                        normal, specular, attributes, advancedAttributes);
+                colorAtIntersection =
+                    triangleUVMapping(sceneInfo, primitive, materials, textures,
+                                      intersection, areas, normal, specular,
+                                      attributes, advancedAttributes);
             }
             break;
         }
@@ -116,8 +131,10 @@ __device__ vec4f intersectionShader(const SceneInfo &sceneInfo, const Primitive 
     {
         if (materials[primitive.materialId].textureIds.x != TEXTURE_NONE)
         {
-            colorAtIntersection = triangleUVMapping(sceneInfo, primitive, materials, textures, intersection, areas,
-                                                    normal, specular, attributes, advancedAttributes);
+            colorAtIntersection =
+                triangleUVMapping(sceneInfo, primitive, materials, textures,
+                                  intersection, areas, normal, specular,
+                                  attributes, advancedAttributes);
         }
     }
     return colorAtIntersection;
@@ -129,7 +146,8 @@ ________________________________________________________________________________
 Convert vec4f into OpenGL RGB color
 ________________________________________________________________________________
 */
-__device__ __INLINE__ void makeColor(const SceneInfo &sceneInfo, vec4f &color, BitmapBuffer *bitmap, int index)
+__device__ __INLINE__ void makeColor(const SceneInfo &sceneInfo, vec4f &color,
+                                     BitmapBuffer *bitmap, int index)
 {
     int mdc_index = index * gColorDepth;
     color.x = (color.x > 1.f) ? 1.f : color.x;

@@ -582,19 +582,22 @@ void SOLR_API glVertex3fv(const GLfloat *v);
 void SOLR_API glNormal3f(GLfloat x, GLfloat y, GLfloat z);
 void SOLR_API glNormal3fv(const GLfloat *v);
 void SOLR_API glColor3f(GLfloat red, GLfloat green, GLfloat blue);
-void SOLR_API glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+void SOLR_API glColor4f(GLfloat red, GLfloat green, GLfloat blue,
+                        GLfloat alpha);
 void SOLR_API glRasterPos2f(GLfloat x, GLfloat y);
 void SOLR_API glRasterPos3f(GLfloat x, GLfloat y, GLfloat z);
 void SOLR_API glTexParameterf(GLenum target, GLenum pname, GLfloat param);
 void SOLR_API glTexCoord2f(GLfloat s, GLfloat t);
 void SOLR_API glTexCoord3f(GLfloat x, GLfloat y, GLfloat z);
 void SOLR_API glTexEnvf(GLenum target, GLenum pname, GLfloat param);
-void SOLR_API glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height,
-                           GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+void SOLR_API glTexImage2D(GLenum target, GLint level, GLint internalformat,
+                           GLsizei width, GLsizei height, GLint border,
+                           GLenum format, GLenum type, const GLvoid *pixels);
 void SOLR_API gluSphere(void *, GLfloat, GLint, GLint);
 void SOLR_API glutWireSphere(GLdouble radius, GLint slices, GLint stacks);
 SOLR_API GLUquadricObj *gluNewQuadric();
-void SOLR_API glClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+void SOLR_API glClearColor(GLfloat red, GLfloat green, GLfloat blue,
+                           GLfloat alpha);
 
 void SOLR_API glViewport(GLint a, GLint b, GLint width, GLint height);
 
@@ -604,9 +607,11 @@ void SOLR_API glMaterialfv(GLenum face, GLenum pname, const GLfloat *params);
 // Textures
 void SOLR_API glGenTextures(GLsizei n, GLuint *textures);
 void SOLR_API glBindTexture(GLenum target, GLuint texture);
-int SOLR_API gluBuild2DMipmaps(GLenum target, GLint components, GLint width, GLint height, GLenum format, GLenum type,
+int SOLR_API gluBuild2DMipmaps(GLenum target, GLint components, GLint width,
+                               GLint height, GLenum format, GLenum type,
                                const void *data);
-void SOLR_API glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
+void SOLR_API glTexSubImage2D(GLenum target, GLint level, GLint xoffset,
+                              GLint yoffset, GLsizei width, GLsizei height,
                               GLenum format, GLenum type, const GLvoid *data);
 void SOLR_API glPushAttrib(GLbitfield mask);
 void SOLR_API glPopAttrib();
@@ -616,12 +621,14 @@ void SOLR_API glMatrixMode(GLenum mode);
 void SOLR_API glPushMatrix();
 void SOLR_API glPopMatrix();
 SOLR_API GLenum glGetError();
-void SOLR_API glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble nearVal, GLdouble farVal);
+void SOLR_API glOrtho(GLdouble left, GLdouble right, GLdouble bottom,
+                      GLdouble top, GLdouble nearVal, GLdouble farVal);
 
 void SOLR_API glTranslatef(GLfloat x, GLfloat y, GLfloat z);
 void SOLR_API glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 void SOLR_API glPointSize(GLfloat size);
-void SOLR_API glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data);
+void SOLR_API glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
+                           GLenum format, GLenum type, GLvoid *data);
 
 // Raytracer specific
 void SOLR_API setOpenCLPlatform(const int platform);
@@ -630,9 +637,11 @@ void SOLR_API glCompactBoxes();
 void SOLR_API createRandomMaterials(bool update, bool lightsOnly);
 void SOLR_API setAngles(GLfloat, GLfloat, GLfloat);
 void SOLR_API render();
-void SOLR_API gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY,
-                        GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
-void SOLR_API gluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+void SOLR_API gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ,
+                        GLdouble centerX, GLdouble centerY, GLdouble centerZ,
+                        GLdouble upX, GLdouble upY, GLdouble upZ);
+void SOLR_API gluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear,
+                             GLdouble zFar);
 
 // Glut
 void SOLR_API glutSpecialFunc(void (*func)(int key, int x, int y));
@@ -826,7 +835,8 @@ void SOLR_API wglSwapIntervalEXT();
  *
  * Steve Baker suggested to make it binary compatible with GLUT:
  */
-#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__WATCOMC__)
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || \
+    defined(__WATCOMC__)
 #define GLUT_STROKE_ROMAN ((void *)0x0000)
 #define GLUT_STROKE_MONO_ROMAN ((void *)0x0001)
 #define GLUT_BITMAP_9_BY_15 ((void *)0x0002)
@@ -910,7 +920,8 @@ void SOLR_API glutMotionFunc(void (*callback)(int, int));
 /*
  * Global callback functions, see freeglut_callbacks.c
  */
-void SOLR_API glutTimerFunc(unsigned int time, void (*callback)(int), int value);
+void SOLR_API glutTimerFunc(unsigned int time, void (*callback)(int),
+                            int value);
 
 /*
  * Menu stuff, see freeglut_menu.c

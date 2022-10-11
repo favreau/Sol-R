@@ -34,6 +34,7 @@ protected:
     virtual void doAddLights();
 
 private:
-    void createFractals(int iteration, int modelId, int mode, int maxIterations, vec4f center, int material,
-                        float interval, float radius);
+    void createFractals(int iteration, int modelId, int mode, int maxIterations,
+                        vec4f center, int material, float interval,
+                        float radius);
 };

@@ -13,9 +13,9 @@
 #ifndef STRING_HELPER_H
 #define STRING_HELPER_H
 
+#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fstream>
 #include <string>
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64)
@@ -23,7 +23,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 #ifndef STRCASECMP
-#define STRCASECMP  _stricmp
+#define STRCASECMP _stricmp
 #endif
 #ifndef STRNCASECMP
 #define STRNCASECMP _strnicmp
@@ -33,7 +33,7 @@
 #endif
 
 #ifndef FOPEN
-#define FOPEN(fHandle,filename,mode) fopen_s(&fHandle, filename, mode)
+#define FOPEN(fHandle, filename, mode) fopen_s(&fHandle, filename, mode)
 #endif
 #ifndef FOPEN_FAIL
 #define FOPEN_FAIL(result) (result != 0)
@@ -49,7 +49,7 @@
 #include <strings.h>
 
 #ifndef STRCASECMP
-#define STRCASECMP  strcasecmp
+#define STRCASECMP strcasecmp
 #endif
 #ifndef STRNCASECMP
 #define STRNCASECMP strncasecmp
@@ -59,7 +59,7 @@
 #endif
 
 #ifndef FOPEN
-#define FOPEN(fHandle,filename,mode) (fHandle = fopen(filename, mode))
+#define FOPEN(fHandle, filename, mode) (fHandle = fopen(filename, mode))
 #endif
 #ifndef FOPEN_FAIL
 #define FOPEN_FAIL(result) (result == NULL)
@@ -86,7 +86,7 @@ inline int stringRemoveDelimiter(char delimiter, const char *string)
         string_start++;
     }
 
-    if (string_start >= (int)strlen(string)-1)
+    if (string_start >= (int)strlen(string) - 1)
     {
         return 0;
     }
@@ -104,7 +104,8 @@ inline int getFileExtension(char *filename, char **extension)
             break;
     }
 
-    if (string_length > 0) string_length += 2;
+    if (string_length > 0)
+        string_length += 2;
 
     if (string_length == 0)
         *extension = NULL;
@@ -114,24 +115,26 @@ inline int getFileExtension(char *filename, char **extension)
     return string_length;
 }
 
-
-inline bool checkCmdLineFlag(const int argc, const char **argv, const char *string_ref)
+inline bool checkCmdLineFlag(const int argc, const char **argv,
+                             const char *string_ref)
 {
     bool bFound = false;
 
     if (argc >= 1)
     {
-        for (int i=1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             int string_start = stringRemoveDelimiter('-', argv[i]);
             const char *string_argv = &argv[i][string_start];
 
             const char *equal_pos = strchr(string_argv, '=');
-            int argv_length = (int)(equal_pos == 0 ? strlen(string_argv) : equal_pos - string_argv);
+            int argv_length = (int)(equal_pos == 0 ? strlen(string_argv)
+                                                   : equal_pos - string_argv);
 
             int length = (int)strlen(string_ref);
 
-            if (length == argv_length && !STRNCASECMP(string_argv, string_ref, length))
+            if (length == argv_length &&
+                !STRNCASECMP(string_argv, string_ref, length))
             {
                 bFound = true;
                 continue;
@@ -144,13 +147,14 @@ inline bool checkCmdLineFlag(const int argc, const char **argv, const char *stri
 
 // This function wraps the CUDA Driver API into a template function
 template <class T>
-inline bool getCmdLineArgumentValue(const int argc, const char **argv, const char *string_ref, T *value)
+inline bool getCmdLineArgumentValue(const int argc, const char **argv,
+                                    const char *string_ref, T *value)
 {
     bool bFound = false;
 
     if (argc >= 1)
     {
-        for (int i=1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             int string_start = stringRemoveDelimiter('-', argv[i]);
             const char *string_argv = &argv[i][string_start];
@@ -158,14 +162,14 @@ inline bool getCmdLineArgumentValue(const int argc, const char **argv, const cha
 
             if (!STRNCASECMP(string_argv, string_ref, length))
             {
-                if (length+1 <= (int)strlen(string_argv))
+                if (length + 1 <= (int)strlen(string_argv))
                 {
                     int auto_inc = (string_argv[length] == '=') ? 1 : 0;
                     *value = (T)atoi(&string_argv[length + auto_inc]);
                 }
 
                 bFound = true;
-                i=argc;
+                i = argc;
             }
         }
     }
@@ -173,14 +177,15 @@ inline bool getCmdLineArgumentValue(const int argc, const char **argv, const cha
     return bFound;
 }
 
-inline int getCmdLineArgumentInt(const int argc, const char **argv, const char *string_ref)
+inline int getCmdLineArgumentInt(const int argc, const char **argv,
+                                 const char *string_ref)
 {
     bool bFound = false;
     int value = -1;
 
     if (argc >= 1)
     {
-        for (int i=1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             int string_start = stringRemoveDelimiter('-', argv[i]);
             const char *string_argv = &argv[i][string_start];
@@ -188,7 +193,7 @@ inline int getCmdLineArgumentInt(const int argc, const char **argv, const char *
 
             if (!STRNCASECMP(string_argv, string_ref, length))
             {
-                if (length+1 <= (int)strlen(string_argv))
+                if (length + 1 <= (int)strlen(string_argv))
                 {
                     int auto_inc = (string_argv[length] == '=') ? 1 : 0;
                     value = atoi(&string_argv[length + auto_inc]);
@@ -214,14 +219,15 @@ inline int getCmdLineArgumentInt(const int argc, const char **argv, const char *
     }
 }
 
-inline float getCmdLineArgumentFloat(const int argc, const char **argv, const char *string_ref)
+inline float getCmdLineArgumentFloat(const int argc, const char **argv,
+                                     const char *string_ref)
 {
     bool bFound = false;
     float value = -1;
 
     if (argc >= 1)
     {
-        for (int i=1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             int string_start = stringRemoveDelimiter('-', argv[i]);
             const char *string_argv = &argv[i][string_start];
@@ -229,7 +235,7 @@ inline float getCmdLineArgumentFloat(const int argc, const char **argv, const ch
 
             if (!STRNCASECMP(string_argv, string_ref, length))
             {
-                if (length+1 <= (int)strlen(string_argv))
+                if (length + 1 <= (int)strlen(string_argv))
                 {
                     int auto_inc = (string_argv[length] == '=') ? 1 : 0;
                     value = (float)atof(&string_argv[length + auto_inc]);
@@ -256,13 +262,14 @@ inline float getCmdLineArgumentFloat(const int argc, const char **argv, const ch
 }
 
 inline bool getCmdLineArgumentString(const int argc, const char **argv,
-                                     const char *string_ref, char **string_retval)
+                                     const char *string_ref,
+                                     char **string_retval)
 {
     bool bFound = false;
 
     if (argc >= 1)
     {
-        for (int i=1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             int string_start = stringRemoveDelimiter('-', argv[i]);
             char *string_argv = (char *)&argv[i][string_start];
@@ -270,7 +277,7 @@ inline bool getCmdLineArgumentString(const int argc, const char **argv,
 
             if (!STRNCASECMP(string_argv, string_ref, length))
             {
-                *string_retval = &string_argv[length+1];
+                *string_retval = &string_argv[length + 1];
                 bFound = true;
                 continue;
             }
@@ -295,103 +302,212 @@ inline bool getCmdLineArgumentString(const int argc, const char **argv,
 //////////////////////////////////////////////////////////////////////////////
 inline char *sdkFindFilePath(const char *filename, const char *executable_path)
 {
-    // <executable_name> defines a variable that is replaced with the name of the executable
+    // <executable_name> defines a variable that is replaced with the name of
+    // the executable
 
-    // Typical relative search paths to locate needed companion files (e.g. sample input data, or JIT source files)
-    // The origin for the relative search may be the .exe file, a .bat file launching an .exe, a browser .exe launching the .exe or .bat, etc
-    const char *searchPath[] =
-    {
-        "./",                                       // same dir
-        "./common/",                                // "/common/" subdir
-        "./common/data/",                           // "/common/data/" subdir
-        "./data/",                                  // "/data/" subdir
-        "./src/",                                   // "/src/" subdir
-        "./src/<executable_name>/data/",            // "/src/<executable_name>/data/" subdir
-        "./inc/",                                   // "/inc/" subdir
-        "./0_Simple/",                              // "/0_Simple/" subdir
-        "./1_Utilities/",                           // "/1_Utilities/" subdir
-        "./2_Graphics/",                            // "/2_Graphics/" subdir
-        "./3_Imaging/",                             // "/3_Imaging/" subdir
-        "./4_Financial/",                           // "/4_Financial/" subdir
-        "./5_Simulations/",                         // "/5_Simulations/" subdir
-        "./6_Advanced/",                            // "/6_Advanced/" subdir
-        "./7_CUDALibraries/",                       // "/7_CUDALibraries/" subdir
-        "./samples/",                               // "/samples/" subdir
+    // Typical relative search paths to locate needed companion files (e.g.
+    // sample input data, or JIT source files) The origin for the relative
+    // search may be the .exe file, a .bat file launching an .exe, a browser
+    // .exe launching the .exe or .bat, etc
+    const char *searchPath[] = {
+        "./",                            // same dir
+        "./common/",                     // "/common/" subdir
+        "./common/data/",                // "/common/data/" subdir
+        "./data/",                       // "/data/" subdir
+        "./src/",                        // "/src/" subdir
+        "./src/<executable_name>/data/", // "/src/<executable_name>/data/"
+                                         // subdir
+        "./inc/",                        // "/inc/" subdir
+        "./0_Simple/",                   // "/0_Simple/" subdir
+        "./1_Utilities/",                // "/1_Utilities/" subdir
+        "./2_Graphics/",                 // "/2_Graphics/" subdir
+        "./3_Imaging/",                  // "/3_Imaging/" subdir
+        "./4_Financial/",                // "/4_Financial/" subdir
+        "./5_Simulations/",              // "/5_Simulations/" subdir
+        "./6_Advanced/",                 // "/6_Advanced/" subdir
+        "./7_CUDALibraries/",            // "/7_CUDALibraries/" subdir
+        "./samples/",                    // "/samples/" subdir
 
-        "../",                                      // up 1 in tree
-        "../common/",                               // up 1 in tree, "/common/" subdir
-        "../common/data/",                          // up 1 in tree, "/common/data/" subdir
-        "../data/",                                 // up 1 in tree, "/data/" subdir
-        "../src/",                                  // up 1 in tree, "/src/" subdir
-        "../inc/",                                  // up 1 in tree, "/inc/" subdir
+        "../",             // up 1 in tree
+        "../common/",      // up 1 in tree, "/common/" subdir
+        "../common/data/", // up 1 in tree, "/common/data/" subdir
+        "../data/",        // up 1 in tree, "/data/" subdir
+        "../src/",         // up 1 in tree, "/src/" subdir
+        "../inc/",         // up 1 in tree, "/inc/" subdir
 
-        "../0_Simple/<executable_name>/data/",           // up 1 in tree, "/0_Simple/<executable_name>/" subdir
-        "../1_Utilities/<executable_name>/data/",        // up 1 in tree, "/1_Utilities/<executable_name>/" subdir
-        "../2_Graphics/<executable_name>/data/",         // up 1 in tree, "/2_Graphics/<executable_name>/" subdir
-        "../3_Imaging/<executable_name>/data/",          // up 1 in tree, "/3_Imaging/<executable_name>/" subdir
-        "../4_Financial/<executable_name>/data/",        // up 1 in tree, "/4_Financial/<executable_name>/" subdir
-        "../5_Simulations/<executable_name>/data/",      // up 1 in tree, "/5_Simulations/<executable_name>/" subdir
-        "../6_Advanced/<executable_name>/data/",         // up 1 in tree, "/6_Advanced/<executable_name>/" subdir
-        "../7_CUDALibraries/<executable_name>/data/",    // up 1 in tree, "/7_CUDALibraries/<executable_name>/" subdir
-        "../samples/<executable_name>/data/",            // up 1 in tree, "/samples/<executable_name>/" subdir
-        "../../",                                   // up 2 in tree
-        "../../common/",                            // up 2 in tree, "/common/" subdir
-        "../../common/data/",                       // up 2 in tree, "/common/data/" subdir
-        "../../data/",                              // up 2 in tree, "/data/" subdir
-        "../../src/",                               // up 2 in tree, "/src/" subdir
-        "../../inc/",                               // up 2 in tree, "/inc/" subdir
-        "../../sandbox/<executable_name>/data/",    // up 2 in tree, "/sandbox/<executable_name>/" subdir
-        "../../0_Simple/<executable_name>/data/",        // up 2 in tree, "/0_Simple/<executable_name>/" subdir
-        "../../1_Utilities/<executable_name>/data/",     // up 2 in tree, "/1_Utilities/<executable_name>/" subdir
-        "../../2_Graphics/<executable_name>/data/",      // up 2 in tree, "/2_Graphics/<executable_name>/" subdir
-        "../../3_Imaging/<executable_name>/data/",       // up 2 in tree, "/3_Imaging/<executable_name>/" subdir
-        "../../4_Financial/<executable_name>/data/",     // up 2 in tree, "/4_Financial/<executable_name>/" subdir
-        "../../5_Simulations/<executable_name>/data/",   // up 2 in tree, "/5_Simulations/<executable_name>/" subdir
-        "../../6_Advanced/<executable_name>/data/",      // up 2 in tree, "/6_Advanced/<executable_name>/" subdir
-        "../../7_CUDALibraries/<executable_name>/data/", // up 2 in tree, "/7_CUDALibraries/<executable_name>/" subdir
-        "../../samples/<executable_name>/data/",         // up 2 in tree, "/samples/<executable_name>/" subdir
-        "../../../",                                // up 3 in tree
-        "../../../src/<executable_name>/",          // up 3 in tree, "/src/<executable_name>/" subdir
-        "../../../src/<executable_name>/data/",     // up 3 in tree, "/src/<executable_name>/data/" subdir
-        "../../../src/<executable_name>/src/",      // up 3 in tree, "/src/<executable_name>/src/" subdir
-        "../../../src/<executable_name>/inc/",      // up 3 in tree, "/src/<executable_name>/inc/" subdir
-        "../../../sandbox/<executable_name>/",      // up 3 in tree, "/sandbox/<executable_name>/" subdir
-        "../../../sandbox/<executable_name>/data/", // up 3 in tree, "/sandbox/<executable_name>/data/" subdir
-        "../../../sandbox/<executable_name>/src/",  // up 3 in tree, "/sandbox/<executable_name>/src/" subdir
-        "../../../sandbox/<executable_name>/inc/",   // up 3 in tree, "/sandbox/<executable_name>/inc/" subdir
-        "../../../0_Simple/<executable_name>/data/",     // up 3 in tree, "/0_Simple/<executable_name>/" subdir
-        "../../../1_Utilities/<executable_name>/data/",  // up 3 in tree, "/1_Utilities/<executable_name>/" subdir
-        "../../../2_Graphics/<executable_name>/data/",   // up 3 in tree, "/2_Graphics/<executable_name>/" subdir
-        "../../../3_Imaging/<executable_name>/data/",    // up 3 in tree, "/3_Imaging/<executable_name>/" subdir
-        "../../../4_Financial/<executable_name>/data/",  // up 3 in tree, "/4_Financial/<executable_name>/" subdir
-        "../../../5_Simulations/<executable_name>/data/",// up 3 in tree, "/5_Simulations/<executable_name>/" subdir
-        "../../../6_Advanced/<executable_name>/data/",   // up 3 in tree, "/6_Advanced/<executable_name>/" subdir
-        "../../../7_CUDALibraries/<executable_name>/data/", // up 3 in tree, "/7_CUDALibraries/<executable_name>/" subdir
-        "../../../samples/<executable_name>/data/",      // up 3 in tree, "/samples/<executable_name>/" subdir
-        "../../../common/",                         // up 3 in tree, "../../../common/" subdir
-        "../../../common/data/",                    // up 3 in tree, "../../../common/data/" subdir
-        "../../../data/",                           // up 3 in tree, "../../../data/" subdir
-        "../../../../",                                // up 4 in tree
-        "../../../../src/<executable_name>/",          // up 4 in tree, "/src/<executable_name>/" subdir
-        "../../../../src/<executable_name>/data/",     // up 4 in tree, "/src/<executable_name>/data/" subdir
-        "../../../../src/<executable_name>/src/",      // up 4 in tree, "/src/<executable_name>/src/" subdir
-        "../../../../src/<executable_name>/inc/",      // up 4 in tree, "/src/<executable_name>/inc/" subdir
-        "../../../../sandbox/<executable_name>/",      // up 4 in tree, "/sandbox/<executable_name>/" subdir
-        "../../../../sandbox/<executable_name>/data/", // up 4 in tree, "/sandbox/<executable_name>/data/" subdir
-        "../../../../sandbox/<executable_name>/src/",  // up 4 in tree, "/sandbox/<executable_name>/src/" subdir
-        "../../../../sandbox/<executable_name>/inc/",   // up 4 in tree, "/sandbox/<executable_name>/inc/" subdir
-        "../../../../0_Simple/<executable_name>/data/",     // up 4 in tree, "/0_Simple/<executable_name>/" subdir
-        "../../../../1_Utilities/<executable_name>/data/",  // up 4 in tree, "/1_Utilities/<executable_name>/" subdir
-        "../../../../2_Graphics/<executable_name>/data/",   // up 4 in tree, "/2_Graphics/<executable_name>/" subdir
-        "../../../../3_Imaging/<executable_name>/data/",    // up 4 in tree, "/3_Imaging/<executable_name>/" subdir
-        "../../../../4_Financial/<executable_name>/data/",  // up 4 in tree, "/4_Financial/<executable_name>/" subdir
-        "../../../../5_Simulations/<executable_name>/data/",// up 4 in tree, "/5_Simulations/<executable_name>/" subdir
-        "../../../../6_Advanced/<executable_name>/data/",   // up 4 in tree, "/6_Advanced/<executable_name>/" subdir
-        "../../../../7_CUDALibraries/<executable_name>/data/", // up 4 in tree, "/7_CUDALibraries/<executable_name>/" subdir
-        "../../../../samples/<executable_name>/data/",      // up 4 in tree, "/samples/<executable_name>/" subdir
-        "../../../../common/",                         // up 4 in tree, "../../../common/" subdir
-        "../../../../common/data/",                    // up 4 in tree, "../../../common/data/" subdir
-        "../../../../data/",                           // up 4 in tree, "../../../data/" subdir
+        "../0_Simple/<executable_name>/data/", // up 1 in tree,
+                                               // "/0_Simple/<executable_name>/"
+                                               // subdir
+        "../1_Utilities/<executable_name>/data/", // up 1 in tree,
+                                                  // "/1_Utilities/<executable_name>/"
+                                                  // subdir
+        "../2_Graphics/<executable_name>/data/", // up 1 in tree,
+                                                 // "/2_Graphics/<executable_name>/"
+                                                 // subdir
+        "../3_Imaging/<executable_name>/data/", // up 1 in tree,
+                                                // "/3_Imaging/<executable_name>/"
+                                                // subdir
+        "../4_Financial/<executable_name>/data/", // up 1 in tree,
+                                                  // "/4_Financial/<executable_name>/"
+                                                  // subdir
+        "../5_Simulations/<executable_name>/data/", // up 1 in tree,
+                                                    // "/5_Simulations/<executable_name>/"
+                                                    // subdir
+        "../6_Advanced/<executable_name>/data/", // up 1 in tree,
+                                                 // "/6_Advanced/<executable_name>/"
+                                                 // subdir
+        "../7_CUDALibraries/<executable_name>/data/", // up 1 in tree,
+                                                      // "/7_CUDALibraries/<executable_name>/"
+                                                      // subdir
+        "../samples/<executable_name>/data/", // up 1 in tree,
+                                              // "/samples/<executable_name>/"
+                                              // subdir
+        "../../",                             // up 2 in tree
+        "../../common/",                      // up 2 in tree, "/common/" subdir
+        "../../common/data/", // up 2 in tree, "/common/data/" subdir
+        "../../data/",        // up 2 in tree, "/data/" subdir
+        "../../src/",         // up 2 in tree, "/src/" subdir
+        "../../inc/",         // up 2 in tree, "/inc/" subdir
+        "../../sandbox/<executable_name>/data/", // up 2 in tree,
+                                                 // "/sandbox/<executable_name>/"
+                                                 // subdir
+        "../../0_Simple/<executable_name>/data/", // up 2 in tree,
+                                                  // "/0_Simple/<executable_name>/"
+                                                  // subdir
+        "../../1_Utilities/<executable_name>/data/", // up 2 in tree,
+                                                     // "/1_Utilities/<executable_name>/"
+                                                     // subdir
+        "../../2_Graphics/<executable_name>/data/", // up 2 in tree,
+                                                    // "/2_Graphics/<executable_name>/"
+                                                    // subdir
+        "../../3_Imaging/<executable_name>/data/", // up 2 in tree,
+                                                   // "/3_Imaging/<executable_name>/"
+                                                   // subdir
+        "../../4_Financial/<executable_name>/data/", // up 2 in tree,
+                                                     // "/4_Financial/<executable_name>/"
+                                                     // subdir
+        "../../5_Simulations/<executable_name>/data/", // up 2 in tree,
+                                                       // "/5_Simulations/<executable_name>/"
+                                                       // subdir
+        "../../6_Advanced/<executable_name>/data/", // up 2 in tree,
+                                                    // "/6_Advanced/<executable_name>/"
+                                                    // subdir
+        "../../7_CUDALibraries/<executable_name>/data/", // up 2 in tree,
+                                                         // "/7_CUDALibraries/<executable_name>/"
+                                                         // subdir
+        "../../samples/<executable_name>/data/", // up 2 in tree,
+                                                 // "/samples/<executable_name>/"
+                                                 // subdir
+        "../../../",                       // up 3 in tree
+        "../../../src/<executable_name>/", // up 3 in tree,
+                                           // "/src/<executable_name>/" subdir
+        "../../../src/<executable_name>/data/", // up 3 in tree,
+                                                // "/src/<executable_name>/data/"
+                                                // subdir
+        "../../../src/<executable_name>/src/", // up 3 in tree,
+                                               // "/src/<executable_name>/src/"
+                                               // subdir
+        "../../../src/<executable_name>/inc/", // up 3 in tree,
+                                               // "/src/<executable_name>/inc/"
+                                               // subdir
+        "../../../sandbox/<executable_name>/", // up 3 in tree,
+                                               // "/sandbox/<executable_name>/"
+                                               // subdir
+        "../../../sandbox/<executable_name>/data/", // up 3 in tree,
+                                                    // "/sandbox/<executable_name>/data/"
+                                                    // subdir
+        "../../../sandbox/<executable_name>/src/", // up 3 in tree,
+                                                   // "/sandbox/<executable_name>/src/"
+                                                   // subdir
+        "../../../sandbox/<executable_name>/inc/", // up 3 in tree,
+                                                   // "/sandbox/<executable_name>/inc/"
+                                                   // subdir
+        "../../../0_Simple/<executable_name>/data/", // up 3 in tree,
+                                                     // "/0_Simple/<executable_name>/"
+                                                     // subdir
+        "../../../1_Utilities/<executable_name>/data/", // up 3 in tree,
+                                                        // "/1_Utilities/<executable_name>/"
+                                                        // subdir
+        "../../../2_Graphics/<executable_name>/data/", // up 3 in tree,
+                                                       // "/2_Graphics/<executable_name>/"
+                                                       // subdir
+        "../../../3_Imaging/<executable_name>/data/", // up 3 in tree,
+                                                      // "/3_Imaging/<executable_name>/"
+                                                      // subdir
+        "../../../4_Financial/<executable_name>/data/", // up 3 in tree,
+                                                        // "/4_Financial/<executable_name>/"
+                                                        // subdir
+        "../../../5_Simulations/<executable_name>/data/", // up 3 in tree,
+                                                          // "/5_Simulations/<executable_name>/"
+                                                          // subdir
+        "../../../6_Advanced/<executable_name>/data/", // up 3 in tree,
+                                                       // "/6_Advanced/<executable_name>/"
+                                                       // subdir
+        "../../../7_CUDALibraries/<executable_name>/data/", // up 3 in tree,
+                                                            // "/7_CUDALibraries/<executable_name>/"
+                                                            // subdir
+        "../../../samples/<executable_name>/data/", // up 3 in tree,
+                                                    // "/samples/<executable_name>/"
+                                                    // subdir
+        "../../../common/",      // up 3 in tree, "../../../common/" subdir
+        "../../../common/data/", // up 3 in tree, "../../../common/data/" subdir
+        "../../../data/",        // up 3 in tree, "../../../data/" subdir
+        "../../../../",          // up 4 in tree
+        "../../../../src/<executable_name>/",      // up 4 in tree,
+                                                   // "/src/<executable_name>/"
+                                                   // subdir
+        "../../../../src/<executable_name>/data/", // up 4 in tree,
+                                                   // "/src/<executable_name>/data/"
+                                                   // subdir
+        "../../../../src/<executable_name>/src/", // up 4 in tree,
+                                                  // "/src/<executable_name>/src/"
+                                                  // subdir
+        "../../../../src/<executable_name>/inc/", // up 4 in tree,
+                                                  // "/src/<executable_name>/inc/"
+                                                  // subdir
+        "../../../../sandbox/<executable_name>/", // up 4 in tree,
+                                                  // "/sandbox/<executable_name>/"
+                                                  // subdir
+        "../../../../sandbox/<executable_name>/data/", // up 4 in tree,
+                                                       // "/sandbox/<executable_name>/data/"
+                                                       // subdir
+        "../../../../sandbox/<executable_name>/src/", // up 4 in tree,
+                                                      // "/sandbox/<executable_name>/src/"
+                                                      // subdir
+        "../../../../sandbox/<executable_name>/inc/", // up 4 in tree,
+                                                      // "/sandbox/<executable_name>/inc/"
+                                                      // subdir
+        "../../../../0_Simple/<executable_name>/data/", // up 4 in tree,
+                                                        // "/0_Simple/<executable_name>/"
+                                                        // subdir
+        "../../../../1_Utilities/<executable_name>/data/", // up 4 in tree,
+                                                           // "/1_Utilities/<executable_name>/"
+                                                           // subdir
+        "../../../../2_Graphics/<executable_name>/data/", // up 4 in tree,
+                                                          // "/2_Graphics/<executable_name>/"
+                                                          // subdir
+        "../../../../3_Imaging/<executable_name>/data/", // up 4 in tree,
+                                                         // "/3_Imaging/<executable_name>/"
+                                                         // subdir
+        "../../../../4_Financial/<executable_name>/data/", // up 4 in tree,
+                                                           // "/4_Financial/<executable_name>/"
+                                                           // subdir
+        "../../../../5_Simulations/<executable_name>/data/", // up 4 in tree,
+                                                             // "/5_Simulations/<executable_name>/"
+                                                             // subdir
+        "../../../../6_Advanced/<executable_name>/data/", // up 4 in tree,
+                                                          // "/6_Advanced/<executable_name>/"
+                                                          // subdir
+        "../../../../7_CUDALibraries/<executable_name>/data/", // up 4 in tree,
+                                                               // "/7_CUDALibraries/<executable_name>/"
+                                                               // subdir
+        "../../../../samples/<executable_name>/data/", // up 4 in tree,
+                                                       // "/samples/<executable_name>/"
+                                                       // subdir
+        "../../../../common/",      // up 4 in tree, "../../../common/" subdir
+        "../../../../common/data/", // up 4 in tree, "../../../common/data/"
+                                    // subdir
+        "../../../../data/",        // up 4 in tree, "../../../data/" subdir
     };
 
     // Extract the executable name
@@ -415,12 +531,12 @@ inline char *sdkFindFilePath(const char *filename, const char *executable_path)
 #else
         // Linux & OSX path delimiter
         size_t delimiter_pos = executable_name.find_last_of('/');
-        executable_name.erase(0,delimiter_pos+1);
+        executable_name.erase(0, delimiter_pos + 1);
 #endif
     }
 
     // Loop over all search paths and return the first hit
-    for (unsigned int i = 0; i < sizeof(searchPath)/sizeof(char *); ++i)
+    for (unsigned int i = 0; i < sizeof(searchPath) / sizeof(char *); ++i)
     {
         std::string path(searchPath[i]);
         size_t executable_name_pos = path.find("<executable_name>");
@@ -431,7 +547,8 @@ inline char *sdkFindFilePath(const char *filename, const char *executable_path)
         {
             if (executable_path != 0)
             {
-                path.replace(executable_name_pos, strlen("<executable_name>"), executable_name);
+                path.replace(executable_name_pos, strlen("<executable_name>"),
+                             executable_name);
             }
             else
             {
@@ -453,8 +570,9 @@ inline char *sdkFindFilePath(const char *filename, const char *executable_path)
         {
             fclose(fp);
             // File found
-            // returning an allocated array here for backwards compatibility reasons
-            char *file_path = (char *) malloc(path.length() + 1);
+            // returning an allocated array here for backwards compatibility
+            // reasons
+            char *file_path = (char *)malloc(path.length() + 1);
             STRCPY(file_path, path.length() + 1, path.c_str());
             return file_path;
         }

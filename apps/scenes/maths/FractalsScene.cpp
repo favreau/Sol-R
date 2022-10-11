@@ -41,7 +41,8 @@ ________________________________________________________________________________
 Create simple fractal scene
 ________________________________________________________________________________
 */
-void FractalsScene::createFractals(float maxIterations, const vec4f& center, int material)
+void FractalsScene::createFractals(float maxIterations, const vec4f& center,
+                                   int material)
 {
     SceneInfo& sceneInfo = m_gpuKernel->getSceneInfo();
     float W = (float)sceneInfo.size.x;
@@ -81,24 +82,29 @@ void FractalsScene::createFractals(float maxIterations, const vec4f& center, int
             if (n > 5)
             {
                 m_nbPrimitives = m_gpuKernel->addPrimitive(ptTriangle);
-                m_gpuKernel->setPrimitive(m_nbPrimitives, (x - 250.f) * center.w, (y - 250.f) * center.w, 0.f,
-                                          (x + step - 250.f) * center.w, (y - 250.f) * center.w, 0.f,
-                                          (x + step - 250.f) * center.w, (y + step - 250.f) * center.w, 0.f,
-                                          10.f * center.w, 0.f, 0.f, material + (n % 40));
+                m_gpuKernel->setPrimitive(
+                    m_nbPrimitives, (x - 250.f) * center.w,
+                    (y - 250.f) * center.w, 0.f, (x + step - 250.f) * center.w,
+                    (y - 250.f) * center.w, 0.f, (x + step - 250.f) * center.w,
+                    (y + step - 250.f) * center.w, 0.f, 10.f * center.w, 0.f,
+                    0.f, material + (n % 40));
                 m_gpuKernel->setPrimitiveBellongsToModel(m_nbPrimitives, true);
 
                 m_nbPrimitives = m_gpuKernel->addPrimitive(ptTriangle);
-                m_gpuKernel->setPrimitive(m_nbPrimitives, (x + step - 250.f) * center.w, (y + step - 250.f) * center.w,
-                                          0.f, (x - 250.f) * center.w, (y + step - 250.f) * center.w, 0.f,
-                                          (x - 250.f) * center.w, (y - 250.f) * center.w, 0.f, 10.f * center.w, 0.f,
-                                          0.f, material + (n % 40));
+                m_gpuKernel->setPrimitive(
+                    m_nbPrimitives, (x + step - 250.f) * center.w,
+                    (y + step - 250.f) * center.w, 0.f, (x - 250.f) * center.w,
+                    (y + step - 250.f) * center.w, 0.f, (x - 250.f) * center.w,
+                    (y - 250.f) * center.w, 0.f, 10.f * center.w, 0.f, 0.f,
+                    material + (n % 40));
                 m_gpuKernel->setPrimitiveBellongsToModel(m_nbPrimitives, true);
             }
         }
     }
 }
 
-vec4f FractalsScene::MandelBox(vec3f V, const vec3f& Scale, float R, float S, float C)
+vec4f FractalsScene::MandelBox(vec3f V, const vec3f& Scale, float R, float S,
+                               float C)
 {
     V.x /= Scale.x;
     V.y /= Scale.y;
@@ -152,7 +158,8 @@ vec4f FractalsScene::MandelBox(vec3f V, const vec3f& Scale, float R, float S, fl
     {
         int div = maxiter / 5;
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, V.x, V.y, V.z, Scale.x, Scale.y, Scale.z, 1000 + div);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, V.x, V.y, V.z, Scale.x,
+                                  Scale.y, Scale.z, 1000 + div);
         m_gpuKernel->setPrimitiveBellongsToModel(m_nbPrimitives, true);
     }
     return color;
@@ -199,31 +206,40 @@ float FractalsScene::DE(vec3f pos, const int iterations, const vec2f params)
     if (!add)
     {
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, pos.x, pos.y, pos.z, 0.01f * log(r) * r / dr, 0.f, 0.f, 40);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, pos.x, pos.y, pos.z,
+                                  0.01f * log(r) * r / dr, 0.f, 0.f, 40);
         m_gpuKernel->setPrimitiveBellongsToModel(m_nbPrimitives, true);
     }
     return 0.f;
 }
 
 /**
- * Decides if a point at a specific location is filled or not.  This works by iteration first checking if
- * the pixel is unfilled in successively larger squares or cannot be in the center of any larger square.
- * @param x is the x coordinate of the point being checked with zero being the first pixel
- * @param y is the y coordinate of the point being checked with zero being the first pixel
+ * Decides if a point at a specific location is filled or not.  This works by
+ * iteration first checking if the pixel is unfilled in successively larger
+ * squares or cannot be in the center of any larger square.
+ * @param x is the x coordinate of the point being checked with zero being the
+ * first pixel
+ * @param y is the y coordinate of the point being checked with zero being the
+ * first pixel
  * @return 1 if it is to be filled or 0 if it is open
  */
 bool FractalsScene::isSierpinskiCarpetPixelFilled(int i, vec3i v)
 {
-    while (v.x > 0 || v.y > 0 || v.z > 0) // when either of these reaches zero the pixel is determined to be on the edge
+    while (v.x > 0 || v.y > 0 ||
+           v.z > 0) // when either of these reaches zero the pixel is determined
+                    // to be on the edge
     {
-        if (v.x % i == 1 && v.y % i == 1 && v.z % i == 1) // checks if the pixel is in the center for the current square
-                                                          // level
+        if (v.x % i == 1 && v.y % i == 1 &&
+            v.z % i == 1) // checks if the pixel is in the center for the
+                          // current square level
             return false;
-        v.x /= i; // x and y are decremented to check the next larger square level
+        v.x /=
+            i; // x and y are decremented to check the next larger square level
         v.y /= i;
         v.z /= i;
     }
-    return true; // if all possible square levels are checked and the pixel is not determined
+    return true; // if all possible square levels are checked and the pixel is
+                 // not determined
     // to be open it must be filled
 }
 
@@ -242,8 +258,11 @@ void FractalsScene::doInitialize()
             {
                 vec3i v = make_vec3i(x, y, z);
                 if (!isSierpinskiCarpetPixelFilled(nbIterations, v))
-                    m_nbPrimitives = m_gpuKernel->addCube((x - size / 2.f) * radius, (y - size / 2.f) * radius,
-                                                          (z - size / 2.f) * radius, step * radius, 39);
+                    m_nbPrimitives =
+                        m_gpuKernel->addCube((x - size / 2.f) * radius,
+                                             (y - size / 2.f) * radius,
+                                             (z - size / 2.f) * radius,
+                                             step * radius, 39);
             }
 }
 
@@ -258,5 +277,6 @@ void FractalsScene::doAddLights()
 {
     // lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 500.f, 0.f, 500.f, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 500.f, 0.f,
+                              500.f, DEFAULT_LIGHT_MATERIAL);
 }

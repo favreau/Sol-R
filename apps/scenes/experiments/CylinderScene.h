@@ -38,5 +38,4 @@ private:
     vec2f m_vt0;
     vec2f m_vt1;
     vec2f m_vt2;
-
 };

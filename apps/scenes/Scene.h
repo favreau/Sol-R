@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <solr_defines.h>
 #include <common/Types.h>
+#include <solr_defines.h>
 
 // Raytracer
 #include <Logging.h>
@@ -61,7 +61,10 @@ public:
     std::string& getName();
 
     int getCornellBox() { return m_cornellBoxType; }
-    void setCornellBoxType(int cornellBoxType) { m_cornellBoxType = cornellBoxType; }
+    void setCornellBoxType(int cornellBoxType)
+    {
+        m_cornellBoxType = cornellBoxType;
+    }
     float getGroundHeight() { return m_groundHeight; }
     void setGroundHeight(const float h) { m_groundHeight = h; }
 
@@ -74,7 +77,10 @@ public:
     int getNbHDRI() { return m_nbHDRI; }
 
 public:
-    void setCurrentModel(const int& currentModel) { m_currentModel = currentModel; }
+    void setCurrentModel(const int& currentModel)
+    {
+        m_currentModel = currentModel;
+    }
 
 protected:
     virtual void doInitialize() = 0;

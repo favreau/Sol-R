@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "solr.h"
 #include "api.h"
+#include "solr.h"
 
 #ifdef WIN32
 #ifdef USE_KINECT
@@ -66,17 +66,21 @@ public:
     virtual void render_begin(const float timer);
     virtual void render_end() = 0;
     BitmapBuffer *getBitmap() { return m_bitmap; }
-    void generateScreenshot(const std::string &filename, const unsigned int width, const unsigned int height,
+    void generateScreenshot(const std::string &filename,
+                            const unsigned int width, const unsigned int height,
                             const unsigned int quality);
 
 public:
     // ---------- Primitives ----------
     int addPrimitive(PrimitiveType type, bool belongsToModel = false);
-    void setPrimitive(const int &index, float x0, float y0, float z0, float w, float h, float d, int materialId);
-    void setPrimitive(const int &index, float x0, float y0, float z0, float x1, float y1, float z1, float w, float h,
-                      float d, int materialId);
-    void setPrimitive(const int &index, float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2,
-                      float z2, float w, float h, float d, int materialId);
+    void setPrimitive(const int &index, float x0, float y0, float z0, float w,
+                      float h, float d, int materialId);
+    void setPrimitive(const int &index, float x0, float y0, float z0, float x1,
+                      float y1, float z1, float w, float h, float d,
+                      int materialId);
+    void setPrimitive(const int &index, float x0, float y0, float z0, float x1,
+                      float y1, float z1, float x2, float y2, float z2, float w,
+                      float h, float d, int materialId);
     unsigned int getPrimitiveAt(int x, int y);
     void setPrimitiveIsMovable(const int &index, bool movable);
     void setPrimitiveBellongsToModel(const int &index, bool bellongsToModel);
@@ -86,9 +90,10 @@ public:
 
     // Rotation
     void rotatePrimitives(const vec3f &rotationCenter, const vec4f &angles);
-    void rotatePrimitive(CPUPrimitive &primitive, const vec3f &rotationCenter, const vec3f &cosAngles,
-                         const vec3f &sinAngles);
-    void rotateBox(CPUBoundingBox &box, vec3f rotationCenter, vec3f cosAngles, vec3f sinAngles);
+    void rotatePrimitive(CPUPrimitive &primitive, const vec3f &rotationCenter,
+                         const vec3f &cosAngles, const vec3f &sinAngles);
+    void rotateBox(CPUBoundingBox &box, vec3f rotationCenter, vec3f cosAngles,
+                   vec3f sinAngles);
     vec4f getRotation() { return m_rotation; }
     // Translation
     void translatePrimitives(const vec3f &);
@@ -104,7 +109,9 @@ public:
     void setPrimitiveCenter(unsigned int index, const vec3f &center);
 
     // Texture coordinates
-    void setPrimitiveTextureCoordinates(const unsigned int index, const vec2f &vt0, const vec2f &vt1, const vec2f &vt2);
+    void setPrimitiveTextureCoordinates(const unsigned int index,
+                                        const vec2f &vt0, const vec2f &vt1,
+                                        const vec2f &vt2);
 
     // Normals
     void setPrimitiveNormals(unsigned int index, vec3f n0, vec3f n1, vec3f n2);
@@ -127,29 +134,37 @@ public:
     // ---------- Complex objects ----------
     int addCube(float x, float y, float z, float radius, int materialId);
 
-    int addRectangle(float x, float y, float z, float w, float h, float d, int materialId);
+    int addRectangle(float x, float y, float z, float w, float h, float d,
+                     int materialId);
 
 public:
     // ---------- Materials ----------
     int addMaterial();
     void setMaterial(unsigned int index, const Material &material);
-    void setMaterial(unsigned int index, float r, float g, float b, float gloss, float reflection, float refraction,
-                     bool procedural, bool wireframe, int wireframeWidth, float transparency, float opacity,
-                     int diffuseTextureId, int normalTextureId, int bumpTextureId, int specularTextureId,
-                     int reflectionTextureId, int transparentTextureId, int ambientOcclusionTextureId, float specValue,
-                     float specPower, float specCoef, float innerIllumination, float illuminationDiffusion,
-                     float illuminationPropagation, bool fastTransparency);
+    void setMaterial(unsigned int index, float r, float g, float b, float gloss,
+                     float reflection, float refraction, bool procedural,
+                     bool wireframe, int wireframeWidth, float transparency,
+                     float opacity, int diffuseTextureId, int normalTextureId,
+                     int bumpTextureId, int specularTextureId,
+                     int reflectionTextureId, int transparentTextureId,
+                     int ambientOcclusionTextureId, float specValue,
+                     float specPower, float specCoef, float innerIllumination,
+                     float illuminationDiffusion, float illuminationPropagation,
+                     bool fastTransparency);
 
     void setMaterialColor(unsigned int index, float r, float g, float b);
     void setMaterialTextureId(unsigned int textureId);
 
-    int getMaterialAttributes(int index, float &r, float &g, float &b, float &gloss, float &reflection,
-                              float &refraction, bool &procedural, bool &wireframe, int &wireframeDepth,
-                              float &transparency, float &opacity, int &diffuseTextureId, int &normalTextureId,
-                              int &bumpTextureId, int &specularTextureId, int &reflectionTextureId,
-                              int &transparencyTextureId, int &ambientOcclusionTextureId, float &specValue,
-                              float &specPower, float &specCoef, float &innerIllumination, float &illuminationDiffusion,
-                              float &illuminationPropagation, bool &fastTransparency);
+    int getMaterialAttributes(
+        int index, float &r, float &g, float &b, float &gloss,
+        float &reflection, float &refraction, bool &procedural, bool &wireframe,
+        int &wireframeDepth, float &transparency, float &opacity,
+        int &diffuseTextureId, int &normalTextureId, int &bumpTextureId,
+        int &specularTextureId, int &reflectionTextureId,
+        int &transparencyTextureId, int &ambientOcclusionTextureId,
+        float &specValue, float &specPower, float &specCoef,
+        float &innerIllumination, float &illuminationDiffusion,
+        float &illuminationPropagation, bool &fastTransparency);
 
     Material *getMaterial(const int index);
     int getCurrentMaterial();
@@ -163,7 +178,10 @@ public:
     // ---------- Textures ----------
     void setTexture(const int index, const TextureInfo &textureInfo);
     void getTexture(const int index, TextureInfo &textureInfo);
-    void setTexturesTransfered(const bool transfered) { m_texturesTransfered = transfered; }
+    void setTexturesTransfered(const bool transfered)
+    {
+        m_texturesTransfered = transfered;
+    }
     void realignTexturesAndMaterials();
 
     bool loadTextureFromFile(const int index, const std::string &filename);
@@ -171,10 +189,14 @@ public:
     void processTextureOffsets();
 
 public:
-    void setSceneInfo(int width, int height, float transparentColor, int shadowsEnabled, float viewDistance,
-                      float shadowIntensity, int nbRayIterations, vec4f backgroundColor, int supportFor3DVision,
-                      float eyeSeparation, bool renderBoxes, int pathTracingIteration, int maxPathTracingIterations,
-                      FrameBufferType frameBufferType, int timestamp, int atmosphericEffect, int skyboxSize,
+    void setSceneInfo(int width, int height, float transparentColor,
+                      int shadowsEnabled, float viewDistance,
+                      float shadowIntensity, int nbRayIterations,
+                      vec4f backgroundColor, int supportFor3DVision,
+                      float eyeSeparation, bool renderBoxes,
+                      int pathTracingIteration, int maxPathTracingIterations,
+                      FrameBufferType frameBufferType, int timestamp,
+                      int atmosphericEffect, int skyboxSize,
                       int skyboxMaterialId);
 
     // Scene
@@ -182,7 +204,8 @@ public:
     SceneInfo &getSceneInfo();
 
     // Post processing
-    void setPostProcessingInfo(PostProcessingType type, float param1, float param2, int param3);
+    void setPostProcessingInfo(PostProcessingType type, float param1,
+                               float param2, int param3);
     void setPostProcessingInfo(const PostProcessingInfo &postProcessingInfo);
     PostProcessingInfo &getPostProcessingInfo() { return m_postProcessingInfo; }
 
@@ -194,8 +217,8 @@ public:
     float dotProduct(const vec3f &a, const vec3f &b);
 
     // Bitmap export
-    void saveBitmapToFile(const std::string &filename, BitmapBuffer *bitmap, const int width, const int height,
-                          const int depth);
+    void saveBitmapToFile(const std::string &filename, BitmapBuffer *bitmap,
+                          const int width, const int height, const int depth);
 
     // Oculus
 public:
@@ -220,13 +243,21 @@ public:
     // ---------- Kinect ----------
     void initializeKinectTextures();
 
-    int updateSkeletons(unsigned int primitiveIndex, vec3f skeletonPosition, float size, float radius, int materialId,
-                        float head_radius, int head_materialId, float hands_radius, int hands_materialId,
+    int updateSkeletons(unsigned int primitiveIndex, vec3f skeletonPosition,
+                        float size, float radius, int materialId,
+                        float head_radius, int head_materialId,
+                        float hands_radius, int hands_materialId,
                         float feet_radius, int feet_materialId);
 
     bool getSkeletonPosition(int index, vec3f &position);
-    BitmapBuffer *getDepthBitmap() { return m_hDepth; }
-    BitmapBuffer *getVideoBitmap() { return m_hVideo; }
+    BitmapBuffer *getDepthBitmap()
+    {
+        return m_hDepth;
+    }
+    BitmapBuffer *getVideoBitmap()
+    {
+        return m_hVideo;
+    }
 #endif // USE_KINECT
 
 public:
@@ -238,12 +269,21 @@ public:
     std::string getTextureFilename(const int index);
     TextureInfo &getTextureInformation(const int index);
 
-    void resetAddingIndex() { m_addingIndex = 0; }
-    void doneWithAdding(const bool &doneWithAdding) { m_doneWithAdding = doneWithAdding; }
+    void resetAddingIndex()
+    {
+        m_addingIndex = 0;
+    }
+    void doneWithAdding(const bool &doneWithAdding)
+    {
+        m_doneWithAdding = doneWithAdding;
+    }
     void resetFrame();
     void resetAll();
 
-    void setDistortion(const float distortion) { m_distortion = distortion; }
+    void setDistortion(const float distortion)
+    {
+        m_distortion = distortion;
+    }
     void setPointSize(const float pointSize);
 
 public:
@@ -264,7 +304,8 @@ public:
     void previousFrame();
 
 public:
-    void rotateVector(vec3f &v, const vec3f &rotationCenter, const vec3f &cosAngles, const vec3f &sinAngles);
+    void rotateVector(vec3f &v, const vec3f &rotationCenter,
+                      const vec3f &cosAngles, const vec3f &sinAngles);
 
 public:
     int compactBoxes(bool reconstructBoxes);
@@ -272,12 +313,24 @@ public:
     void displayBoxesInfo();
     void resetBoxes(bool resetPrimitives);
 
-    void setPrimitivesTransfered(const bool value) { m_primitivesTransfered = value; }
+    void setPrimitivesTransfered(const bool value)
+    {
+        m_primitivesTransfered = value;
+    }
 
 public:
-    vec3f &getViewPos() { return m_viewPos; }
-    vec3f &getViewDir() { return m_viewDir; }
-    vec4f &getViewAngles() { return m_angles; }
+    vec3f &getViewPos()
+    {
+        return m_viewPos;
+    }
+    vec3f &getViewDir()
+    {
+        return m_viewDir;
+    }
+    vec4f &getViewAngles()
+    {
+        return m_angles;
+    }
 
 protected:
     // Bounding boxes management

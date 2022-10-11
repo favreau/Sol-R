@@ -34,6 +34,6 @@ protected:
     virtual void doAddLights();
 
 private:
-    void createTree(int iteration, int boxId, int maxIterations, vec3f center, int material, float interval,
-                    float radius);
+    void createTree(int iteration, int boxId, int maxIterations, vec3f center,
+                    int material, float interval, float radius);
 };

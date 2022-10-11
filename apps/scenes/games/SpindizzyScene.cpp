@@ -103,11 +103,14 @@ void SpindizzyScene::doAnimate()
 void SpindizzyScene::doAddLights()
 {
     // lights
-    m_gpuKernel->setMaterial(129, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, false, false, 0, 0.f,
-                             m_gpuKernel->getSceneInfo().viewDistance, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
-                             TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, 1.f, 100.f, 0.f, 1.0f, 50.f,
+    m_gpuKernel->setMaterial(129, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, false, false, 0,
+                             0.f, m_gpuKernel->getSceneInfo().viewDistance,
+                             TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+                             TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+                             TEXTURE_NONE, 1.f, 100.f, 0.f, 1.0f, 50.f,
                              m_gpuKernel->getSceneInfo().viewDistance, false);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f, 10000.f - m_groundHeight, -10000.f, 500.f, 0.f, 500.f * 4.f,
-                              DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f,
+                              10000.f - m_groundHeight, -10000.f, 500.f, 0.f,
+                              500.f * 4.f, DEFAULT_LIGHT_MATERIAL);
 }

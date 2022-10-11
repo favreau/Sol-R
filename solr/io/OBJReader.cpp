@@ -822,4 +822,4 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                                          << inAABB.parameters[1].y << "," << inAABB.parameters[1].z << ")");
     return objectSize;
 }
-}
+} // namespace solr

@@ -77,10 +77,12 @@ void WaterScene::processCurve(bool update)
     float tstep = step * 2.f;
     int primitiveIndex(m_initialIndex - 1);
     float tx = 0.f;
-    for (float x = -static_cast<float>(M_PI); x < static_cast<float>(M_PI) - step / 2.f; x += step)
+    for (float x = -static_cast<float>(M_PI);
+         x < static_cast<float>(M_PI) - step / 2.f; x += step)
     {
         float ty = 0.f;
-        for (float z = -static_cast<float>(M_PI); z < static_cast<float>(M_PI) - step / 2.f; z += step)
+        for (float z = -static_cast<float>(M_PI);
+             z < static_cast<float>(M_PI) - step / 2.f; z += step)
         {
             // Face
             int index(0);
@@ -96,10 +98,12 @@ void WaterScene::processCurve(bool update)
                     // Normal
                     const vec3f P1p = F(x + X + step, z + Z, X / 2.f, Z / 2.f);
                     const vec3f P3p = F(x + X, z + Z + step, X / 2.f, Z / 2.f);
-                    vec3f v1 =
-                        make_vec3f(P1p.x - vertices[index].x, P1p.y - vertices[index].y, P1p.z - vertices[index].z);
-                    vec3f v3 =
-                        make_vec3f(P3p.x - vertices[index].x, P3p.y - vertices[index].y, P3p.z - vertices[index].z);
+                    vec3f v1 = make_vec3f(P1p.x - vertices[index].x,
+                                          P1p.y - vertices[index].y,
+                                          P1p.z - vertices[index].z);
+                    vec3f v3 = make_vec3f(P3p.x - vertices[index].x,
+                                          P3p.y - vertices[index].y,
+                                          P3p.z - vertices[index].z);
                     m_gpuKernel->normalizeVector(v1);
                     m_gpuKernel->normalizeVector(v3);
                     verticesNormals[index] = m_gpuKernel->crossProduct(v1, v3);
@@ -119,20 +123,25 @@ void WaterScene::processCurve(bool update)
             }
             m_gpuKernel->setPrimitive(
                 primitiveIndex, m_objectSize.x * vertices[0].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[0].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[0].y,
                 m_objectSize.z * vertices[0].z, m_objectSize.x * vertices[2].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[2].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[2].y,
                 m_objectSize.z * vertices[2].z, m_objectSize.x * vertices[3].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[3].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[3].y,
                 m_objectSize.z * vertices[3].z, 0.f, 0.f, 0.f, m_material);
-            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[0], verticesNormals[2],
+            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[0],
+                                             verticesNormals[2],
                                              verticesNormals[3]);
 
             {
                 const vec2f tc0 = make_vec2f(tx, ty);
                 const vec2f tc1 = make_vec2f(tx + tstep, ty);
                 const vec2f tc2 = make_vec2f(tx + tstep, ty + tstep);
-                m_gpuKernel->setPrimitiveTextureCoordinates(primitiveIndex, tc0, tc1, tc2);
+                m_gpuKernel->setPrimitiveTextureCoordinates(primitiveIndex, tc0,
+                                                            tc1, tc2);
             }
 
             if (update)
@@ -144,20 +153,25 @@ void WaterScene::processCurve(bool update)
             }
             m_gpuKernel->setPrimitive(
                 primitiveIndex, m_objectSize.x * vertices[3].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[3].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[3].y,
                 m_objectSize.z * vertices[3].z, m_objectSize.x * vertices[1].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[1].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[1].y,
                 m_objectSize.z * vertices[1].z, m_objectSize.x * vertices[0].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[0].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[0].y,
                 m_objectSize.z * vertices[0].z, 0.f, 0.f, 0.f, m_material);
-            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[3], verticesNormals[1],
+            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[3],
+                                             verticesNormals[1],
                                              verticesNormals[0]);
 
             {
                 const vec2f tc0 = make_vec2f(tx + tstep, ty + tstep);
                 const vec2f tc1 = make_vec2f(tx, ty + tstep);
                 const vec2f tc2 = make_vec2f(tx, ty);
-                m_gpuKernel->setPrimitiveTextureCoordinates(primitiveIndex, tc0, tc1, tc2);
+                m_gpuKernel->setPrimitiveTextureCoordinates(primitiveIndex, tc0,
+                                                            tc1, tc2);
             }
             ty += tstep;
         }
@@ -187,8 +201,12 @@ void WaterScene::processParametricCurve(bool update)
                 // Normal
                 const vec3f P1p = P(t, X / 2.f, Z / 2.f);
                 const vec3f P3p = P(t, X / 2.f, Z / 2.f);
-                vec3f v1 = make_vec3f(P1p.x - vertices[index].x, P1p.y - vertices[index].y, P1p.z - vertices[index].z);
-                vec3f v3 = make_vec3f(P3p.x - vertices[index].x, P3p.y - vertices[index].y, P3p.z - vertices[index].z);
+                vec3f v1 = make_vec3f(P1p.x - vertices[index].x,
+                                      P1p.y - vertices[index].y,
+                                      P1p.z - vertices[index].z);
+                vec3f v3 = make_vec3f(P3p.x - vertices[index].x,
+                                      P3p.y - vertices[index].y,
+                                      P3p.z - vertices[index].z);
                 m_gpuKernel->normalizeVector(v1);
                 m_gpuKernel->normalizeVector(v3);
                 verticesNormals[index] = m_gpuKernel->crossProduct(v1, v3);
@@ -207,13 +225,17 @@ void WaterScene::processParametricCurve(bool update)
             }
             m_gpuKernel->setPrimitive(
                 primitiveIndex, m_objectSize.x * vertices[0].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[0].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[0].y,
                 m_objectSize.z * vertices[0].z, m_objectSize.x * vertices[2].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[2].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[2].y,
                 m_objectSize.z * vertices[2].z, m_objectSize.x * vertices[3].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[3].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[3].y,
                 m_objectSize.z * vertices[3].z, 0.f, 0.f, 0.f, m_material);
-            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[0], verticesNormals[2],
+            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[0],
+                                             verticesNormals[2],
                                              verticesNormals[3]);
 
             if (update)
@@ -225,13 +247,17 @@ void WaterScene::processParametricCurve(bool update)
             }
             m_gpuKernel->setPrimitive(
                 primitiveIndex, m_objectSize.x * vertices[3].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[3].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[3].y,
                 m_objectSize.z * vertices[3].z, m_objectSize.x * vertices[1].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[1].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[1].y,
                 m_objectSize.z * vertices[1].z, m_objectSize.x * vertices[0].x,
-                m_groundHeight + 2.f * m_objectSize.y * m_scale.y + m_objectSize.y * vertices[0].y,
+                m_groundHeight + 2.f * m_objectSize.y * m_scale.y +
+                    m_objectSize.y * vertices[0].y,
                 m_objectSize.z * vertices[0].z, 0.f, 0.f, 0.f, m_material);
-            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[3], verticesNormals[1],
+            m_gpuKernel->setPrimitiveNormals(primitiveIndex, verticesNormals[3],
+                                             verticesNormals[1],
                                              verticesNormals[0]);
         }
     }
@@ -265,7 +291,8 @@ void WaterScene::doAddLights()
     if (m_gpuKernel->getNbActiveLamps() == 0)
     {
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f, 500.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, 8000.f, 8000.f, -8000.f,
+                                  500.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

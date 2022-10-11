@@ -34,7 +34,7 @@ SwcScene::~SwcScene() {}
 /*
 ________________________________________________________________________________
 
-Create simple scene for box validation
+Create simple scene  for box validation
 ________________________________________________________________________________
 */
 void SwcScene::doInitialize()
@@ -42,7 +42,9 @@ void SwcScene::doInitialize()
     // initialization
     Strings extensions;
     extensions.push_back(".swc");
-    const Strings fileNames = getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/swc", extensions);
+    const Strings fileNames =
+        getFilesFromFolder(std::string(DEFAULT_MEDIA_FOLDER) + "/swc",
+                           extensions);
     if (fileNames.size() != 0)
     {
         m_currentModel = m_currentModel % fileNames.size();
@@ -53,7 +55,8 @@ void SwcScene::doInitialize()
         for (int i(0); i < fileNames.size(); ++i)
         {
             SWCReader swcReader;
-            swcReader.loadMorphologyFromFile(fileNames[i], *m_gpuKernel, position, scale, 1001);
+            swcReader.loadMorphologyFromFile(fileNames[i], *m_gpuKernel,
+                                             position, scale, 1001);
 
             if (i == 0)
                 m_morphologies = swcReader.getMorphologies();
@@ -66,7 +69,8 @@ void SwcScene::doAnimate()
     const int index = m_counter % m_morphologies.size();
     Morphology &m = m_morphologies[index];
     if (m_counter > 0)
-        m_gpuKernel->setPrimitiveMaterial(m_previousPrimitiveId, m_previousMaterial);
+        m_gpuKernel->setPrimitiveMaterial(m_previousPrimitiveId,
+                                          m_previousMaterial);
 
     m_previousMaterial = m_gpuKernel->getPrimitiveMaterial(m.primitiveId);
     m_gpuKernel->setPrimitiveMaterial(m.primitiveId, DEFAULT_LIGHT_MATERIAL);
@@ -90,6 +94,7 @@ void SwcScene::doAddLights()
 {
     // lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f, 10000.f, -10000.f, 20.f, 0.f, 0, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -10000.f, 10000.f, -10000.f, 20.f,
+                              0.f, 0, DEFAULT_LIGHT_MATERIAL);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
 }

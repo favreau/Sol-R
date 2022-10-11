@@ -32,7 +32,8 @@ const unsigned int BOUNDING_BOXES_TREE_DEPTH = 64;
 const unsigned int NB_MAX_BOXES = 2500000;
 const unsigned int NB_MAX_PRIMITIVES = 2500000;
 const unsigned int NB_MAX_LAMPS = 512;
-const unsigned int NB_MAX_MATERIALS = 65506 + 30; // Last 30 materials are reserved
+const unsigned int NB_MAX_MATERIALS =
+    65506 + 30; // Last 30 materials are reserved
 const unsigned int NB_MAX_TEXTURES = 512;
 const unsigned int NB_MAX_FRAMES = 512;
 const unsigned int NB_MAX_LIGHTINFORMATIONS = 512;
@@ -128,9 +129,11 @@ const unsigned int KINECT_DEPTH_TEXTURE = 1;
 const unsigned int KINECT_COLOR_WIDTH = 640;
 const unsigned int KINECT_COLOR_HEIGHT = 480;
 const unsigned int KINECT_COLOR_DEPTH = 4;
-const unsigned int KINECT_COLOR_SIZE = KINECT_COLOR_WIDTH * KINECT_COLOR_HEIGHT * KINECT_COLOR_DEPTH;
+const unsigned int KINECT_COLOR_SIZE =
+    KINECT_COLOR_WIDTH * KINECT_COLOR_HEIGHT * KINECT_COLOR_DEPTH;
 
 const unsigned int KINECT_DEPTH_WIDTH = 320;
 const unsigned int KINECT_DEPTH_HEIGHT = 240;
 const unsigned int KINECT_DEPTH_DEPTH = 2;
-const unsigned int KINECT_DEPTH_SIZE = KINECT_DEPTH_WIDTH * KINECT_DEPTH_HEIGHT * KINECT_DEPTH_DEPTH;
+const unsigned int KINECT_DEPTH_SIZE =
+    KINECT_DEPTH_WIDTH * KINECT_DEPTH_HEIGHT * KINECT_DEPTH_DEPTH;

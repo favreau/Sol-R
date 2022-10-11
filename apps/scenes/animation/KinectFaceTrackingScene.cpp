@@ -49,17 +49,22 @@ void KinectFaceTrackingScene::doAnimate()
     if (m_faceTracker)
     {
         // Video camera config with width, height, focal length in pixels
-        // NUI_CAMERA_COLOR_NOMINAL_FOCAL_LENGTH_IN_PIXELS focal length is computed for 640x480 resolution
-        // If you use different resolutions, multiply this focal length by the scaling factor
-        FT_CAMERA_CONFIG videoCameraConfig = {640, 480, NUI_CAMERA_COLOR_NOMINAL_FOCAL_LENGTH_IN_PIXELS};
+        // NUI_CAMERA_COLOR_NOMINAL_FOCAL_LENGTH_IN_PIXELS focal length is
+        // computed for 640x480 resolution If you use different resolutions,
+        // multiply this focal length by the scaling factor
+        FT_CAMERA_CONFIG videoCameraConfig = {
+            640, 480, NUI_CAMERA_COLOR_NOMINAL_FOCAL_LENGTH_IN_PIXELS};
 
         // Depth camera config with width, height, focal length in pixels
-        // NUI_CAMERA_COLOR_NOMINAL_FOCAL_LENGTH_IN_PIXELS focal length is computed for 320x240 resolution
-        // If you use different resolutions, multiply this focal length by the scaling factor
-        FT_CAMERA_CONFIG depthCameraConfig = {320, 240, NUI_CAMERA_DEPTH_NOMINAL_FOCAL_LENGTH_IN_PIXELS};
+        // NUI_CAMERA_COLOR_NOMINAL_FOCAL_LENGTH_IN_PIXELS focal length is
+        // computed for 320x240 resolution If you use different resolutions,
+        // multiply this focal length by the scaling factor
+        FT_CAMERA_CONFIG depthCameraConfig = {
+            320, 240, NUI_CAMERA_DEPTH_NOMINAL_FOCAL_LENGTH_IN_PIXELS};
 
         // Initialize the face tracker
-        HRESULT hr = m_faceTracker->Initialize(&videoCameraConfig, &depthCameraConfig, NULL, NULL);
+        HRESULT hr = m_faceTracker->Initialize(&videoCameraConfig,
+                                               &depthCameraConfig, NULL, NULL);
         if (FAILED(hr))
         {
             // Handle errors
@@ -93,14 +98,16 @@ void KinectFaceTrackingScene::doAnimate()
                     FLOAT translation[3] = {0.f, 0.f, 0.f};
                     UINT vertexCount(0);
                     FT_VECTOR3D* vertices(nullptr);
-                    hr = model->Get3DShape(shapeUnits, suCount, animationUnits, auCount, scale, rotation, translation,
-                                           vertices, vertexCount);
+                    hr = model->Get3DShape(shapeUnits, suCount, animationUnits,
+                                           auCount, scale, rotation,
+                                           translation, vertices, vertexCount);
                     LOG_INFO(1, "Get3DShape: " << vertexCount << " vertices");
 
                     FT_TRIANGLE* triangles;
                     UINT triangleCount;
                     hr = model->GetTriangles(&triangles, &triangleCount);
-                    LOG_INFO(1, "GetTriangles: " << triangleCount << " triangles");
+                    LOG_INFO(1,
+                             "GetTriangles: " << triangleCount << " triangles");
                     if (FAILED(hr))
                     {
                         // Handle errors
@@ -110,11 +117,14 @@ void KinectFaceTrackingScene::doAnimate()
                         for (UINT i(0); i < triangleCount; ++i)
                         {
                             glBegin(GL_TRIANGLES);
-                            glVertex3f(vertices[triangles[i].i].x, vertices[triangles[i].i].y,
+                            glVertex3f(vertices[triangles[i].i].x,
+                                       vertices[triangles[i].i].y,
                                        vertices[triangles[i].i].z);
-                            glVertex3f(vertices[triangles[i].j].x, vertices[triangles[i].j].y,
+                            glVertex3f(vertices[triangles[i].j].x,
+                                       vertices[triangles[i].j].y,
                                        vertices[triangles[i].j].z);
-                            glVertex3f(vertices[triangles[i].k].x, vertices[triangles[i].k].y,
+                            glVertex3f(vertices[triangles[i].k].x,
+                                       vertices[triangles[i].k].y,
                                        vertices[triangles[i].k].z);
                             glNormal3f(0.f, 0.f, -1.f);
                             glNormal3f(0.f, 0.f, -1.f);
@@ -143,7 +153,8 @@ void KinectFaceTrackingScene::doAddLights()
     {
         LOG_INFO(3, "Adding sun light");
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, -5000.f, 5000.f, -5000.f, 10.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+        m_gpuKernel->setPrimitive(m_nbPrimitives, -5000.f, 5000.f, -5000.f,
+                                  10.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
         m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     }
 }

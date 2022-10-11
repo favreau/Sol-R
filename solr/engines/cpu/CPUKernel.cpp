@@ -39,8 +39,8 @@
 #include "../opencl/types.h"
 #endif
 
-#include <consts.h>
 #include <Logging.h>
+#include <consts.h>
 
 #include "CPUKernel.h"
 
@@ -129,7 +129,8 @@ n1      : index of refraction of original medium
 n2      : index of refraction of new medium
 ________________________________________________________________________________
 */
-void CPUKernel::vectorRefraction(Vertex &refracted, const Vertex incident, const float n1, const Vertex normal,
+void CPUKernel::vectorRefraction(Vertex &refracted, const Vertex incident,
+                                 const float n1, const Vertex normal,
                                  const float n2)
 {
     refracted = incident;
@@ -138,9 +139,12 @@ void CPUKernel::vectorRefraction(Vertex &refracted, const Vertex incident, const
         float r = n1 / n2;
         float cosI = dot(incident, normal);
         float cosT2 = 1.f - r * r * (1.f - cosI * cosI);
-        refracted.x = r * incident.x + (r * cosI - sqrt(fabs(cosT2))) * normal.x;
-        refracted.y = r * incident.y + (r * cosI - sqrt(fabs(cosT2))) * normal.y;
-        refracted.z = r * incident.z + (r * cosI - sqrt(fabs(cosT2))) * normal.z;
+        refracted.x =
+            r * incident.x + (r * cosI - sqrt(fabs(cosT2))) * normal.x;
+        refracted.y =
+            r * incident.y + (r * cosI - sqrt(fabs(cosT2))) * normal.y;
+        refracted.z =
+            r * incident.z + (r * cosI - sqrt(fabs(cosT2))) * normal.z;
     }
 }
 
@@ -151,7 +155,8 @@ __c : Center of rotations
 __a : m_angles
 ________________________________________________________________________________
 */
-void CPUKernel::vectorRotation(Vertex &v, const Vertex &rotationCenter, const Vertex &m_angles)
+void CPUKernel::vectorRotation(Vertex &v, const Vertex &rotationCenter,
+                               const Vertex &m_angles)
 {
     Vertex cosAngles, sinAngles;
 
@@ -207,14 +212,15 @@ void CPUKernel::computeRayAttributes(Ray &ray)
     ray.signs.z = (ray.inv_direction.z < 0);
 }
 
-void CPUKernel::juliaSet(const Primitive &primitive, const float x, const float y, FLOAT4 &color)
+void CPUKernel::juliaSet(const Primitive &primitive, const float x,
+                         const float y, FLOAT4 &color)
 {
     Material &material = m_hMaterials[primitive.materialId];
     float W = (float)material.textureMapping.x;
     float H = (float)material.textureMapping.y;
 
-    // pick some values for the constant c, this determines the shape of the Julia
-    // Set
+    // pick some values for the constant c, this determines the shape of the
+    // Julia Set
     float cRe = -0.7f + 0.4f * sinf(m_sceneInfo.misc.y / 1500.f);
     float cIm = 0.27015f + 0.4f * cosf(m_sceneInfo.misc.y / 2000.f);
 
@@ -238,17 +244,16 @@ void CPUKernel::juliaSet(const Primitive &primitive, const float x, const float 
         if ((newRe * newRe + newIm * newIm) > 4.f)
             break;
     }
-    // use color model conversion to get rainbow palette, make brightness black if
-    // maxIterations reached
-    // color.x += newRe/4.f;
-    // color.z += newIm/4.f;
+    // use color model conversion to get rainbow palette, make brightness black
+    // if maxIterations reached color.x += newRe/4.f; color.z += newIm/4.f;
     color.x = 1.f - color.x * (n / maxIterations);
     color.y = 1.f - color.y * (n / maxIterations);
     color.z = 1.f - color.z * (n / maxIterations);
     color.w = 1.f - (n / maxIterations);
 }
 
-void CPUKernel::mandelbrotSet(const Primitive &primitive, const float x, const float y, FLOAT4 &color)
+void CPUKernel::mandelbrotSet(const Primitive &primitive, const float x,
+                              const float y, FLOAT4 &color)
 {
     Material &material = m_hMaterials[primitive.materialId];
     float W = (float)material.textureMapping.x;
@@ -260,7 +265,8 @@ void CPUKernel::mandelbrotSet(const Primitive &primitive, const float x, const f
     float MaxIm = MinIm + (MaxRe - MinRe) * H / W;
     float Re_factor = (MaxRe - MinRe) / (W - 1.f);
     float Im_factor = (MaxIm - MinIm) / (H - 1.f);
-    float maxIterations = (float)(NB_MAX_ITERATIONS + m_sceneInfo.pathTracingIteration);
+    float maxIterations =
+        (float)(NB_MAX_ITERATIONS + m_sceneInfo.pathTracingIteration);
 
     float c_im = MaxIm - y * Im_factor;
     float c_re = MinRe + x * Re_factor;
@@ -292,7 +298,8 @@ ________________________________________________________________________________
 Sphere texture Mapping
 ________________________________________________________________________________
 */
-FLOAT4 CPUKernel::sphereUVMapping(const Primitive &primitive, const Vertex &intersection)
+FLOAT4 CPUKernel::sphereUVMapping(const Primitive &primitive,
+                                  const Vertex &intersection)
 {
     Material &material = m_hMaterials[primitive.materialId];
     FLOAT4 result = material.color;
@@ -309,7 +316,9 @@ FLOAT4 CPUKernel::sphereUVMapping(const Primitive &primitive, const Vertex &inte
 #else
     float len, U, V;
     float z = intersection.z;
-    len = sqrt(intersection.x * intersection.x + intersection.y * intersection.y + intersection.z * intersection.z);
+    len =
+        sqrt(intersection.x * intersection.x + intersection.y * intersection.y +
+             intersection.z * intersection.z);
     if (len > 0.0f)
     {
         if (intersection.x == 0.0f && intersection.y == 0.0f)
@@ -333,11 +342,13 @@ FLOAT4 CPUKernel::sphereUVMapping(const Primitive &primitive, const Vertex &inte
         u = u % material.textureMapping.x;
     if (material.textureMapping.y != 0)
         v = v % material.textureMapping.y;
-    if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.y)
+    if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+        v < material.textureMapping.y)
     {
         int textureId = material.textureMapping.z;
         int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-        int B = m_hTextures[textureId].size.x * m_hTextures[textureId].size.y * m_hTextures[textureId].size.z;
+        int B = m_hTextures[textureId].size.x * m_hTextures[textureId].size.y *
+                m_hTextures[textureId].size.z;
         int index = A % B;
         BitmapBuffer r = m_hTextures[textureId].buffer[index];
         BitmapBuffer g = m_hTextures[textureId].buffer[index + 1];
@@ -355,17 +366,22 @@ ________________________________________________________________________________
 Triangle texture Mapping
 ________________________________________________________________________________
 */
-FLOAT4 CPUKernel::triangleUVMapping(const Primitive &primitive, const Vertex &intersection, const Vertex &areas)
+FLOAT4 CPUKernel::triangleUVMapping(const Primitive &primitive,
+                                    const Vertex &intersection,
+                                    const Vertex &areas)
 {
     Material &material = m_hMaterials[primitive.materialId];
     FLOAT4 result = material.color;
 
     Vertex T;
-    T.x = (primitive.vt0.x * areas.x + primitive.vt1.x * areas.y + primitive.vt2.x * areas.z) /
+    T.x = (primitive.vt0.x * areas.x + primitive.vt1.x * areas.y +
+           primitive.vt2.x * areas.z) /
           (areas.x + areas.y + areas.z);
-    T.y = (primitive.vt0.y * areas.x + primitive.vt1.y * areas.y + primitive.vt2.y * areas.z) /
+    T.y = (primitive.vt0.y * areas.x + primitive.vt1.y * areas.y +
+           primitive.vt2.y * areas.z) /
           (areas.x + areas.y + areas.z);
-    T.z = (primitive.vt0.z * areas.x + primitive.vt1.z * areas.y + primitive.vt2.z * areas.z) /
+    T.z = (primitive.vt0.z * areas.x + primitive.vt1.z * areas.y +
+           primitive.vt2.z * areas.z) /
           (areas.x + areas.y + areas.z);
 
     int u = int(T.x * material.textureMapping.x);
@@ -374,21 +390,27 @@ FLOAT4 CPUKernel::triangleUVMapping(const Primitive &primitive, const Vertex &in
     u = u % material.textureMapping.x;
     v = v % material.textureMapping.y;
 
-    if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.y)
+    if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+        v < material.textureMapping.y)
     {
         switch (material.textureMapping.z)
         {
         case TEXTURE_MANDELBROT:
-            mandelbrotSet(primitive, static_cast<float>(u), static_cast<float>(v), result);
+            mandelbrotSet(primitive, static_cast<float>(u),
+                          static_cast<float>(v), result);
             break;
         case TEXTURE_JULIA:
-            juliaSet(primitive, static_cast<float>(u), static_cast<float>(v), result);
+            juliaSet(primitive, static_cast<float>(u), static_cast<float>(v),
+                     result);
             break;
         default:
         {
             int textureId = material.textureMapping.z;
-            int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-            int B = m_hTextures[textureId].size.x * m_hTextures[textureId].size.y * m_hTextures[textureId].size.z;
+            int A =
+                (v * material.textureMapping.x + u) * material.textureMapping.w;
+            int B = m_hTextures[textureId].size.x *
+                    m_hTextures[textureId].size.y *
+                    m_hTextures[textureId].size.z;
             int index = A % B;
             BitmapBuffer r = m_hTextures[textureId].buffer[index];
             BitmapBuffer g = m_hTextures[textureId].buffer[index + 1];
@@ -408,7 +430,8 @@ ________________________________________________________________________________
 Cube texture mapping
 ________________________________________________________________________________
 */
-FLOAT4 CPUKernel::cubeMapping(const Primitive &primitive, const Vertex &intersection)
+FLOAT4 CPUKernel::cubeMapping(const Primitive &primitive,
+                              const Vertex &intersection)
 {
     Material &material = m_hMaterials[primitive.materialId];
     FLOAT4 result = material.color;
@@ -416,20 +439,30 @@ FLOAT4 CPUKernel::cubeMapping(const Primitive &primitive, const Vertex &intersec
 #ifdef USE_KINECT
     if (primitive.type == ptCamera)
     {
-        int x = static_cast<int>((intersection.x - primitive.p0.x + primitive.size.x) * material.textureMapping.x);
-        int y = static_cast<int>(KINECT_COLOR_HEIGHT -
-                                 (intersection.y - primitive.p0.y + primitive.size.y) * material.textureMapping.y);
+        int x = static_cast<int>(
+            (intersection.x - primitive.p0.x + primitive.size.x) *
+            material.textureMapping.x);
+        int y = static_cast<int>(
+            KINECT_COLOR_HEIGHT -
+            (intersection.y - primitive.p0.y + primitive.size.y) *
+                material.textureMapping.y);
 
         x = (x + KINECT_COLOR_WIDTH) % KINECT_COLOR_WIDTH;
         y = (y + KINECT_COLOR_HEIGHT) % KINECT_COLOR_HEIGHT;
 
-        if (x >= 0 && x < KINECT_COLOR_WIDTH && y >= 0 && y < KINECT_COLOR_HEIGHT)
+        if (x >= 0 && x < KINECT_COLOR_WIDTH && y >= 0 &&
+            y < KINECT_COLOR_HEIGHT)
         {
             int index = (y * KINECT_COLOR_WIDTH + x) * KINECT_COLOR_DEPTH;
-            index = index % (material.textureMapping.x * material.textureMapping.y * material.textureMapping.w);
-            BitmapBuffer r = m_hTextures[material.textureMapping.z].buffer[index + 2];
-            BitmapBuffer g = m_hTextures[material.textureMapping.z].buffer[index + 1];
-            BitmapBuffer b = m_hTextures[material.textureMapping.z].buffer[index];
+            index =
+                index % (material.textureMapping.x * material.textureMapping.y *
+                         material.textureMapping.w);
+            BitmapBuffer r =
+                m_hTextures[material.textureMapping.z].buffer[index + 2];
+            BitmapBuffer g =
+                m_hTextures[material.textureMapping.z].buffer[index + 1];
+            BitmapBuffer b =
+                m_hTextures[material.textureMapping.z].buffer[index];
             result.x = r / 256.f;
             result.y = g / 256.f;
             result.z = b / 256.f;
@@ -438,32 +471,44 @@ FLOAT4 CPUKernel::cubeMapping(const Primitive &primitive, const Vertex &intersec
     else
 #endif // USE_KINECT
     {
-        int u = ((primitive.type == ptCheckboard) || (primitive.type == ptXZPlane) || (primitive.type == ptXYPlane))
-                    ? static_cast<int>(intersection.x - primitive.p0.x + primitive.size.x)
-                    : static_cast<int>(intersection.z - primitive.p0.z + primitive.size.z);
+        int u = ((primitive.type == ptCheckboard) ||
+                 (primitive.type == ptXZPlane) || (primitive.type == ptXYPlane))
+                    ? static_cast<int>(intersection.x - primitive.p0.x +
+                                       primitive.size.x)
+                    : static_cast<int>(intersection.z - primitive.p0.z +
+                                       primitive.size.z);
 
-        int v = ((primitive.type == ptCheckboard) || (primitive.type == ptXZPlane))
-                    ? static_cast<int>(intersection.z + primitive.p0.z + primitive.size.z)
-                    : static_cast<int>(intersection.y - primitive.p0.y + primitive.size.y);
+        int v =
+            ((primitive.type == ptCheckboard) || (primitive.type == ptXZPlane))
+                ? static_cast<int>(intersection.z + primitive.p0.z +
+                                   primitive.size.z)
+                : static_cast<int>(intersection.y - primitive.p0.y +
+                                   primitive.size.y);
 
         u = u % material.textureMapping.x;
         v = v % material.textureMapping.y;
 
-        if (u >= 0 && u < material.textureMapping.x && v >= 0 && v < material.textureMapping.x)
+        if (u >= 0 && u < material.textureMapping.x && v >= 0 &&
+            v < material.textureMapping.x)
         {
             switch (material.textureMapping.z)
             {
             case TEXTURE_MANDELBROT:
-                mandelbrotSet(primitive, static_cast<float>(u), static_cast<float>(v), result);
+                mandelbrotSet(primitive, static_cast<float>(u),
+                              static_cast<float>(v), result);
                 break;
             case TEXTURE_JULIA:
-                juliaSet(primitive, static_cast<float>(u), static_cast<float>(v), result);
+                juliaSet(primitive, static_cast<float>(u),
+                         static_cast<float>(v), result);
                 break;
             default:
             {
                 int textureId = material.textureMapping.z;
-                int A = (v * material.textureMapping.x + u) * material.textureMapping.w;
-                int B = m_hTextures[textureId].size.x * m_hTextures[textureId].size.y * m_hTextures[textureId].size.z;
+                int A = (v * material.textureMapping.x + u) *
+                        material.textureMapping.w;
+                int B = m_hTextures[textureId].size.x *
+                        m_hTextures[textureId].size.y *
+                        m_hTextures[textureId].size.z;
                 int index = A % B;
                 BitmapBuffer r = m_hTextures[textureId].buffer[index];
                 BitmapBuffer g = m_hTextures[textureId].buffer[index + 1];
@@ -479,7 +524,8 @@ FLOAT4 CPUKernel::cubeMapping(const Primitive &primitive, const Vertex &intersec
     return result;
 }
 
-bool CPUKernel::wireFrameMapping(float x, float y, int width, const Primitive &primitive)
+bool CPUKernel::wireFrameMapping(float x, float y, int width,
+                                 const Primitive &primitive)
 {
     int X = static_cast<int>(fabs(x));
     int Y = static_cast<int>(fabs(y));
@@ -494,14 +540,18 @@ ________________________________________________________________________________
 Box intersection
 ________________________________________________________________________________
 */
-bool CPUKernel::boxIntersection(const BoundingBox &box, const Ray &ray, const float &t0, const float &t1)
+bool CPUKernel::boxIntersection(const BoundingBox &box, const Ray &ray,
+                                const float &t0, const float &t1)
 {
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
     tmin = (box.parameters[ray.signs.x].x - ray.origin.x) * ray.inv_direction.x;
-    tmax = (box.parameters[1 - ray.signs.x].x - ray.origin.x) * ray.inv_direction.x;
-    tymin = (box.parameters[ray.signs.y].y - ray.origin.y) * ray.inv_direction.y;
-    tymax = (box.parameters[1 - ray.signs.y].y - ray.origin.y) * ray.inv_direction.y;
+    tmax = (box.parameters[1 - ray.signs.x].x - ray.origin.x) *
+           ray.inv_direction.x;
+    tymin =
+        (box.parameters[ray.signs.y].y - ray.origin.y) * ray.inv_direction.y;
+    tymax = (box.parameters[1 - ray.signs.y].y - ray.origin.y) *
+            ray.inv_direction.y;
 
     if ((tmin > tymax) || (tymin > tmax))
         return false;
@@ -510,8 +560,10 @@ bool CPUKernel::boxIntersection(const BoundingBox &box, const Ray &ray, const fl
         tmin = tymin;
     if (tymax < tmax)
         tmax = tymax;
-    tzmin = (box.parameters[ray.signs.z].z - ray.origin.z) * ray.inv_direction.z;
-    tzmax = (box.parameters[1 - ray.signs.z].z - ray.origin.z) * ray.inv_direction.z;
+    tzmin =
+        (box.parameters[ray.signs.z].z - ray.origin.z) * ray.inv_direction.z;
+    tzmax = (box.parameters[1 - ray.signs.z].z - ray.origin.z) *
+            ray.inv_direction.z;
 
     if ((tmin > tzmax) || (tzmin > tmax))
         return false;
@@ -529,8 +581,10 @@ ________________________________________________________________________________
 Ellipsoid intersection
 ________________________________________________________________________________
 */
-bool CPUKernel::ellipsoidIntersection(const Primitive &ellipsoid, const Ray &ray, Vertex &intersection, Vertex &normal,
-                                      float &shadowIntensity, bool &back)
+bool CPUKernel::ellipsoidIntersection(const Primitive &ellipsoid,
+                                      const Ray &ray, Vertex &intersection,
+                                      Vertex &normal, float &shadowIntensity,
+                                      bool &back)
 {
     // Shadow intensity
     shadowIntensity = 1.f;
@@ -563,11 +617,11 @@ bool CPUKernel::ellipsoidIntersection(const Primitive &ellipsoid, const Ray &ray
     float t2 = (-b - d) / (2.f * a);
 
     if (t1 <= EPSILON && t2 <= EPSILON)
-        return false;                        // both intersections are behind the ray m_viewPos
+        return false; // both intersections are behind the ray m_viewPos
     back = (t1 <= EPSILON || t2 <= EPSILON); // If only one intersection (t>0)
-                                             // then we are inside the sphere and
-                                             // the intersection is at the back of
-                                             // the sphere
+                                             // then we are inside the sphere
+                                             // and the intersection is at the
+                                             // back of the sphere
 
     float t = 0.f;
     if (t1 <= EPSILON)
@@ -603,7 +657,8 @@ ________________________________________________________________________________
 Sphere intersection
 ________________________________________________________________________________
 */
-bool CPUKernel::sphereIntersection(const Primitive &sphere, const Ray &ray, Vertex &intersection, Vertex &normal,
+bool CPUKernel::sphereIntersection(const Primitive &sphere, const Ray &ray,
+                                   Vertex &intersection, Vertex &normal,
                                    float &shadowIntensity, bool &back)
 {
     // solve the equation sphere-ray to find the intersections
@@ -625,11 +680,11 @@ bool CPUKernel::sphereIntersection(const Primitive &sphere, const Ray &ray, Vert
     float t2 = (-b + r) / a;
 
     if (t1 <= EPSILON && t2 <= EPSILON)
-        return false;                        // both intersections are behind the ray m_viewPos
+        return false; // both intersections are behind the ray m_viewPos
     back = (t1 <= EPSILON || t2 <= EPSILON); // If only one intersection (t>0)
-                                             // then we are inside the sphere and
-                                             // the intersection is at the back of
-                                             // the sphere
+                                             // then we are inside the sphere
+                                             // and the intersection is at the
+                                             // back of the sphere
 
     float t = 0.f;
     if (t1 <= EPSILON)
@@ -659,9 +714,15 @@ bool CPUKernel::sphereIntersection(const Primitive &sphere, const Ray &ray, Vert
     {
         // Procedural texture
         Vertex newCenter;
-        newCenter.x = sphere.p0.x + 0.008f * sphere.size.x * cos(m_sceneInfo.misc.y + intersection.x);
-        newCenter.y = sphere.p0.y + 0.008f * sphere.size.y * sin(m_sceneInfo.misc.y + intersection.y);
-        newCenter.z = sphere.p0.z + 0.008f * sphere.size.z * sin(cos(m_sceneInfo.misc.y + intersection.z));
+        newCenter.x =
+            sphere.p0.x +
+            0.008f * sphere.size.x * cos(m_sceneInfo.misc.y + intersection.x);
+        newCenter.y =
+            sphere.p0.y +
+            0.008f * sphere.size.y * sin(m_sceneInfo.misc.y + intersection.y);
+        newCenter.z =
+            sphere.p0.z + 0.008f * sphere.size.z *
+                              sin(cos(m_sceneInfo.misc.y + intersection.z));
         normal.x = intersection.x - newCenter.x;
         normal.y = intersection.y - newCenter.y;
         normal.z = intersection.z - newCenter.z;
@@ -672,19 +733,20 @@ bool CPUKernel::sphereIntersection(const Primitive &sphere, const Ray &ray, Vert
     normal = normalize(normal);
 
     shadowIntensity = 1.f;
-// Shadow management
-/*
-r = dot(dir,normal);
-shadowIntensity = (m_hMaterials[sphere.materialId].transparency != 0.f) ?
-(1.f-fabs(r)) : 1.f;
-*/
+    // Shadow management
+    /*
+    r = dot(dir,normal);
+    shadowIntensity = (m_hMaterials[sphere.materialId].transparency != 0.f) ?
+    (1.f-fabs(r)) : 1.f;
+    */
 
 #if EXTENDED_FEATURES
     // Power textures
     if (m_hMaterials[sphere.materialId].textureInfo.y != TEXTURE_NONE &&
         m_hMaterials[sphere.materialId].transparency != 0)
     {
-        Vertex color = sphereUVMapping(sphere, m_hMaterials, textures, intersection, timer);
+        Vertex color = sphereUVMapping(sphere, m_hMaterials, textures,
+                                       intersection, timer);
         return ((color.x + color.y + color.z) >= m_sceneInfo.transparentColor);
     }
 #endif // 0
@@ -698,7 +760,8 @@ ________________________________________________________________________________
 Cylinder intersection
 ________________________________________________________________________________
 */
-bool CPUKernel::cylinderIntersection(const Primitive &cylinder, const Ray &ray, Vertex &intersection, Vertex &normal,
+bool CPUKernel::cylinderIntersection(const Primitive &cylinder, const Ray &ray,
+                                     Vertex &intersection, Vertex &normal,
                                      float &shadowIntensity, bool &back)
 {
     back = false;
@@ -728,7 +791,8 @@ bool CPUKernel::cylinderIntersection(const Primitive &cylinder, const Ray &ray, 
     Vertex O = crossProduct(O_C, cylinder.n1);
     float t = -dot(O, n) / ln;
     O = normalize(crossProduct(n, cylinder.n1));
-    float s = fabs(sqrtf(cylinder.size.x * cylinder.size.x - d * d) / dot(dir, O));
+    float s =
+        fabs(sqrtf(cylinder.size.x * cylinder.size.x - d * d) / dot(dir, O));
 
     float in = t - s;
     float out = t + s;
@@ -788,11 +852,17 @@ bool CPUKernel::cylinderIntersection(const Primitive &cylinder, const Ray &ray, 
                 // Procedural texture
                 Vertex newCenter;
                 newCenter.x =
-                    cylinder.p0.x + 0.01f * cylinder.size.x * cos(m_sceneInfo.misc.y / 100.f + intersection.x);
+                    cylinder.p0.x +
+                    0.01f * cylinder.size.x *
+                        cos(m_sceneInfo.misc.y / 100.f + intersection.x);
                 newCenter.y =
-                    cylinder.p0.y + 0.01f * cylinder.size.y * sin(m_sceneInfo.misc.y / 100.f + intersection.y);
+                    cylinder.p0.y +
+                    0.01f * cylinder.size.y *
+                        sin(m_sceneInfo.misc.y / 100.f + intersection.y);
                 newCenter.z =
-                    cylinder.p0.z + 0.01f * cylinder.size.z * sin(cos(m_sceneInfo.misc.y / 100.f + intersection.z));
+                    cylinder.p0.z +
+                    0.01f * cylinder.size.z *
+                        sin(cos(m_sceneInfo.misc.y / 100.f + intersection.z));
                 HB1.x = intersection.x - newCenter.x;
                 HB1.y = intersection.y - newCenter.y;
                 HB1.z = intersection.z - newCenter.z;
@@ -809,8 +879,8 @@ bool CPUKernel::cylinderIntersection(const Primitive &cylinder, const Ray &ray, 
             // Shadow management
             dir = normalize(dir);
             float r = dot(dir,normal);
-            shadowIntensity = (m_hMaterials[cylinder.materialId].transparency != 0.f)
-            ? (1.f-fabs(r)) : 1.f;
+            shadowIntensity = (m_hMaterials[cylinder.materialId].transparency !=
+            0.f) ? (1.f-fabs(r)) : 1.f;
             */
             return true;
         }
@@ -824,7 +894,8 @@ ________________________________________________________________________________
 Checkboard intersection
 ________________________________________________________________________________
 */
-bool CPUKernel::planeIntersection(const Primitive &primitive, const Ray &ray, Vertex &intersection, Vertex &normal,
+bool CPUKernel::planeIntersection(const Primitive &primitive, const Ray &ray,
+                                  Vertex &intersection, Vertex &normal,
                                   float &shadowIntensity, bool reverse)
 {
     bool collision = false;
@@ -838,82 +909,112 @@ bool CPUKernel::planeIntersection(const Primitive &primitive, const Ray &ray, Ve
     {
         intersection.y = primitive.p0.y;
         float y = ray.origin.y - primitive.p0.y;
-        if (reverted * ray.origin.y < 0.f && reverted * ray.origin.y > reverted * primitive.p0.y)
+        if (reverted * ray.origin.y < 0.f &&
+            reverted * ray.origin.y > reverted * primitive.p0.y)
         {
-            intersection.x = ray.origin.x + y * ray.direction.x / -ray.direction.y;
-            intersection.z = ray.origin.z + y * ray.direction.z / -ray.direction.y;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.x =
+                ray.origin.x + y * ray.direction.x / -ray.direction.y;
+            intersection.z =
+                ray.origin.z + y * ray.direction.z / -ray.direction.y;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
         }
         break;
     }
     case ptXZPlane:
     {
         float y = ray.origin.y - primitive.p0.y;
-        if (reverted * ray.origin.y < 0.f && reverted * ray.origin.y > reverted * primitive.p0.y)
+        if (reverted * ray.origin.y < 0.f &&
+            reverted * ray.origin.y > reverted * primitive.p0.y)
         {
-            intersection.x = ray.origin.x + y * ray.direction.x / -ray.direction.y;
+            intersection.x =
+                ray.origin.x + y * ray.direction.x / -ray.direction.y;
             intersection.y = primitive.p0.y;
-            intersection.z = ray.origin.z + y * ray.direction.z / -ray.direction.y;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
-            if (m_hMaterials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.z,
-                                              m_hMaterials[primitive.materialId].attributes.w, primitive);
+            intersection.z =
+                ray.origin.z + y * ray.direction.z / -ray.direction.y;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            if (m_hMaterials[primitive.materialId].attributes.z ==
+                2) // Wireframe
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.z,
+                    m_hMaterials[primitive.materialId].attributes.w, primitive);
         }
-        if (!collision && reverted * ray.origin.y > 0.f && reverted * ray.origin.y < reverted * primitive.p0.y)
+        if (!collision && reverted * ray.origin.y > 0.f &&
+            reverted * ray.origin.y < reverted * primitive.p0.y)
         {
             normal.x = -normal.x;
             normal.y = -normal.y;
             normal.z = -normal.z;
-            intersection.x = ray.origin.x + y * ray.direction.x / -ray.direction.y;
+            intersection.x =
+                ray.origin.x + y * ray.direction.x / -ray.direction.y;
             intersection.y = primitive.p0.y;
-            intersection.z = ray.origin.z + y * ray.direction.z / -ray.direction.y;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
-            if (m_hMaterials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.z,
-                                              m_hMaterials[primitive.materialId].attributes.w, primitive);
+            intersection.z =
+                ray.origin.z + y * ray.direction.z / -ray.direction.y;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            if (m_hMaterials[primitive.materialId].attributes.z ==
+                2) // Wireframe
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.z,
+                    m_hMaterials[primitive.materialId].attributes.w, primitive);
         }
         break;
     }
     case ptYZPlane:
     {
         float x = ray.origin.x - primitive.p0.x;
-        if (reverted * ray.origin.x < 0.f && reverted * ray.origin.x > reverted * primitive.p0.x)
+        if (reverted * ray.origin.x < 0.f &&
+            reverted * ray.origin.x > reverted * primitive.p0.x)
         {
             intersection.x = primitive.p0.x;
-            intersection.y = ray.origin.y + x * ray.direction.y / -ray.direction.x;
-            intersection.z = ray.origin.z + x * ray.direction.z / -ray.direction.x;
-            collision = fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.y =
+                ray.origin.y + x * ray.direction.y / -ray.direction.x;
+            intersection.z =
+                ray.origin.z + x * ray.direction.z / -ray.direction.x;
+            collision =
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
             if (m_hMaterials[primitive.materialId].innerIllumination.x != 0.f)
             {
                 // Chessboard like Lights
-                collision &= int(fabs(intersection.z)) % 4000 < 2000 && int(fabs(intersection.y)) % 4000 < 2000;
+                collision &= int(fabs(intersection.z)) % 4000 < 2000 &&
+                             int(fabs(intersection.y)) % 4000 < 2000;
             }
-            if (m_hMaterials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.y, intersection.z,
-                                              m_hMaterials[primitive.materialId].attributes.w, primitive);
+            if (m_hMaterials[primitive.materialId].attributes.z ==
+                2) // Wireframe
+                collision &= wireFrameMapping(
+                    intersection.y, intersection.z,
+                    m_hMaterials[primitive.materialId].attributes.w, primitive);
         }
-        if (!collision && reverted * ray.origin.x > 0.f && reverted * ray.origin.x < reverted * primitive.p0.x)
+        if (!collision && reverted * ray.origin.x > 0.f &&
+            reverted * ray.origin.x < reverted * primitive.p0.x)
         {
             normal.x = -normal.x;
             normal.y = -normal.y;
             normal.z = -normal.z;
             intersection.x = primitive.p0.x;
-            intersection.y = ray.origin.y + x * ray.direction.y / -ray.direction.x;
-            intersection.z = ray.origin.z + x * ray.direction.z / -ray.direction.x;
-            collision = fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
-                        fabs(intersection.z - primitive.p0.z) < primitive.size.z;
+            intersection.y =
+                ray.origin.y + x * ray.direction.y / -ray.direction.x;
+            intersection.z =
+                ray.origin.z + x * ray.direction.z / -ray.direction.x;
+            collision =
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y &&
+                fabs(intersection.z - primitive.p0.z) < primitive.size.z;
             if (m_hMaterials[primitive.materialId].innerIllumination.x != 0.f)
             {
                 // Chessboard like Lights
-                collision &= int(fabs(intersection.z)) % 4000 < 2000 && int(fabs(intersection.y)) % 4000 < 2000;
+                collision &= int(fabs(intersection.z)) % 4000 < 2000 &&
+                             int(fabs(intersection.y)) % 4000 < 2000;
             }
-            if (m_hMaterials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.y, intersection.z,
-                                              m_hMaterials[primitive.materialId].attributes.w, primitive);
+            if (m_hMaterials[primitive.materialId].attributes.z ==
+                2) // Wireframe
+                collision &= wireFrameMapping(
+                    intersection.y, intersection.z,
+                    m_hMaterials[primitive.materialId].attributes.w, primitive);
         }
         break;
     }
@@ -921,30 +1022,42 @@ bool CPUKernel::planeIntersection(const Primitive &primitive, const Ray &ray, Ve
     case ptCamera:
     {
         float z = ray.origin.z - primitive.p0.z;
-        if (reverted * ray.origin.z < 0.f && reverted * ray.origin.z > reverted * primitive.p0.z)
+        if (reverted * ray.origin.z < 0.f &&
+            reverted * ray.origin.z > reverted * primitive.p0.z)
         {
             intersection.z = primitive.p0.z;
-            intersection.x = ray.origin.x + z * ray.direction.x / -ray.direction.z;
-            intersection.y = ray.origin.y + z * ray.direction.y / -ray.direction.z;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.y - primitive.p0.y) < primitive.size.y;
-            if (m_hMaterials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.y,
-                                              m_hMaterials[primitive.materialId].attributes.w, primitive);
+            intersection.x =
+                ray.origin.x + z * ray.direction.x / -ray.direction.z;
+            intersection.y =
+                ray.origin.y + z * ray.direction.y / -ray.direction.z;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y;
+            if (m_hMaterials[primitive.materialId].attributes.z ==
+                2) // Wireframe
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.y,
+                    m_hMaterials[primitive.materialId].attributes.w, primitive);
         }
-        if (!collision && reverted * ray.origin.z > 0.f && reverted * ray.origin.z < reverted * primitive.p0.z)
+        if (!collision && reverted * ray.origin.z > 0.f &&
+            reverted * ray.origin.z < reverted * primitive.p0.z)
         {
             normal.x = -normal.x;
             normal.y = -normal.y;
             normal.z = -normal.z;
             intersection.z = primitive.p0.z;
-            intersection.x = ray.origin.x + z * ray.direction.x / -ray.direction.z;
-            intersection.y = ray.origin.y + z * ray.direction.y / -ray.direction.z;
-            collision = fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
-                        fabs(intersection.y - primitive.p0.y) < primitive.size.y;
-            if (m_hMaterials[primitive.materialId].attributes.z == 2) // Wireframe
-                collision &= wireFrameMapping(intersection.x, intersection.y,
-                                              m_hMaterials[primitive.materialId].attributes.w, primitive);
+            intersection.x =
+                ray.origin.x + z * ray.direction.x / -ray.direction.z;
+            intersection.y =
+                ray.origin.y + z * ray.direction.y / -ray.direction.z;
+            collision =
+                fabs(intersection.x - primitive.p0.x) < primitive.size.x &&
+                fabs(intersection.y - primitive.p0.y) < primitive.size.y;
+            if (m_hMaterials[primitive.materialId].attributes.z ==
+                2) // Wireframe
+                collision &= wireFrameMapping(
+                    intersection.x, intersection.y,
+                    m_hMaterials[primitive.materialId].attributes.w, primitive);
         }
         break;
     }
@@ -953,10 +1066,12 @@ bool CPUKernel::planeIntersection(const Primitive &primitive, const Ray &ray, Ve
     if (collision)
     {
         // Shadow intensity
-        shadowIntensity = 1.f; // m_sceneInfo.shadowIntensity*(1.f-m_hMaterials[primitive.materialId].transparency);
+        shadowIntensity =
+            1.f; // m_sceneInfo.shadowIntensity*(1.f-m_hMaterials[primitive.materialId].transparency);
 
         FLOAT4 color = m_hMaterials[primitive.materialId].color;
-        if (primitive.type == ptCamera || m_hMaterials[primitive.materialId].textureMapping.z != TEXTURE_NONE)
+        if (primitive.type == ptCamera ||
+            m_hMaterials[primitive.materialId].textureMapping.z != TEXTURE_NONE)
         {
             color = cubeMapping(primitive, intersection);
             shadowIntensity = color.w;
@@ -976,21 +1091,26 @@ ________________________________________________________________________________
 Triangle intersection
 ________________________________________________________________________________
 */
-bool CPUKernel::triangleIntersection(const Primitive &triangle, const Ray &ray, Vertex &intersection, Vertex &normal,
-                                     Vertex &areas, float &shadowIntensity, bool &back)
+bool CPUKernel::triangleIntersection(const Primitive &triangle, const Ray &ray,
+                                     Vertex &intersection, Vertex &normal,
+                                     Vertex &areas, float &shadowIntensity,
+                                     bool &back)
 {
     back = false;
     // Reject rays using the barycentric coordinates of
     // the intersection point with respect to T.
-    Vertex E01 = {triangle.p1.x - triangle.p0.x, triangle.p1.y - triangle.p0.y, triangle.p1.z - triangle.p0.z};
-    Vertex E03 = {triangle.p2.x - triangle.p0.x, triangle.p2.y - triangle.p0.y, triangle.p2.z - triangle.p0.z};
+    Vertex E01 = {triangle.p1.x - triangle.p0.x, triangle.p1.y - triangle.p0.y,
+                  triangle.p1.z - triangle.p0.z};
+    Vertex E03 = {triangle.p2.x - triangle.p0.x, triangle.p2.y - triangle.p0.y,
+                  triangle.p2.z - triangle.p0.z};
     Vertex P = crossProduct(ray.direction, E03);
     float det = dot(E01, P);
 
     if (fabs(det) < EPSILON)
         return false;
 
-    Vertex T = {ray.origin.x - triangle.p0.x, ray.origin.y - triangle.p0.y, ray.origin.z - triangle.p0.z};
+    Vertex T = {ray.origin.x - triangle.p0.x, ray.origin.y - triangle.p0.y,
+                ray.origin.z - triangle.p0.z};
     float a = dot(T, P) / det;
     if (a < 0.f || a > 1.f)
         return false;
@@ -1004,13 +1124,18 @@ bool CPUKernel::triangleIntersection(const Primitive &triangle, const Ray &ray, 
     // the intersection point with respect to T′.
     if ((a + b) > 1.f)
     {
-        Vertex E23 = {triangle.p0.x - triangle.p1.x, triangle.p0.y - triangle.p1.y, triangle.p0.z - triangle.p1.z};
-        Vertex E21 = {triangle.p1.x - triangle.p1.x, triangle.p1.y - triangle.p1.y, triangle.p1.z - triangle.p1.z};
+        Vertex E23 = {triangle.p0.x - triangle.p1.x,
+                      triangle.p0.y - triangle.p1.y,
+                      triangle.p0.z - triangle.p1.z};
+        Vertex E21 = {triangle.p1.x - triangle.p1.x,
+                      triangle.p1.y - triangle.p1.y,
+                      triangle.p1.z - triangle.p1.z};
         Vertex P_ = crossProduct(ray.direction, E21);
         float det_ = dot(E23, P_);
         if (fabs(det_) < EPSILON)
             return false;
-        Vertex T_ = {ray.origin.x - triangle.p2.x, ray.origin.y - triangle.p2.y, ray.origin.z - triangle.p2.z};
+        Vertex T_ = {ray.origin.x - triangle.p2.x, ray.origin.y - triangle.p2.y,
+                     ray.origin.z - triangle.p2.z};
         float a_ = dot(T_, P_) / det_;
         if (a_ < 0.f)
             return false;
@@ -1033,20 +1158,26 @@ bool CPUKernel::triangleIntersection(const Primitive &triangle, const Ray &ray, 
 
     // Normal
     normal = triangle.n0;
-    Vertex v0 = {triangle.p0.x - intersection.x, triangle.p0.y - intersection.y, triangle.p0.z - intersection.z};
-    Vertex v1 = {triangle.p1.x - intersection.x, triangle.p1.y - intersection.y, triangle.p1.z - intersection.z};
-    Vertex v2 = {triangle.p2.x - intersection.x, triangle.p2.y - intersection.y, triangle.p2.z - intersection.z};
+    Vertex v0 = {triangle.p0.x - intersection.x, triangle.p0.y - intersection.y,
+                 triangle.p0.z - intersection.z};
+    Vertex v1 = {triangle.p1.x - intersection.x, triangle.p1.y - intersection.y,
+                 triangle.p1.z - intersection.z};
+    Vertex v2 = {triangle.p2.x - intersection.x, triangle.p2.y - intersection.y,
+                 triangle.p2.z - intersection.z};
 
     areas.x = 0.5f * vectorLength(crossProduct(v1, v2));
     areas.y = 0.5f * vectorLength(crossProduct(v0, v2));
     areas.z = 0.5f * vectorLength(crossProduct(v0, v1));
 
-    normal.x =
-        (triangle.n0.x * areas.x + triangle.n1.x * areas.y + triangle.n2.x * areas.z) / (areas.x + areas.y + areas.z);
-    normal.y =
-        (triangle.n0.y * areas.x + triangle.n1.y * areas.y + triangle.n2.y * areas.z) / (areas.x + areas.y + areas.z);
-    normal.z =
-        (triangle.n0.z * areas.x + triangle.n1.z * areas.y + triangle.n2.z * areas.z) / (areas.x + areas.y + areas.z);
+    normal.x = (triangle.n0.x * areas.x + triangle.n1.x * areas.y +
+                triangle.n2.x * areas.z) /
+               (areas.x + areas.y + areas.z);
+    normal.y = (triangle.n0.y * areas.x + triangle.n1.y * areas.y +
+                triangle.n2.y * areas.z) /
+               (areas.x + areas.y + areas.z);
+    normal.z = (triangle.n0.z * areas.x + triangle.n1.z * areas.y +
+                triangle.n2.z * areas.z) /
+               (areas.x + areas.y + areas.z);
     normal = normalize(normal);
 
     Vertex dir = normalize(ray.direction);
@@ -1070,9 +1201,10 @@ ________________________________________________________________________________
 Intersections with primitives
 ________________________________________________________________________________
 */
-bool CPUKernel::intersectionWithPrimitives(const Ray &ray, const int &iteration, int &closestPrimitive,
-                                           Vertex &closestIntersection, Vertex &closestNormal, Vertex &closestAreas,
-                                           FLOAT4 &colorBox, bool &back, const int currentMaterialId)
+bool CPUKernel::intersectionWithPrimitives(
+    const Ray &ray, const int &iteration, int &closestPrimitive,
+    Vertex &closestIntersection, Vertex &closestNormal, Vertex &closestAreas,
+    FLOAT4 &colorBox, bool &back, const int currentMaterialId)
 {
     bool intersections = false;
     float minDistance = m_sceneInfo.viewDistance / (iteration + 1);
@@ -1098,23 +1230,33 @@ bool CPUKernel::intersectionWithPrimitives(const Ray &ray, const int &iteration,
             // Intersection with Box
             if (m_sceneInfo.renderBoxes != 0)
             {
-                colorBox.x += m_hMaterials[box.startIndex % NB_MAX_MATERIALS].color.x / 50.f;
-                colorBox.y += m_hMaterials[box.startIndex % NB_MAX_MATERIALS].color.y / 50.f;
-                colorBox.z += m_hMaterials[box.startIndex % NB_MAX_MATERIALS].color.z / 50.f;
+                colorBox.x +=
+                    m_hMaterials[box.startIndex % NB_MAX_MATERIALS].color.x /
+                    50.f;
+                colorBox.y +=
+                    m_hMaterials[box.startIndex % NB_MAX_MATERIALS].color.y /
+                    50.f;
+                colorBox.z +=
+                    m_hMaterials[box.startIndex % NB_MAX_MATERIALS].color.z /
+                    50.f;
             }
             else
             {
                 // Intersection with primitive within boxes
-                for (int cptPrimitives = 0; cptPrimitives < box.nbPrimitives; ++cptPrimitives)
+                for (int cptPrimitives = 0; cptPrimitives < box.nbPrimitives;
+                     ++cptPrimitives)
                 {
-                    Primitive &primitive = m_hPrimitives[box.startIndex + cptPrimitives];
+                    Primitive &primitive =
+                        m_hPrimitives[box.startIndex + cptPrimitives];
                     Material &material = m_hMaterials[primitive.materialId];
                     if (material.attributes.x == 0 ||
-                        (material.attributes.x == 1 && currentMaterialId != primitive.materialId)) // !!!! TEST SHALL BE
-                                                                                                   // REMOVED TO
-                                                                                                   // INCREASE
-                                                                                                   // TRANSPARENCY
-                                                                                                   // QUALITY !!!
+                        (material.attributes.x == 1 &&
+                         currentMaterialId !=
+                             primitive.materialId)) // !!!! TEST SHALL BE
+                                                    // REMOVED TO
+                                                    // INCREASE
+                                                    // TRANSPARENCY
+                                                    // QUALITY !!!
                     {
                         Vertex areas = {0.f, 0.f, 0.f};
                         i = false;
@@ -1123,29 +1265,39 @@ bool CPUKernel::intersectionWithPrimitives(const Ray &ray, const int &iteration,
                         case ptEnvironment:
                         case ptSphere:
                         {
-                            i = sphereIntersection(primitive, r, intersection, normal, shadowIntensity, back);
+                            i = sphereIntersection(primitive, r, intersection,
+                                                   normal, shadowIntensity,
+                                                   back);
                             break;
                         }
                         case ptCylinder:
                         {
-                            i = cylinderIntersection(primitive, r, intersection, normal, shadowIntensity, back);
+                            i = cylinderIntersection(primitive, r, intersection,
+                                                     normal, shadowIntensity,
+                                                     back);
                             break;
                         }
                         case ptEllipsoid:
                         {
-                            i = ellipsoidIntersection(primitive, r, intersection, normal, shadowIntensity, back);
+                            i = ellipsoidIntersection(primitive, r,
+                                                      intersection, normal,
+                                                      shadowIntensity, back);
                             break;
                         }
                         case ptTriangle:
                         {
                             back = false;
-                            i = triangleIntersection(primitive, r, intersection, normal, areas, shadowIntensity, back);
+                            i = triangleIntersection(primitive, r, intersection,
+                                                     normal, areas,
+                                                     shadowIntensity, back);
                             break;
                         }
                         default:
                         {
                             back = false;
-                            i = planeIntersection(primitive, r, intersection, normal, shadowIntensity, false);
+                            i = planeIntersection(primitive, r, intersection,
+                                                  normal, shadowIntensity,
+                                                  false);
                             break;
                         }
                         }
@@ -1211,7 +1363,8 @@ void CPUKernel::makeColor(FLOAT4 &color, int index)
     }
     case otJPEG:
     {
-        mdc_index = (m_sceneInfo.size.x * m_sceneInfo.size.y - index) * gColorDepth;
+        mdc_index =
+            (m_sceneInfo.size.x * m_sceneInfo.size.y - index) * gColorDepth;
         // JPEG
         m_bitmap[mdc_index + 2] = (char)(color.z * 255.f); // Blue
         m_bitmap[mdc_index + 1] = (char)(color.y * 255.f); // Green
@@ -1246,7 +1399,8 @@ light source center.
 
 ________________________________________________________________________________
 */
-float CPUKernel::processShadows(const Vertex &lampCenter, const Vertex &m_viewPos, const int &objectId,
+float CPUKernel::processShadows(const Vertex &lampCenter,
+                                const Vertex &m_viewPos, const int &objectId,
                                 const int &iteration, FLOAT4 &color)
 {
     float result = 0.f;
@@ -1262,43 +1416,55 @@ float CPUKernel::processShadows(const Vertex &lampCenter, const Vertex &m_viewPo
     r.direction.z = lampCenter.z - m_viewPos.z;
     computeRayAttributes(r);
 
-    while (result < m_sceneInfo.shadowIntensity && cptBoxes < m_nbActiveBoxes[m_frame])
+    while (result < m_sceneInfo.shadowIntensity &&
+           cptBoxes < m_nbActiveBoxes[m_frame])
     {
         BoundingBox &box = m_hBoundingBoxes[cptBoxes];
         if (boxIntersection(box, r, 0.f, m_sceneInfo.viewDistance))
         {
             int cptPrimitives = 0;
-            while (result < m_sceneInfo.shadowIntensity && cptPrimitives < box.nbPrimitives)
+            while (result < m_sceneInfo.shadowIntensity &&
+                   cptPrimitives < box.nbPrimitives)
             {
                 Vertex intersection = {0.f, 0.f, 0.f};
                 Vertex normal = {0.f, 0.f, 0.f};
                 Vertex areas = {0.f, 0.f, 0.f};
                 float shadowIntensity = 0.f;
 
-                Primitive &primitive = m_hPrimitives[box.startIndex + cptPrimitives];
-                if (primitive.index != objectId && m_hMaterials[primitive.materialId].attributes.x == 0)
+                Primitive &primitive =
+                    m_hPrimitives[box.startIndex + cptPrimitives];
+                if (primitive.index != objectId &&
+                    m_hMaterials[primitive.materialId].attributes.x == 0)
                 {
                     bool hit = false;
                     bool back;
                     switch (primitive.type)
                     {
                     case ptSphere:
-                        hit = sphereIntersection(primitive, r, intersection, normal, shadowIntensity, back);
+                        hit = sphereIntersection(primitive, r, intersection,
+                                                 normal, shadowIntensity, back);
                         break;
                     case ptEllipsoid:
-                        hit = ellipsoidIntersection(primitive, r, intersection, normal, shadowIntensity, back);
+                        hit = ellipsoidIntersection(primitive, r, intersection,
+                                                    normal, shadowIntensity,
+                                                    back);
                         break;
                     case ptCylinder:
-                        hit = cylinderIntersection(primitive, r, intersection, normal, shadowIntensity, back);
+                        hit =
+                            cylinderIntersection(primitive, r, intersection,
+                                                 normal, shadowIntensity, back);
                         break;
                     case ptTriangle:
-                        hit = triangleIntersection(primitive, r, intersection, normal, areas, shadowIntensity, back);
+                        hit = triangleIntersection(primitive, r, intersection,
+                                                   normal, areas,
+                                                   shadowIntensity, back);
                         break;
                     case ptCamera:
                         hit = false;
                         break;
                     default:
-                        hit = planeIntersection(primitive, r, intersection, normal, shadowIntensity, false);
+                        hit = planeIntersection(primitive, r, intersection,
+                                                normal, shadowIntensity, false);
                         break;
                     }
 
@@ -1317,19 +1483,38 @@ float CPUKernel::processShadows(const Vertex &lampCenter, const Vertex &m_viewPo
                         float l = vectorLength(O_I);
                         if (l > EPSILON && l < vectorLength(O_L))
                         {
-                            float ratio = shadowIntensity * m_sceneInfo.shadowIntensity;
-                            if (m_hMaterials[primitive.materialId].transparency != 0.f)
+                            float ratio =
+                                shadowIntensity * m_sceneInfo.shadowIntensity;
+                            if (m_hMaterials[primitive.materialId]
+                                    .transparency != 0.f)
                             {
                                 O_L = normalize(O_L);
                                 float a = fabs(dot(O_L, normal));
-                                float r = (m_hMaterials[primitive.materialId].transparency == 0.f)
-                                              ? 1.f
-                                              : (1.f - 0.8f * m_hMaterials[primitive.materialId].transparency);
+                                float r =
+                                    (m_hMaterials[primitive.materialId]
+                                         .transparency == 0.f)
+                                        ? 1.f
+                                        : (1.f -
+                                           0.8f * m_hMaterials[primitive
+                                                                   .materialId]
+                                                      .transparency);
                                 ratio *= r * a;
                                 // Shadow color
-                                color.x += ratio * (0.3f - 0.3f * m_hMaterials[primitive.materialId].color.x);
-                                color.y += ratio * (0.3f - 0.3f * m_hMaterials[primitive.materialId].color.y);
-                                color.z += ratio * (0.3f - 0.3f * m_hMaterials[primitive.materialId].color.z);
+                                color.x +=
+                                    ratio *
+                                    (0.3f -
+                                     0.3f * m_hMaterials[primitive.materialId]
+                                                .color.x);
+                                color.y +=
+                                    ratio *
+                                    (0.3f -
+                                     0.3f * m_hMaterials[primitive.materialId]
+                                                .color.y);
+                                color.z +=
+                                    ratio *
+                                    (0.3f -
+                                     0.3f * m_hMaterials[primitive.materialId]
+                                                .color.z);
                             }
                             result += ratio;
                         }
@@ -1341,7 +1526,9 @@ float CPUKernel::processShadows(const Vertex &lampCenter, const Vertex &m_viewPo
         }
         cptBoxes++;
     }
-    result = (result > m_sceneInfo.shadowIntensity) ? m_sceneInfo.shadowIntensity : result;
+    result = (result > m_sceneInfo.shadowIntensity)
+                 ? m_sceneInfo.shadowIntensity
+                 : result;
     result = (result < 0.f) ? 0.f : result;
     return result;
 }
@@ -1352,10 +1539,13 @@ ________________________________________________________________________________
 Intersection Shader
 ________________________________________________________________________________
 */
-FLOAT4 CPUKernel::intersectionShader(const Primitive &primitive, const Vertex &intersection, const Vertex &areas)
+FLOAT4 CPUKernel::intersectionShader(const Primitive &primitive,
+                                     const Vertex &intersection,
+                                     const Vertex &areas)
 {
     FLOAT4 colorAtIntersection = m_hMaterials[primitive.materialId].color;
-    colorAtIntersection.w = 0.f; // w attribute is used to dtermine light intensity of the material
+    colorAtIntersection.w =
+        0.f; // w attribute is used to dtermine light intensity of the material
 
     switch (primitive.type)
     {
@@ -1385,8 +1575,12 @@ FLOAT4 CPUKernel::intersectionShader(const Primitive &primitive, const Vertex &i
         }
         else
         {
-            int x = static_cast<int>(m_sceneInfo.viewDistance + ((intersection.x - primitive.p0.x) / primitive.size.x));
-            int z = static_cast<int>(m_sceneInfo.viewDistance + ((intersection.z - primitive.p0.z) / primitive.size.x));
+            int x = static_cast<int>(
+                m_sceneInfo.viewDistance +
+                ((intersection.x - primitive.p0.x) / primitive.size.x));
+            int z = static_cast<int>(
+                m_sceneInfo.viewDistance +
+                ((intersection.z - primitive.p0.z) / primitive.size.x));
             if (x % 2 == 0)
             {
                 if (z % 2 == 0)
@@ -1423,7 +1617,8 @@ FLOAT4 CPUKernel::intersectionShader(const Primitive &primitive, const Vertex &i
     {
         if (m_hMaterials[primitive.materialId].textureMapping.z != TEXTURE_NONE)
         {
-            colorAtIntersection = triangleUVMapping(primitive, intersection, areas);
+            colorAtIntersection =
+                triangleUVMapping(primitive, intersection, areas);
         }
         break;
     }
@@ -1437,11 +1632,12 @@ ________________________________________________________________________________
 Primitive shader
 ________________________________________________________________________________
 */
-FLOAT4 CPUKernel::primitiveShader(const Vertex &m_viewPos, const Vertex &normal, const int &objectId,
-                                  const Vertex &intersection, const Vertex &areas, const int &iteration,
-                                  FLOAT4 &refractionFromColor, float &shadowIntensity, FLOAT4 &totalBlinn,
-                                  LightInformation *pathTracingInformation, const int pathTracingInformationSize,
-                                  const bool isLightRay)
+FLOAT4 CPUKernel::primitiveShader(
+    const Vertex &m_viewPos, const Vertex &normal, const int &objectId,
+    const Vertex &intersection, const Vertex &areas, const int &iteration,
+    FLOAT4 &refractionFromColor, float &shadowIntensity, FLOAT4 &totalBlinn,
+    LightInformation *pathTracingInformation,
+    const int pathTracingInformationSize, const bool isLightRay)
 {
     Primitive primitive = m_hPrimitives[objectId];
     FLOAT4 color = m_hMaterials[primitive.materialId].color;
@@ -1471,40 +1667,54 @@ FLOAT4 CPUKernel::primitiveShader(const Vertex &m_viewPos, const Vertex &normal,
 
         bool processStdLigths(pathTracingInformationSize == 0);
         // if( !processStdLigths ) LOG_INFO(1,"pathTracingInformationSize=" <<
-        // pathTracingInformationSize << " (" << pathTracingInformation[0].color.x
+        // pathTracingInformationSize << " (" <<
+        // pathTracingInformation[0].color.x
         // << "," << pathTracingInformation[0].color.y << "," <<
         // pathTracingInformation[0].color.z);
 
-        int nbLamps = processStdLigths ? m_lightInformationSize : pathTracingInformationSize;
+        int nbLamps = processStdLigths ? m_lightInformationSize
+                                       : pathTracingInformationSize;
 
         for (int cpt = 0; cpt < nbLamps; ++cpt)
         {
             int cptLamp = cpt;
-            LightInformation &li = (processStdLigths ? m_lightInformation[cptLamp] : pathTracingInformation[cptLamp]);
+            LightInformation &li =
+                (processStdLigths ? m_lightInformation[cptLamp]
+                                  : pathTracingInformation[cptLamp]);
 
             if (li.attribute.x != primitive.index)
             {
                 Vertex center = li.location;
 
                 // randomize lamp center
-                if (li.attribute.x >= 0 && li.attribute.x < m_nbActivePrimitives[m_frame])
+                if (li.attribute.x >= 0 &&
+                    li.attribute.x < m_nbActivePrimitives[m_frame])
                 {
                     Primitive &lamp = m_hPrimitives[li.attribute.x];
                     int t = 3 * m_sceneInfo.misc.y;
                     t = t % (m_sceneInfo.size.x * m_sceneInfo.size.y - 3);
-                    center.x += m_hMaterials[lamp.materialId].innerIllumination.y * m_hRandoms[t] *
-                                m_sceneInfo.pathTracingIteration / float(m_sceneInfo.maxPathTracingIterations);
-                    center.y += m_hMaterials[lamp.materialId].innerIllumination.y * m_hRandoms[t + 1] *
-                                m_sceneInfo.pathTracingIteration / float(m_sceneInfo.maxPathTracingIterations);
-                    center.z += m_hMaterials[lamp.materialId].innerIllumination.y * m_hRandoms[t + 2] *
-                                m_sceneInfo.pathTracingIteration / float(m_sceneInfo.maxPathTracingIterations);
+                    center.x +=
+                        m_hMaterials[lamp.materialId].innerIllumination.y *
+                        m_hRandoms[t] * m_sceneInfo.pathTracingIteration /
+                        float(m_sceneInfo.maxPathTracingIterations);
+                    center.y +=
+                        m_hMaterials[lamp.materialId].innerIllumination.y *
+                        m_hRandoms[t + 1] * m_sceneInfo.pathTracingIteration /
+                        float(m_sceneInfo.maxPathTracingIterations);
+                    center.z +=
+                        m_hMaterials[lamp.materialId].innerIllumination.y *
+                        m_hRandoms[t + 2] * m_sceneInfo.pathTracingIteration /
+                        float(m_sceneInfo.maxPathTracingIterations);
                 }
 
                 FLOAT4 shadowColor = {0.f, 0.f, 0.f, 0.f};
                 if (m_sceneInfo.graphicsLevel > 3 && iteration < 4 &&
-                    m_hMaterials[primitive.materialId].innerIllumination.x == 0.f)
+                    m_hMaterials[primitive.materialId].innerIllumination.x ==
+                        0.f)
                 {
-                    shadowIntensity = processShadows(center, intersection, li.attribute.x, iteration, shadowColor);
+                    shadowIntensity =
+                        processShadows(center, intersection, li.attribute.x,
+                                       iteration, shadowColor);
                 }
 
                 if (m_sceneInfo.graphicsLevel > 0)
@@ -1518,20 +1728,30 @@ FLOAT4 CPUKernel::primitiveShader(const Vertex &m_viewPos, const Vertex &normal,
                     // --------------------------------------------------------------------------------
                     // Lambert
                     // --------------------------------------------------------------------------------
-                    float lambert = (m_postProcessingInfo.type == ppe_ambientOcclusion) ? 0.6f : dot(normal, lightRay);
-                    // Transparent m_hMaterials are lighted on both sides but the amount
-                    // of light received by the "dark side"
-                    // depends on the transparency rate.
-                    lambert *= (lambert < 0.f) ? -m_hMaterials[primitive.materialId].transparency : lambert;
+                    float lambert =
+                        (m_postProcessingInfo.type == ppe_ambientOcclusion)
+                            ? 0.6f
+                            : dot(normal, lightRay);
+                    // Transparent m_hMaterials are lighted on both sides but
+                    // the amount of light received by the "dark side" depends
+                    // on the transparency rate.
+                    lambert *=
+                        (lambert < 0.f)
+                            ? -m_hMaterials[primitive.materialId].transparency
+                            : lambert;
                     lambert *= li.color.w;
                     lambert *= (1.f - shadowIntensity);
 
                     // Lighted object, not in the shades
-                    lampsColor.x += lambert * li.color.x * li.color.w - shadowColor.x;
-                    lampsColor.y += lambert * li.color.y * li.color.w - shadowColor.y;
-                    lampsColor.z += lambert * li.color.z * li.color.w - shadowColor.z;
+                    lampsColor.x +=
+                        lambert * li.color.x * li.color.w - shadowColor.x;
+                    lampsColor.y +=
+                        lambert * li.color.y * li.color.w - shadowColor.y;
+                    lampsColor.z +=
+                        lambert * li.color.z * li.color.w - shadowColor.z;
 
-                    if (m_sceneInfo.graphicsLevel > 1 && shadowIntensity < m_sceneInfo.shadowIntensity)
+                    if (m_sceneInfo.graphicsLevel > 1 &&
+                        shadowIntensity < m_sceneInfo.shadowIntensity)
                     {
                         // --------------------------------------------------------------------------------
                         // Blinn - Phong
@@ -1558,8 +1778,11 @@ FLOAT4 CPUKernel::primitiveShader(const Vertex &m_viewPos, const Vertex &normal,
                             float blinnTerm = dot(blinnDir, normal);
                             blinnTerm = (blinnTerm < 0.f) ? 0.f : blinnTerm;
 
-                            blinnTerm = m_hMaterials[primitive.materialId].specular.x *
-                                        pow(blinnTerm, m_hMaterials[primitive.materialId].specular.y);
+                            blinnTerm =
+                                m_hMaterials[primitive.materialId].specular.x *
+                                pow(blinnTerm,
+                                    m_hMaterials[primitive.materialId]
+                                        .specular.y);
 
                             totalBlinn.x += li.color.x * li.color.w * blinnTerm;
                             totalBlinn.y += li.color.y * li.color.w * blinnTerm;
@@ -1570,7 +1793,8 @@ FLOAT4 CPUKernel::primitiveShader(const Vertex &m_viewPos, const Vertex &normal,
             }
 
             // Final color
-            FLOAT4 intersectionColor = intersectionShader(primitive, intersection, areas);
+            FLOAT4 intersectionColor =
+                intersectionShader(primitive, intersection, areas);
 
             // Light impact on material
             color.x += intersectionColor.x * lampsColor.x;
@@ -1580,7 +1804,8 @@ FLOAT4 CPUKernel::primitiveShader(const Vertex &m_viewPos, const Vertex &normal,
             // Saturate color
             saturateVector(color);
 
-            refractionFromColor = intersectionColor; // Refraction depending on color;
+            refractionFromColor =
+                intersectionColor; // Refraction depending on color;
             saturateVector(totalBlinn);
         }
     }
@@ -1611,8 +1836,10 @@ the ray). It can  be considered as a light source if its inner light rate
 is > 0.
 ________________________________________________________________________________
 */
-FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOfField, INT4 &primitiveXYId,
-                            LightInformation *pathTracingInformation, int &pathTracingInformationSize, bool isLightRay)
+FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection,
+                            float &depthOfField, INT4 &primitiveXYId,
+                            LightInformation *pathTracingInformation,
+                            int &pathTracingInformationSize, bool isLightRay)
 {
     FLOAT4 intersectionColor = {0.f, 0.f, 0.f, 0.f};
 
@@ -1654,8 +1881,12 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
 
     FLOAT4 rBlinn = {0.f, 0.f, 0.f, 0.f};
     int currentMaxIteration =
-        (m_sceneInfo.graphicsLevel < 3) ? 1 : m_sceneInfo.nbRayIterations + m_sceneInfo.pathTracingIteration;
-    currentMaxIteration = (currentMaxIteration > NB_MAX_ITERATIONS) ? NB_MAX_ITERATIONS : currentMaxIteration;
+        (m_sceneInfo.graphicsLevel < 3)
+            ? 1
+            : m_sceneInfo.nbRayIterations + m_sceneInfo.pathTracingIteration;
+    currentMaxIteration = (currentMaxIteration > NB_MAX_ITERATIONS)
+                              ? NB_MAX_ITERATIONS
+                              : currentMaxIteration;
 
 #ifdef PHOTON_ENERGY
     while (iteration < currentMaxIteration && carryon && photonDistance > 0.f)
@@ -1668,8 +1899,11 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
         // Primitives
         if (carryon)
         {
-            carryon = intersectionWithPrimitives(rayOrigin, iteration, closestPrimitive, closestIntersection, normal,
-                                                 areas, colorBox, back, currentMaterialId);
+            carryon =
+                intersectionWithPrimitives(rayOrigin, iteration,
+                                           closestPrimitive,
+                                           closestIntersection, normal, areas,
+                                           colorBox, back, currentMaterialId);
         }
 
         if (carryon)
@@ -1695,19 +1929,27 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
             d.y = closestIntersection.y - rayOrigin.origin.y;
             d.z = closestIntersection.z - rayOrigin.origin.z;
             photonDistance -= vectorLength(d) * (2.f - previousTransparency);
-            previousTransparency = back ? 1.f : m_hMaterials[m_hPrimitives[closestPrimitive].materialId].transparency;
+            previousTransparency =
+                back ? 1.f
+                     : m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                           .transparency;
 #endif // PHOTON_ENERGY
 
             // Get object color
-            colors[iteration] = primitiveShader(rayOrigin.origin, normal, closestPrimitive, closestIntersection, areas,
-                                                iteration, refractionFromColor, shadowIntensity, rBlinn,
-                                                pathTracingInformation, pathTracingInformationSize, isLightRay);
+            colors[iteration] =
+                primitiveShader(rayOrigin.origin, normal, closestPrimitive,
+                                closestIntersection, areas, iteration,
+                                refractionFromColor, shadowIntensity, rBlinn,
+                                pathTracingInformation,
+                                pathTracingInformationSize, isLightRay);
 
             if (isLightRay)
             {
                 // Accumulate Path tracing information
-                pathTracingInformation[iteration].location = closestIntersection;
-                pathTracingInformation[iteration].attribute.x = closestPrimitive;
+                pathTracingInformation[iteration].location =
+                    closestIntersection;
+                pathTracingInformation[iteration].attribute.x =
+                    closestPrimitive;
                 pathTracingInformation[iteration].color = colors[iteration];
                 pathTracingInformation[iteration].color.w = 1.f;
                 // LOG_INFO(1,"CI[" << iteration << "]=" <<
@@ -1721,11 +1963,13 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
             // Refraction
             // ----------
 
-            if (m_hMaterials[m_hPrimitives[closestPrimitive].materialId].transparency != 0.f)
+            if (m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                    .transparency != 0.f)
             {
                 // Replace the normal using the intersection color
                 // r,g,b become x,y,z... What the fuck!!
-                if (m_hMaterials[m_hPrimitives[closestPrimitive].materialId].textureMapping.z != TEXTURE_NONE)
+                if (m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                        .textureMapping.z != TEXTURE_NONE)
                 {
                     normal.x *= (colors[iteration].x - 0.5f);
                     normal.y *= (colors[iteration].y - 0.5f);
@@ -1733,7 +1977,11 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
                 }
 
                 // Back of the object? If so, reset refraction to 1.f (air)
-                float refraction = back ? 1.f : m_hMaterials[m_hPrimitives[closestPrimitive].materialId].refraction;
+                float refraction =
+                    back ? 1.f
+                         : m_hMaterials[m_hPrimitives[closestPrimitive]
+                                            .materialId]
+                               .refraction;
 
                 // Actual refraction
                 Vertex O_E;
@@ -1741,18 +1989,26 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
                 O_E.y = rayOrigin.origin.y - closestIntersection.y;
                 O_E.z = rayOrigin.origin.z - closestIntersection.z;
                 O_E = normalize(O_E);
-                vectorRefraction(rayOrigin.direction, O_E, refraction, normal, initialRefraction);
+                vectorRefraction(rayOrigin.direction, O_E, refraction, normal,
+                                 initialRefraction);
 
-                reflectedTarget.x = closestIntersection.x - rayOrigin.direction.x;
-                reflectedTarget.y = closestIntersection.y - rayOrigin.direction.y;
-                reflectedTarget.z = closestIntersection.z - rayOrigin.direction.z;
+                reflectedTarget.x =
+                    closestIntersection.x - rayOrigin.direction.x;
+                reflectedTarget.y =
+                    closestIntersection.y - rayOrigin.direction.y;
+                reflectedTarget.z =
+                    closestIntersection.z - rayOrigin.direction.z;
 
-                colorContributions[iteration] = m_hMaterials[m_hPrimitives[closestPrimitive].materialId].transparency;
+                colorContributions[iteration] =
+                    m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                        .transparency;
 
                 // Prepare next ray
                 initialRefraction = refraction;
 
-                if (reflectedRays == -1 && m_hMaterials[m_hPrimitives[closestPrimitive].materialId].reflection != 0.f)
+                if (reflectedRays == -1 &&
+                    m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                            .reflection != 0.f)
                 {
                     vectorReflection(reflectedRay.direction, O_E, normal);
                     Vertex rt;
@@ -1760,12 +2016,17 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
                     rt.y = closestIntersection.y - reflectedRay.direction.y;
                     rt.z = closestIntersection.z - reflectedRay.direction.z;
 
-                    reflectedRay.origin.x = closestIntersection.x + rt.x * 0.00001f;
-                    reflectedRay.origin.y = closestIntersection.y + rt.y * 0.00001f;
-                    reflectedRay.origin.z = closestIntersection.z + rt.z * 0.00001f;
+                    reflectedRay.origin.x =
+                        closestIntersection.x + rt.x * 0.00001f;
+                    reflectedRay.origin.y =
+                        closestIntersection.y + rt.y * 0.00001f;
+                    reflectedRay.origin.z =
+                        closestIntersection.z + rt.z * 0.00001f;
 
                     reflectedRay.direction = rt;
-                    reflectedRatio = m_hMaterials[m_hPrimitives[closestPrimitive].materialId].reflection;
+                    reflectedRatio =
+                        m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                            .reflection;
                     reflectedRays = iteration;
                 }
             }
@@ -1774,7 +2035,8 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
                 // ----------
                 // Reflection
                 // ----------
-                if (m_hMaterials[m_hPrimitives[closestPrimitive].materialId].reflection != 0.f)
+                if (m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                        .reflection != 0.f)
                 {
                     Vertex O_E;
                     O_E.x = rayOrigin.origin.x - closestIntersection.x;
@@ -1782,10 +2044,15 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
                     O_E.z = rayOrigin.origin.z - closestIntersection.z;
                     vectorReflection(rayOrigin.direction, O_E, normal);
 
-                    reflectedTarget.x = closestIntersection.x - rayOrigin.direction.x;
-                    reflectedTarget.y = closestIntersection.y - rayOrigin.direction.y;
-                    reflectedTarget.z = closestIntersection.z - rayOrigin.direction.z;
-                    colorContributions[iteration] = m_hMaterials[m_hPrimitives[closestPrimitive].materialId].reflection;
+                    reflectedTarget.x =
+                        closestIntersection.x - rayOrigin.direction.x;
+                    reflectedTarget.y =
+                        closestIntersection.y - rayOrigin.direction.y;
+                    reflectedTarget.z =
+                        closestIntersection.z - rayOrigin.direction.z;
+                    colorContributions[iteration] =
+                        m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                            .reflection;
                 }
                 else
                 {
@@ -1799,19 +2066,30 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
             recursiveBlinn.y += rBlinn.y;
             recursiveBlinn.z += rBlinn.z;
 
-            rayOrigin.origin.x = closestIntersection.x + reflectedTarget.x * 0.00001f;
-            rayOrigin.origin.y = closestIntersection.y + reflectedTarget.y * 0.00001f;
-            rayOrigin.origin.z = closestIntersection.z + reflectedTarget.z * 0.00001f;
+            rayOrigin.origin.x =
+                closestIntersection.x + reflectedTarget.x * 0.00001f;
+            rayOrigin.origin.y =
+                closestIntersection.y + reflectedTarget.y * 0.00001f;
+            rayOrigin.origin.z =
+                closestIntersection.z + reflectedTarget.z * 0.00001f;
             rayOrigin.direction = reflectedTarget;
 
             // Noise management
             if (m_sceneInfo.pathTracingIteration != 0 &&
-                m_hMaterials[m_hPrimitives[closestPrimitive].materialId].color.w != 0.f)
+                m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                        .color.w != 0.f)
             {
                 // Randomize view
-                float ratio = m_hMaterials[m_hPrimitives[closestPrimitive].materialId].color.w;
-                ratio *= (m_hMaterials[m_hPrimitives[closestPrimitive].materialId].transparency == 0.f) ? 1000.f : 1.f;
-                int rindex = 3 * m_sceneInfo.misc.y + m_sceneInfo.pathTracingIteration;
+                float ratio =
+                    m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                        .color.w;
+                ratio *=
+                    (m_hMaterials[m_hPrimitives[closestPrimitive].materialId]
+                         .transparency == 0.f)
+                        ? 1000.f
+                        : 1.f;
+                int rindex =
+                    3 * m_sceneInfo.misc.y + m_sceneInfo.pathTracingIteration;
                 rindex = rindex % (m_sceneInfo.size.x * m_sceneInfo.size.y);
                 rayOrigin.direction.x += m_hRandoms[rindex] * ratio;
                 rayOrigin.direction.y += m_hRandoms[rindex + 1] * ratio;
@@ -1846,17 +2124,23 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
         pathTracingInformationSize = iteration;
     }
 
-    if (m_sceneInfo.graphicsLevel >= 3 && reflectedRays != -1) // TODO: Draft mode should only test
-                                                               // "m_sceneInfo.pathTracingIteration==iteration"
+    if (m_sceneInfo.graphicsLevel >= 3 &&
+        reflectedRays != -1) // TODO: Draft mode should only test
+                             // "m_sceneInfo.pathTracingIteration==iteration"
     {
         Vertex areas = {0.f, 0.f, 0.f};
         // TODO: Dodgy implementation
-        if (intersectionWithPrimitives(reflectedRay, reflectedRays, closestPrimitive, closestIntersection, normal,
-                                       areas, colorBox, back, currentMaterialId))
+        if (intersectionWithPrimitives(reflectedRay, reflectedRays,
+                                       closestPrimitive, closestIntersection,
+                                       normal, areas, colorBox, back,
+                                       currentMaterialId))
         {
-            FLOAT4 color = primitiveShader(reflectedRay.origin, normal, closestPrimitive, closestIntersection, areas,
-                                           reflectedRays, refractionFromColor, shadowIntensity, rBlinn,
-                                           pathTracingInformation, pathTracingInformationSize, isLightRay);
+            FLOAT4 color =
+                primitiveShader(reflectedRay.origin, normal, closestPrimitive,
+                                closestIntersection, areas, reflectedRays,
+                                refractionFromColor, shadowIntensity, rBlinn,
+                                pathTracingInformation,
+                                pathTracingInformationSize, isLightRay);
 
             colors[reflectedRays].x += color.x * reflectedRatio;
             colors[reflectedRays].y += color.y * reflectedRatio;
@@ -1868,9 +2152,12 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
     {
         for (int i = iteration - 2; i >= 0; --i)
         {
-            colors[i].x = colors[i].x * (1.f - colorContributions[i]) + colors[i + 1].x * colorContributions[i];
-            colors[i].y = colors[i].y * (1.f - colorContributions[i]) + colors[i + 1].y * colorContributions[i];
-            colors[i].z = colors[i].z * (1.f - colorContributions[i]) + colors[i + 1].z * colorContributions[i];
+            colors[i].x = colors[i].x * (1.f - colorContributions[i]) +
+                          colors[i + 1].x * colorContributions[i];
+            colors[i].y = colors[i].y * (1.f - colorContributions[i]) +
+                          colors[i + 1].y * colorContributions[i];
+            colors[i].z = colors[i].z * (1.f - colorContributions[i]) +
+                          colors[i + 1].z * colorContributions[i];
         }
         intersectionColor = colors[0];
         intersectionColor.x += recursiveBlinn.x;
@@ -1891,15 +2178,25 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
             // --------------------------------------------------
             // Photon energy
             // --------------------------------------------------
-            intersectionColor.x *= (photonDistance > 0.f) ? (photonDistance / m_sceneInfo.viewDistance) : 0.f;
-            intersectionColor.y *= (photonDistance > 0.f) ? (photonDistance / m_sceneInfo.viewDistance) : 0.f;
-            intersectionColor.z *= (photonDistance > 0.f) ? (photonDistance / m_sceneInfo.viewDistance) : 0.f;
+            intersectionColor.x *=
+                (photonDistance > 0.f)
+                    ? (photonDistance / m_sceneInfo.viewDistance)
+                    : 0.f;
+            intersectionColor.y *=
+                (photonDistance > 0.f)
+                    ? (photonDistance / m_sceneInfo.viewDistance)
+                    : 0.f;
+            intersectionColor.z *=
+                (photonDistance > 0.f)
+                    ? (photonDistance / m_sceneInfo.viewDistance)
+                    : 0.f;
 #endif // PHOTON_ENERGY
 
             // --------------------------------------------------
             // Fog
             // --------------------------------------------------
-            // intersectionColor += m_hRandoms[((int)len + m_sceneInfo.misc.y)%100];
+            // intersectionColor += m_hRandoms[((int)len +
+            // m_sceneInfo.misc.y)%100];
 
             // --------------------------------------------------
             // Background color
@@ -1910,9 +2207,12 @@ FLOAT4 CPUKernel::launchRay(const Ray &ray, Vertex &intersection, float &depthOf
                 float D2 = m_sceneInfo.viewDistance * 0.05f;
                 float a = len - D1;
                 float b = 1.f - (a / D2);
-                intersectionColor.x = intersectionColor.x * b + m_sceneInfo.backgroundColor.x * (1.f - b);
-                intersectionColor.y = intersectionColor.y * b + m_sceneInfo.backgroundColor.y * (1.f - b);
-                intersectionColor.z = intersectionColor.z * b + m_sceneInfo.backgroundColor.z * (1.f - b);
+                intersectionColor.x = intersectionColor.x * b +
+                                      m_sceneInfo.backgroundColor.x * (1.f - b);
+                intersectionColor.y = intersectionColor.y * b +
+                                      m_sceneInfo.backgroundColor.y * (1.f - b);
+                intersectionColor.z = intersectionColor.z * b +
+                                      m_sceneInfo.backgroundColor.z * (1.f - b);
             }
         }
         depthOfField = (len - depthOfField) / m_sceneInfo.viewDistance;
@@ -1958,7 +2258,8 @@ void CPUKernel::k_standardRenderer()
 
             Vertex rotationCenter = {0.f, 0.f, 0.f};
             bool antialiasingActivated = (m_sceneInfo.misc.w == 2);
-            bool pathTracing(m_sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS &&
+            bool pathTracing(m_sceneInfo.pathTracingIteration >=
+                                 NB_MAX_ITERATIONS &&
                              m_sceneInfo.pathTracingIteration % 2 == 0);
 
             if (m_sceneInfo.pathTracingIteration == 0)
@@ -1976,22 +2277,29 @@ void CPUKernel::k_standardRenderer()
                     lightRay.origin = m_lightInformation[0].location;
                     lightRay.direction = lightRay.origin;
 
-                    int rindex = 3 * (index + m_sceneInfo.pathTracingIteration + m_sceneInfo.misc.y);
-                    rindex = rindex % (m_sceneInfo.size.x * m_sceneInfo.size.y - 3);
-                    lightRay.direction.x += 1000.f * m_hRandoms[rindex] * m_postProcessingInfo.param1;
-                    lightRay.direction.y += 1000.f * m_hRandoms[rindex + 1] * m_postProcessingInfo.param1;
-                    lightRay.direction.z += 1000.f * m_hRandoms[rindex + 2] * m_postProcessingInfo.param1;
+                    int rindex = 3 * (index + m_sceneInfo.pathTracingIteration +
+                                      m_sceneInfo.misc.y);
+                    rindex =
+                        rindex % (m_sceneInfo.size.x * m_sceneInfo.size.y - 3);
+                    lightRay.direction.x += 1000.f * m_hRandoms[rindex] *
+                                            m_postProcessingInfo.param1;
+                    lightRay.direction.y += 1000.f * m_hRandoms[rindex + 1] *
+                                            m_postProcessingInfo.param1;
+                    lightRay.direction.z += 1000.f * m_hRandoms[rindex + 2] *
+                                            m_postProcessingInfo.param1;
 
                     // Launch light ray
-                    launchRay(lightRay, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
+                    launchRay(lightRay, intersection, dof,
+                              m_hPrimitivesXYIds[index], pathTracingInformation,
                               pathTracingInformationSize, true);
                 }
 
                 /*
                 // Path Tracing
                 int rindex = 3*(index+m_sceneInfo.misc.y) + 5000;
-                          rindex = rindex%(m_sceneInfo.size.x*m_sceneInfo.size.y-3);
-                  ray.origin.x += m_hRandoms[rindex
+                          rindex =
+                rindex%(m_sceneInfo.size.x*m_sceneInfo.size.y-3); ray.origin.x
+                += m_hRandoms[rindex
                 ]*m_postProcessingBuffer[index].w*m_postProcessingInfo.param1;
                   ray.origin.y +=
                 m_hRandoms[rindex+1]*m_postProcessingBuffer[index].w*m_postProcessingInfo.param1;
@@ -1999,7 +2307,8 @@ void CPUKernel::k_standardRenderer()
                 m_hRandoms[rindex+2]*m_postProcessingBuffer[index].w*m_postProcessingInfo.param1;
 
                 rindex = 3*(index+m_sceneInfo.misc.y);
-                          rindex = rindex%(m_sceneInfo.size.x*m_sceneInfo.size.y-3);
+                          rindex =
+                rindex%(m_sceneInfo.size.x*m_sceneInfo.size.y-3);
                   ray.direction.x += m_hRandoms[rindex
                 ]*m_postProcessingBuffer[index].w*m_postProcessingInfo.param1;
                   ray.direction.y +=
@@ -2013,29 +2322,41 @@ void CPUKernel::k_standardRenderer()
             {
                 if (m_sceneInfo.misc.w == 1) // Isometric 3D
                 {
-                    ray.direction.x = ray.origin.z * 0.001f * (float)(x - (m_sceneInfo.size.x / 2));
-                    ray.direction.y = -ray.origin.z * 0.001f * (float)(y - (m_sceneInfo.size.y / 2));
+                    ray.direction.x = ray.origin.z * 0.001f *
+                                      (float)(x - (m_sceneInfo.size.x / 2));
+                    ray.direction.y = -ray.origin.z * 0.001f *
+                                      (float)(y - (m_sceneInfo.size.y / 2));
                     ray.origin.x = ray.direction.x;
                     ray.origin.y = ray.direction.y;
                 }
                 else
                 {
-                    float ratio = (float)m_sceneInfo.size.x / (float)m_sceneInfo.size.y;
+                    float ratio =
+                        (float)m_sceneInfo.size.x / (float)m_sceneInfo.size.y;
                     FLOAT2 step;
                     step.x = ratio * 6400.f / (float)m_sceneInfo.size.x;
                     step.y = 6400.f / (float)m_sceneInfo.size.y;
-                    ray.direction.x = ray.direction.x - step.x * (float)(x - (m_sceneInfo.size.x / 2));
-                    ray.direction.y = ray.direction.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
+                    ray.direction.x =
+                        ray.direction.x -
+                        step.x * (float)(x - (m_sceneInfo.size.x / 2));
+                    ray.direction.y =
+                        ray.direction.y +
+                        step.y * (float)(y - (m_sceneInfo.size.y / 2));
                 }
                 vectorRotation(ray.origin, rotationCenter, m_angles);
                 vectorRotation(ray.direction, rotationCenter, m_angles);
             }
 
             // Antialisazing
-            FLOAT2 AArotatedGrid[4] = {{3.f, 5.f}, {5.f, -3.f}, {-3.f, -5.f}, {-5.f, 3.f}};
+            FLOAT2 AArotatedGrid[4] = {{3.f, 5.f},
+                                       {5.f, -3.f},
+                                       {-3.f, -5.f},
+                                       {-5.f, 3.f}};
 
-            if (m_sceneInfo.pathTracingIteration > m_hPrimitivesXYIds[index].y &&
-                m_sceneInfo.pathTracingIteration > 0 && m_sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
+            if (m_sceneInfo.pathTracingIteration >
+                    m_hPrimitivesXYIds[index].y &&
+                m_sceneInfo.pathTracingIteration > 0 &&
+                m_sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
                 break;
 
             FLOAT4 color = {0.f, 0.f, 0.f, 0.f};
@@ -2046,7 +2367,9 @@ void CPUKernel::k_standardRenderer()
                 {
                     r.direction.x = ray.origin.x + AArotatedGrid[I].x;
                     r.direction.y = ray.origin.y + AArotatedGrid[I].y;
-                    FLOAT4 c = launchRay(r, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
+                    FLOAT4 c = launchRay(r, intersection, dof,
+                                         m_hPrimitivesXYIds[index],
+                                         pathTracingInformation,
                                          pathTracingInformationSize);
                     color.x += c.x;
                     color.y += c.y;
@@ -2055,8 +2378,9 @@ void CPUKernel::k_standardRenderer()
             }
 
             // Launch Eye Ray
-            FLOAT4 c = launchRay(ray, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
-                                 pathTracingInformationSize);
+            FLOAT4 c =
+                launchRay(ray, intersection, dof, m_hPrimitivesXYIds[index],
+                          pathTracingInformation, pathTracingInformationSize);
 
             color.x += c.x;
             color.y += c.y;
@@ -2156,7 +2480,8 @@ void CPUKernel::k_fishEyeRenderer()
             // Normal Y axis
             FLOAT2 step;
             step.y = 6400.f / (float)m_sceneInfo.size.y;
-            ray.origin.y = ray.origin.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
+            ray.origin.y =
+                ray.origin.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
 
             // 360° X axis
             step.x = 2.f * PI / static_cast<float>(m_sceneInfo.size.x);
@@ -2171,14 +2496,17 @@ void CPUKernel::k_fishEyeRenderer()
             // vectorRotation( ray.origin,    rotationCenter, m_angles );
             // vectorRotation( ray.direction, rotationCenter, m_angles );
 
-            if (m_sceneInfo.pathTracingIteration > m_hPrimitivesXYIds[index].y &&
-                m_sceneInfo.pathTracingIteration > 0 && m_sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
+            if (m_sceneInfo.pathTracingIteration >
+                    m_hPrimitivesXYIds[index].y &&
+                m_sceneInfo.pathTracingIteration > 0 &&
+                m_sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
                 break;
 
             LightInformation pathTracingInformation[NB_MAX_ITERATIONS];
             int pathTracingInformationSize = 0;
-            color = launchRay(ray, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
-                              pathTracingInformationSize);
+            color =
+                launchRay(ray, intersection, dof, m_hPrimitivesXYIds[index],
+                          pathTracingInformation, pathTracingInformationSize);
 
             if (m_sceneInfo.pathTracingIteration == 0)
             {
@@ -2240,8 +2568,10 @@ void CPUKernel::k_anaglyphRenderer()
             eyeRay.origin.y = m_viewPos.y;
             eyeRay.origin.z = m_viewPos.z;
 
-            eyeRay.direction.x = m_viewDir.x - step.x * (float)(x - (m_sceneInfo.size.x / 2));
-            eyeRay.direction.y = m_viewDir.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
+            eyeRay.direction.x =
+                m_viewDir.x - step.x * (float)(x - (m_sceneInfo.size.x / 2));
+            eyeRay.direction.y =
+                m_viewDir.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
             eyeRay.direction.z = m_viewDir.z;
 
             vectorRotation(eyeRay.origin, rotationCenter, m_angles);
@@ -2249,24 +2579,29 @@ void CPUKernel::k_anaglyphRenderer()
 
             LightInformation pathTracingInformation[NB_MAX_ITERATIONS];
             int pathTracingInformationSize = 0;
-            FLOAT4 colorLeft = launchRay(eyeRay, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
-                                         pathTracingInformationSize);
+            FLOAT4 colorLeft =
+                launchRay(eyeRay, intersection, dof, m_hPrimitivesXYIds[index],
+                          pathTracingInformation, pathTracingInformationSize);
 
             // Right eye
             eyeRay.origin.x = m_viewPos.x - m_sceneInfo.width3DVision;
             eyeRay.origin.y = m_viewPos.y;
             eyeRay.origin.z = m_viewPos.z;
 
-            eyeRay.direction.x = m_viewDir.x - step.x * (float)(x - (m_sceneInfo.size.x / 2));
-            eyeRay.direction.y = m_viewDir.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
+            eyeRay.direction.x =
+                m_viewDir.x - step.x * (float)(x - (m_sceneInfo.size.x / 2));
+            eyeRay.direction.y =
+                m_viewDir.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
             eyeRay.direction.z = m_viewDir.z;
 
             vectorRotation(eyeRay.origin, rotationCenter, m_angles);
             vectorRotation(eyeRay.direction, rotationCenter, m_angles);
-            FLOAT4 colorRight = launchRay(eyeRay, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
-                                          pathTracingInformationSize);
+            FLOAT4 colorRight =
+                launchRay(eyeRay, intersection, dof, m_hPrimitivesXYIds[index],
+                          pathTracingInformation, pathTracingInformationSize);
 
-            float r1 = colorLeft.x * 0.299f + colorLeft.y * 0.587f + colorLeft.z * 0.114f;
+            float r1 = colorLeft.x * 0.299f + colorLeft.y * 0.587f +
+                       colorLeft.z * 0.114f;
             float b1 = 0.f;
             float g1 = 0.f;
 
@@ -2335,8 +2670,13 @@ void CPUKernel::k_3DVisionRenderer()
                 eyeRay.origin.y = m_viewPos.y;
                 eyeRay.origin.z = m_viewPos.z;
 
-                eyeRay.direction.x = m_viewDir.x - step.x * (float)(x - (m_sceneInfo.size.x / 2) + halfWidth / 2);
-                eyeRay.direction.y = m_viewDir.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
+                eyeRay.direction.x =
+                    m_viewDir.x -
+                    step.x *
+                        (float)(x - (m_sceneInfo.size.x / 2) + halfWidth / 2);
+                eyeRay.direction.y =
+                    m_viewDir.y +
+                    step.y * (float)(y - (m_sceneInfo.size.y / 2));
                 eyeRay.direction.z = m_viewDir.z;
             }
             else
@@ -2346,8 +2686,13 @@ void CPUKernel::k_3DVisionRenderer()
                 eyeRay.origin.y = m_viewPos.y;
                 eyeRay.origin.z = m_viewPos.z;
 
-                eyeRay.direction.x = m_viewDir.x - step.x * (float)(x - (m_sceneInfo.size.x / 2) - halfWidth / 2);
-                eyeRay.direction.y = m_viewDir.y + step.y * (float)(y - (m_sceneInfo.size.y / 2));
+                eyeRay.direction.x =
+                    m_viewDir.x -
+                    step.x *
+                        (float)(x - (m_sceneInfo.size.x / 2) - halfWidth / 2);
+                eyeRay.direction.y =
+                    m_viewDir.y +
+                    step.y * (float)(y - (m_sceneInfo.size.y / 2));
                 eyeRay.direction.z = m_viewDir.z;
             }
 
@@ -2356,8 +2701,9 @@ void CPUKernel::k_3DVisionRenderer()
 
             LightInformation pathTracingInformation[NB_MAX_ITERATIONS];
             int pathTracingInformationSize = 0;
-            FLOAT4 color = launchRay(eyeRay, intersection, dof, m_hPrimitivesXYIds[index], pathTracingInformation,
-                                     pathTracingInformationSize);
+            FLOAT4 color =
+                launchRay(eyeRay, intersection, dof, m_hPrimitivesXYIds[index],
+                          pathTracingInformation, pathTracingInformationSize);
 
             if (m_sceneInfo.pathTracingIteration == 0)
                 m_postProcessingBuffer[index].w = dof;
@@ -2396,9 +2742,12 @@ void CPUKernel::k_default()
 
             if (m_sceneInfo.pathTracingIteration > NB_MAX_ITERATIONS)
             {
-                localColor.x /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
-                localColor.y /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
-                localColor.z /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
+                localColor.x /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
+                localColor.y /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
+                localColor.z /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
             }
 
             makeColor(localColor, index);
@@ -2421,7 +2770,8 @@ void CPUKernel::k_depthOfField()
         for (int y(0); y < m_sceneInfo.size.y; ++y)
         {
             int index = y * m_sceneInfo.size.x + x;
-            float depth = m_postProcessingInfo.param2 * m_postProcessingBuffer[index].w;
+            float depth =
+                m_postProcessingInfo.param2 * m_postProcessingBuffer[index].w;
             int wh = m_sceneInfo.size.x * m_sceneInfo.size.y;
 
             FLOAT4 localColor = {0.f, 0.f, 0.f};
@@ -2431,7 +2781,8 @@ void CPUKernel::k_depthOfField()
                 int iy = (i + m_sceneInfo.size.x) % wh;
                 int xx = x + static_cast<int>(depth * m_hRandoms[ix] * 0.5f);
                 int yy = y + static_cast<int>(depth * m_hRandoms[iy] * 0.5f);
-                if (xx >= 0 && xx < m_sceneInfo.size.x && yy >= 0 && yy < m_sceneInfo.size.y)
+                if (xx >= 0 && xx < m_sceneInfo.size.x && yy >= 0 &&
+                    yy < m_sceneInfo.size.y)
                 {
                     int localIndex = yy * m_sceneInfo.size.x + xx;
                     if (localIndex >= 0 && localIndex < wh)
@@ -2454,9 +2805,12 @@ void CPUKernel::k_depthOfField()
 
             if (m_sceneInfo.pathTracingIteration > NB_MAX_ITERATIONS)
             {
-                localColor.x /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
-                localColor.y /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
-                localColor.z /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
+                localColor.x /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
+                localColor.y /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
+                localColor.z /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
             }
 
             localColor.w = 1.f;
@@ -2492,7 +2846,8 @@ void CPUKernel::k_ambiantOcclusion()
                 {
                     int xx = x + X;
                     int yy = y + Y;
-                    if (xx >= 0 && xx < m_sceneInfo.size.x && yy >= 0 && yy < m_sceneInfo.size.y)
+                    if (xx >= 0 && xx < m_sceneInfo.size.x && yy >= 0 &&
+                        yy < m_sceneInfo.size.y)
                     {
                         int localIndex = yy * m_sceneInfo.size.x + xx;
                         if (m_postProcessingBuffer[localIndex].w >= depth)
@@ -2513,9 +2868,12 @@ void CPUKernel::k_ambiantOcclusion()
 
             if (m_sceneInfo.pathTracingIteration > NB_MAX_ITERATIONS)
             {
-                localColor.x /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
-                localColor.y /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
-                localColor.z /= (float)(m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
+                localColor.x /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
+                localColor.y /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
+                localColor.z /= (float)(m_sceneInfo.pathTracingIteration -
+                                        NB_MAX_ITERATIONS + 1);
             }
 
             saturateVector(localColor);
@@ -2543,29 +2901,41 @@ void CPUKernel::k_radiosity()
             int index = y * m_sceneInfo.size.x + x;
             int wh = m_sceneInfo.size.x * m_sceneInfo.size.y;
 
-            int div = (m_sceneInfo.pathTracingIteration > NB_MAX_ITERATIONS)
-                          ? (m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1)
-                          : 1;
+            int div =
+                (m_sceneInfo.pathTracingIteration > NB_MAX_ITERATIONS)
+                    ? (m_sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1)
+                    : 1;
 
             FLOAT4 localColor = {0.f, 0.f, 0.f};
             for (int i = 0; i < m_postProcessingInfo.param3; ++i)
             {
                 int ix = (i + m_sceneInfo.pathTracingIteration) % wh;
                 int iy = (i + m_sceneInfo.size.x) % wh;
-                int xx = x + static_cast<int>(m_hRandoms[ix] * m_postProcessingInfo.param2 / 10.f);
-                int yy = y + static_cast<int>(m_hRandoms[iy] * m_postProcessingInfo.param2 / 10.f);
+                int xx =
+                    x + static_cast<int>(m_hRandoms[ix] *
+                                         m_postProcessingInfo.param2 / 10.f);
+                int yy =
+                    y + static_cast<int>(m_hRandoms[iy] *
+                                         m_postProcessingInfo.param2 / 10.f);
                 localColor.x += m_postProcessingBuffer[index].x;
                 localColor.y += m_postProcessingBuffer[index].y;
                 localColor.z += m_postProcessingBuffer[index].z;
-                if (xx >= 0 && xx < m_sceneInfo.size.x && yy >= 0 && yy < m_sceneInfo.size.y)
+                if (xx >= 0 && xx < m_sceneInfo.size.x && yy >= 0 &&
+                    yy < m_sceneInfo.size.y)
                 {
                     int localIndex = yy * m_sceneInfo.size.x + xx;
                     localColor.x +=
-                        (localIndex >= 0 && localIndex < wh) ? div * m_hPrimitivesXYIds[localIndex].z / 255 : 0.f;
+                        (localIndex >= 0 && localIndex < wh)
+                            ? div * m_hPrimitivesXYIds[localIndex].z / 255
+                            : 0.f;
                     localColor.y +=
-                        (localIndex >= 0 && localIndex < wh) ? div * m_hPrimitivesXYIds[localIndex].z / 255 : 0.f;
+                        (localIndex >= 0 && localIndex < wh)
+                            ? div * m_hPrimitivesXYIds[localIndex].z / 255
+                            : 0.f;
                     localColor.z +=
-                        (localIndex >= 0 && localIndex < wh) ? div * m_hPrimitivesXYIds[localIndex].z / 255 : 0.f;
+                        (localIndex >= 0 && localIndex < wh)
+                            ? div * m_hPrimitivesXYIds[localIndex].z / 255
+                            : 0.f;
                 }
             }
             localColor.x /= m_postProcessingInfo.param3;
@@ -2589,9 +2959,7 @@ ________________________________________________________________________________
 Post Processing Effect: Radiosity
 ________________________________________________________________________________
 */
-void CPUKernel::k_oneColor()
-{
-}
+void CPUKernel::k_oneColor() {}
 /*
 ________________________________________________________________________________
 
@@ -2603,7 +2971,8 @@ void CPUKernel::render_begin(const float timer)
     GPUKernel::render_begin(timer);
     if (m_postProcessingBuffer == 0)
     {
-        m_postProcessingBuffer = new FLOAT4[m_sceneInfo.size.x * m_sceneInfo.size.y];
+        m_postProcessingBuffer =
+            new FLOAT4[m_sceneInfo.size.x * m_sceneInfo.size.y];
     }
 
     switch (m_sceneInfo.renderingType)
@@ -2651,7 +3020,8 @@ void CPUKernel::render_end()
         ::glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         ::glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         ::glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-        ::glTexImage2D(GL_TEXTURE_2D, 0, 3, m_sceneInfo.size.x, m_sceneInfo.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE,
+        ::glTexImage2D(GL_TEXTURE_2D, 0, 3, m_sceneInfo.size.x,
+                       m_sceneInfo.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE,
                        m_bitmap);
         ::glBegin(GL_QUADS);
         ::glTexCoord2f(1.f, 1.f);
@@ -2666,4 +3036,4 @@ void CPUKernel::render_end()
         ::glDisable(GL_TEXTURE_2D);
     }
 }
-}
+} // namespace solr

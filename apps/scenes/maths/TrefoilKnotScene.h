@@ -40,5 +40,6 @@ private:
     void spring(float R, float t, vec4f& p);
     void heart(float R, float u, float v, vec4f& p);
     void thing(float R, float t, vec4f a, vec4f& p);
-    void moebius(float R, float u, float v, float s, float du, float dv, vec4f& p);
+    void moebius(float R, float u, float v, float s, float du, float dv,
+                 vec4f& p);
 };

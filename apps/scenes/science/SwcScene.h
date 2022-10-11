@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <scenes/Scene.h>
 #include <io/SWCReader.h>
+#include <scenes/Scene.h>
 
 class SwcScene : public Scene
 {

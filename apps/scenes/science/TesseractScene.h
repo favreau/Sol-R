@@ -34,7 +34,8 @@ protected:
     virtual void doAddLights();
 
 private:
-    vec3f computeCoordinates(const vec3f& p1, const vec3f& p2, const vec3f& p3, const vec3f& p4);
+    vec3f computeCoordinates(const vec3f& p1, const vec3f& p2, const vec3f& p3,
+                             const vec3f& p4);
     void createGeometry();
     float _timestamp;
 };

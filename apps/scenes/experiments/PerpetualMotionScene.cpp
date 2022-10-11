@@ -45,44 +45,60 @@ void PerpetualMotionScene::doInitialize()
     // Portique
     float radius = 200.f;
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000, m_groundHeight, -4000, -2500, 4000, 0, radius, 0.f, 0.f,
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000, m_groundHeight, -4000,
+                              -2500, 4000, 0, radius, 0.f, 0.f, material1);
+    m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000, m_groundHeight, 4000,
+                              -2500, 4000, 0, radius, 0.f, 0.f, material1);
+    m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2500, 4000, 0, radius, 0, 0,
                               material1);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000, m_groundHeight, 4000, -2500, 4000, 0, radius, 0.f, 0.f, material1);
-    m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2500, 4000, 0, radius, 0, 0, material1);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2500, 4000, 0, 2500, 4000, 0,
+                              radius, 0.f, 0.f, material1);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2500, 4000, 0, 2500, 4000, 0, radius, 0.f, 0.f, material1);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4000, m_groundHeight, -4000, 2500,
+                              4000, 0, radius, 0.f, 0.f, material1);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4000, m_groundHeight, -4000, 2500, 4000, 0, radius, 0.f, 0.f, material1);
-    m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4000, m_groundHeight, 4000, 2500, 4000, 0, radius, 0.f, 0.f, material1);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4000, m_groundHeight, 4000, 2500,
+                              4000, 0, radius, 0.f, 0.f, material1);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 2500, 4000, 0, radius, 0, 0, material1);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 2500, 4000, 0, radius, 0, 0,
+                              material1);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2500, 4000, 0, radius, 0, 0, material1);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2500, 4000, 0, radius, 0, 0,
+                              material1);
 
     // Balls
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2000, -1000.f, 0, -2000, 4000, -200, 10, 0.f, 0.f, material2);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2000, -1000.f, 0, -2000, 4000,
+                              -200, 10, 0.f, 0.f, material2);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2000, -1000.f, 0, -2000, 4000, 200, 10, 0.f, 0.f, material2);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2000, -1000.f, 0, -2000, 4000,
+                              200, 10, 0.f, 0.f, material2);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -2000, -1000.f, 0, 1000, 0, 0, material5);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -2000, -1000.f, 0, 1000, 0, 0,
+                              material5);
 
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0, -1000.f, 0, 0, 4000, -200, 10, 0.f, 0.f, material2);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0, -1000.f, 0, 0, 4000, -200, 10,
+                              0.f, 0.f, material2);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0, -1000.f, 0, 0, 4000, 200, 10, 0.f, 0.f, material2);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0, -1000.f, 0, 0, 4000, 200, 10,
+                              0.f, 0.f, material2);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0, -1000.f, 0, 1000, 0, 0, material3);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0, -1000.f, 0, 1000, 0, 0,
+                              material3);
 
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 2000, -1000.f, 0, 2000, 4000, -200, 10, 0.f, 0.f, material2);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 2000, -1000.f, 0, 2000, 4000,
+                              -200, 10, 0.f, 0.f, material2);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 2000, -1000.f, 0, 2000, 4000, 200, 10, 0.f, 0.f, material2);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 2000, -1000.f, 0, 2000, 4000, 200,
+                              10, 0.f, 0.f, material2);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere, true);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 2000, -1000.f, 0, 1000, 0, 0, material4);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 2000, -1000.f, 0, 1000, 0, 0,
+                              material4);
 
     m_gpuKernel->getSceneInfo().nbRayIterations = 20;
 }
@@ -94,5 +110,6 @@ void PerpetualMotionScene::doAddLights()
     // lights
     float size = 1000.f;
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptXZPlane);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 5000.f, 5000.f, -5000.f, size, 0.f, size * 4.f, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 5000.f, 5000.f, -5000.f, size,
+                              0.f, size * 4.f, DEFAULT_LIGHT_MATERIAL);
 }

@@ -31,8 +31,8 @@
 #include <math.h>
 #include <string.h>
 
-#include "../consts.h"
 #include "../Logging.h"
+#include "../consts.h"
 
 #include "FileMarshaller.h"
 
@@ -47,20 +47,23 @@ const size_t FORMAT_VERSION = 1;
 #else
 const size_t FORMAT_VERSION = 2;
 #endif
-}
+} // namespace
 
 namespace solr
 {
-vec4f FileMarshaller::loadFromFile(GPUKernel &kernel, const std::string &filename, const vec4f &center,
-                                   const float scale)
+vec4f FileMarshaller::loadFromFile(GPUKernel &kernel,
+                                   const std::string &filename,
+                                   const vec4f &center, const float scale)
 {
     LOG_INFO(1, "IRT Filename.......: " << filename);
 
     vec4f returnValue = make_vec4f(0.f, 0.f, 0.f, 0.f);
-    vec4f min = make_vec4f(kernel.getSceneInfo().viewDistance, kernel.getSceneInfo().viewDistance,
-        kernel.getSceneInfo().viewDistance);
-    vec4f max = make_vec4f(-kernel.getSceneInfo().viewDistance, -kernel.getSceneInfo().viewDistance,
-        -kernel.getSceneInfo().viewDistance);
+    vec4f min = make_vec4f(kernel.getSceneInfo().viewDistance,
+                           kernel.getSceneInfo().viewDistance,
+                           kernel.getSceneInfo().viewDistance);
+    vec4f max = make_vec4f(-kernel.getSceneInfo().viewDistance,
+                           -kernel.getSceneInfo().viewDistance,
+                           -kernel.getSceneInfo().viewDistance);
 
     std::ifstream myfile;
     myfile.open(filename.c_str(), std::ifstream::binary);
@@ -93,23 +96,35 @@ vec4f FileMarshaller::loadFromFile(GPUKernel &kernel, const std::string &filenam
             CPUPrimitive primitive;
             myfile.read((char *)&primitive, sizeof(CPUPrimitive));
 
-            int n = kernel.addPrimitive(static_cast<PrimitiveType>(primitive.type));
-            kernel.setPrimitive(n, center.x + primitive.p0.x, center.y + primitive.p0.y, center.z + primitive.p0.z,
-                                center.x + primitive.p1.x, center.y + primitive.p1.y, center.z + primitive.p1.z,
-                                center.x + primitive.p2.x, center.y + primitive.p2.y, center.z + primitive.p2.z,
-                                primitive.size.x, primitive.size.y, primitive.size.z, primitive.materialId);
+            int n =
+                kernel.addPrimitive(static_cast<PrimitiveType>(primitive.type));
+            kernel.setPrimitive(
+                n, center.x + primitive.p0.x, center.y + primitive.p0.y,
+                center.z + primitive.p0.z, center.x + primitive.p1.x,
+                center.y + primitive.p1.y, center.z + primitive.p1.z,
+                center.x + primitive.p2.x, center.y + primitive.p2.y,
+                center.z + primitive.p2.z, primitive.size.x, primitive.size.y,
+                primitive.size.z, primitive.materialId);
             kernel.setPrimitiveBellongsToModel(n, true);
             kernel.setPrimitiveIsMovable(n, false);
-            kernel.setPrimitiveNormals(n, primitive.n0, primitive.n1, primitive.n2);
-            kernel.setPrimitiveTextureCoordinates(n, primitive.vt0, primitive.vt1, primitive.vt2);
+            kernel.setPrimitiveNormals(n, primitive.n0, primitive.n1,
+                                       primitive.n2);
+            kernel.setPrimitiveTextureCoordinates(n, primitive.vt0,
+                                                  primitive.vt1, primitive.vt2);
 
             vec4f pmin, pmax;
-            pmin.x = std::min(std::min(primitive.p0.x, primitive.p1.x), primitive.p2.x);
-            pmin.y = std::min(std::min(primitive.p0.y, primitive.p1.y), primitive.p2.y);
-            pmin.z = std::min(std::min(primitive.p0.z, primitive.p1.z), primitive.p2.z);
-            pmax.x = std::max(std::max(primitive.p0.x, primitive.p1.x), primitive.p2.x);
-            pmax.y = std::max(std::max(primitive.p0.y, primitive.p1.y), primitive.p2.y);
-            pmax.z = std::max(std::max(primitive.p0.z, primitive.p1.z), primitive.p2.z);
+            pmin.x = std::min(std::min(primitive.p0.x, primitive.p1.x),
+                              primitive.p2.x);
+            pmin.y = std::min(std::min(primitive.p0.y, primitive.p1.y),
+                              primitive.p2.y);
+            pmin.z = std::min(std::min(primitive.p0.z, primitive.p1.z),
+                              primitive.p2.z);
+            pmax.x = std::max(std::max(primitive.p0.x, primitive.p1.x),
+                              primitive.p2.x);
+            pmax.y = std::max(std::max(primitive.p0.y, primitive.p1.y),
+                              primitive.p2.y);
+            pmax.z = std::max(std::max(primitive.p0.z, primitive.p1.z),
+                              primitive.p2.z);
 
             min.x = (pmin.x < min.x) ? pmin.x : min.x;
             min.y = (pmin.y < min.y) ? pmin.y : min.y;
@@ -135,14 +150,17 @@ vec4f FileMarshaller::loadFromFile(GPUKernel &kernel, const std::string &filenam
 
             TextureInfo texInfo;
             myfile.read((char *)&texInfo, sizeof(TextureInfo));
-            LOG_INFO(3, "Texture with id " << id << " and size: " << texInfo.size.x << "x" << texInfo.size.y << "x"
-                                           << texInfo.size.z << " loaded into slot " << nbActiveTextures + i);
+            LOG_INFO(3, "Texture with id "
+                            << id << " and size: " << texInfo.size.x << "x"
+                            << texInfo.size.y << "x" << texInfo.size.z
+                            << " loaded into slot " << nbActiveTextures + i);
 
             size_t imageSize = texInfo.size.x * texInfo.size.y * texInfo.size.z;
             texInfo.buffer = new BitmapBuffer[imageSize];
             myfile.read((char *)texInfo.buffer, imageSize);
 
-            kernel.setTexture(static_cast<const int>(nbActiveTextures + i), texInfo);
+            kernel.setTexture(static_cast<const int>(nbActiveTextures + i),
+                              texInfo);
             delete[] texInfo.buffer;
         }
 
@@ -175,11 +193,15 @@ vec4f FileMarshaller::loadFromFile(GPUKernel &kernel, const std::string &filenam
                 material.advancedTextureIds.z += nbActiveTextures;
             if (material.advancedTextureIds.w != TEXTURE_NONE)
                 material.advancedTextureIds.w += nbActiveTextures;
-            LOG_INFO(3, "Loading material " << id << " (" << material.textureIds.x << "," << material.textureIds.y
-                                            << "," << material.textureIds.z << "," << material.textureIds.w
-                                            << material.advancedTextureIds.x << "," << material.advancedTextureIds.y
-                                            << "," << material.advancedTextureIds.z << ","
-                                            << material.advancedTextureIds.w << ")");
+            LOG_INFO(3, "Loading material "
+                            << id << " (" << material.textureIds.x << ","
+                            << material.textureIds.y << ","
+                            << material.textureIds.z << ","
+                            << material.textureIds.w
+                            << material.advancedTextureIds.x << ","
+                            << material.advancedTextureIds.y << ","
+                            << material.advancedTextureIds.z << ","
+                            << material.advancedTextureIds.w << ")");
             kernel.setMaterial(static_cast<unsigned int>(id), material);
         }
     }
@@ -192,10 +214,14 @@ vec4f FileMarshaller::loadFromFile(GPUKernel &kernel, const std::string &filenam
     returnValue.z = fabs(max.z - min.z);
 
     // Resize to fit required size
-    float ratio = scale / returnValue.y; // std::max(returnValue.x,std::max(returnValue.y,returnValue.z));
+    float ratio =
+        scale /
+        returnValue
+            .y; // std::max(returnValue.x,std::max(returnValue.y,returnValue.z));
     kernel.scalePrimitives(ratio, 0, NB_MAX_BOXES);
 
-    LOG_INFO(3, "Object size: " << returnValue.x << ", " << returnValue.y << ", " << returnValue.z);
+    LOG_INFO(3, "Object size: " << returnValue.x << ", " << returnValue.y
+                                << ", " << returnValue.z);
     return returnValue;
 }
 
@@ -235,7 +261,8 @@ void FileMarshaller::saveToFile(GPUKernel &kernel, const std::string &filename)
         {
             CPUPrimitive *primitive = kernel.getPrimitive(i);
             myfile.write((char *)primitive, sizeof(CPUPrimitive));
-            materials[primitive->materialId] = kernel.getMaterial(primitive->materialId);
+            materials[primitive->materialId] =
+                kernel.getMaterial(primitive->materialId);
         }
 
         // Determine textures in use
@@ -243,25 +270,33 @@ void FileMarshaller::saveToFile(GPUKernel &kernel, const std::string &filename)
         for (auto material : materials)
         {
             if (material.second->textureIds.x != TEXTURE_NONE)
-                textures[material.second->textureIds.x] = kernel.getTextureInformation(material.second->textureIds.x);
+                textures[material.second->textureIds.x] =
+                    kernel.getTextureInformation(material.second->textureIds.x);
             if (material.second->textureIds.y != TEXTURE_NONE)
-                textures[material.second->textureIds.y] = kernel.getTextureInformation(material.second->textureIds.y);
+                textures[material.second->textureIds.y] =
+                    kernel.getTextureInformation(material.second->textureIds.y);
             if (material.second->textureIds.z != TEXTURE_NONE)
-                textures[material.second->textureIds.z] = kernel.getTextureInformation(material.second->textureIds.z);
+                textures[material.second->textureIds.z] =
+                    kernel.getTextureInformation(material.second->textureIds.z);
             if (material.second->textureIds.w != TEXTURE_NONE)
-                textures[material.second->textureIds.w] = kernel.getTextureInformation(material.second->textureIds.w);
+                textures[material.second->textureIds.w] =
+                    kernel.getTextureInformation(material.second->textureIds.w);
             if (material.second->advancedTextureIds.x != TEXTURE_NONE)
                 textures[material.second->advancedTextureIds.x] =
-                    kernel.getTextureInformation(material.second->advancedTextureIds.x);
+                    kernel.getTextureInformation(
+                        material.second->advancedTextureIds.x);
             if (material.second->advancedTextureIds.y != TEXTURE_NONE)
                 textures[material.second->advancedTextureIds.y] =
-                    kernel.getTextureInformation(material.second->advancedTextureIds.y);
+                    kernel.getTextureInformation(
+                        material.second->advancedTextureIds.y);
             if (material.second->advancedTextureIds.z != TEXTURE_NONE)
                 textures[material.second->advancedTextureIds.z] =
-                    kernel.getTextureInformation(material.second->advancedTextureIds.z);
+                    kernel.getTextureInformation(
+                        material.second->advancedTextureIds.z);
             if (material.second->advancedTextureIds.w != TEXTURE_NONE)
                 textures[material.second->advancedTextureIds.w] =
-                    kernel.getTextureInformation(material.second->advancedTextureIds.w);
+                    kernel.getTextureInformation(
+                        material.second->advancedTextureIds.w);
         }
 
         // Write Textures
@@ -280,11 +315,13 @@ void FileMarshaller::saveToFile(GPUKernel &kernel, const std::string &filename)
             texInfo.offset = 0;
             size_t id = texture.first;
             idMapping[id] = static_cast<int>(index);
-            LOG_INFO(1, "Texture " << id << ": " << texInfo.size.x << "x" << texInfo.size.y << "x" << texInfo.size.z
+            LOG_INFO(1, "Texture " << id << ": " << texInfo.size.x << "x"
+                                   << texInfo.size.y << "x" << texInfo.size.z
                                    << " saved with id " << index);
             myfile.write((char *)(&index), sizeof(size_t));
             myfile.write((char *)(&texInfo), sizeof(TextureInfo));
-            myfile.write((char *)(savedBuffer), texInfo.size.x * texInfo.size.y * texInfo.size.z);
+            myfile.write((char *)(savedBuffer),
+                         texInfo.size.x * texInfo.size.y * texInfo.size.z);
             ++index;
         }
 
@@ -295,25 +332,37 @@ void FileMarshaller::saveToFile(GPUKernel &kernel, const std::string &filename)
 
         for (const auto &material : materials)
         {
-            material.second->textureIds.x = idMapping[material.second->textureIds.x];
-            material.second->textureIds.y = idMapping[material.second->textureIds.y];
-            material.second->textureIds.z = idMapping[material.second->textureIds.z];
-            material.second->textureIds.w = idMapping[material.second->textureIds.w];
-            material.second->advancedTextureIds.x = idMapping[material.second->advancedTextureIds.x];
-            material.second->advancedTextureIds.y = idMapping[material.second->advancedTextureIds.y];
-            material.second->advancedTextureIds.z = idMapping[material.second->advancedTextureIds.z];
-            material.second->advancedTextureIds.w = idMapping[material.second->advancedTextureIds.w];
+            material.second->textureIds.x =
+                idMapping[material.second->textureIds.x];
+            material.second->textureIds.y =
+                idMapping[material.second->textureIds.y];
+            material.second->textureIds.z =
+                idMapping[material.second->textureIds.z];
+            material.second->textureIds.w =
+                idMapping[material.second->textureIds.w];
+            material.second->advancedTextureIds.x =
+                idMapping[material.second->advancedTextureIds.x];
+            material.second->advancedTextureIds.y =
+                idMapping[material.second->advancedTextureIds.y];
+            material.second->advancedTextureIds.z =
+                idMapping[material.second->advancedTextureIds.z];
+            material.second->advancedTextureIds.w =
+                idMapping[material.second->advancedTextureIds.w];
             myfile.write((char *)&(material.first), sizeof(size_t));
             myfile.write((char *)(material.second), sizeof(Material));
             LOG_INFO(1, "Saving material "
-                            << material.first << " (" << material.second->textureIds.x << ","
-                            << material.second->textureIds.y << "," << material.second->textureIds.z << ","
-                            << material.second->textureIds.w << "," << material.second->advancedTextureIds.x << ","
-                            << material.second->advancedTextureIds.y << "," << material.second->advancedTextureIds.z
-                            << "," << material.second->advancedTextureIds.w << ")");
+                            << material.first << " ("
+                            << material.second->textureIds.x << ","
+                            << material.second->textureIds.y << ","
+                            << material.second->textureIds.z << ","
+                            << material.second->textureIds.w << ","
+                            << material.second->advancedTextureIds.x << ","
+                            << material.second->advancedTextureIds.y << ","
+                            << material.second->advancedTextureIds.z << ","
+                            << material.second->advancedTextureIds.w << ")");
         }
 
         myfile.close();
     }
 }
-}
+} // namespace solr

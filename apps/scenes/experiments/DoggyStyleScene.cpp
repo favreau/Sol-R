@@ -52,10 +52,13 @@ void DoggyStyleScene::doAddLights()
     // Laser
     for (int i = 0; i < 3; ++i)
     {
-        const vec4f p1 = make_vec4f(rand() % 10000 - 5000.f, 5000.f, rand() % 10000 - 5000.f);
-        const vec4f p2 = make_vec4f(-(rand() % 10000 - 5000.f), -5000.f, -(rand() % 10000 - 5000.f));
+        const vec4f p1 = make_vec4f(rand() % 10000 - 5000.f, 5000.f,
+                                    rand() % 10000 - 5000.f);
+        const vec4f p2 = make_vec4f(-(rand() % 10000 - 5000.f), -5000.f,
+                                    -(rand() % 10000 - 5000.f));
         m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder);
-        m_gpuKernel->setPrimitive(m_nbPrimitives, p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, 100.f, 100.f, 100.f,
+        m_gpuKernel->setPrimitive(m_nbPrimitives, p1.x, p1.y, p1.z, p2.x, p2.y,
+                                  p2.z, 100.f, 100.f, 100.f,
                                   DEFAULT_LIGHT_MATERIAL - i);
     }
 }

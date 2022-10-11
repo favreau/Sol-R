@@ -66,7 +66,8 @@ void TrefoilKnotScene::spring(float R, float t, vec4f& p)
 void TrefoilKnotScene::heart(float R, float u, float v, vec4f& p)
 {
     p.x = R * 4.f * pow(sin(u), 3.f);
-    p.y = R * 0.25f * (13 * cos(u) - 5 * cos(2.f * u) - 2.f * cos(3.f * u) - cos(4.f * u));
+    p.y = R * 0.25f *
+          (13 * cos(u) - 5 * cos(2.f * u) - 2.f * cos(3.f * u) - cos(4.f * u));
     p.z = 0.f;
 }
 
@@ -77,7 +78,8 @@ void TrefoilKnotScene::thing(float R, float t, vec4f a, vec4f& p)
     p.z = R * (-sin(a.z * t));
 }
 
-void TrefoilKnotScene::moebius(float R, float u, float v, float s, float du, float dv, vec4f& p)
+void TrefoilKnotScene::moebius(float R, float u, float v, float s, float du,
+                               float dv, vec4f& p)
 {
     p.x = 4.f * R * (cos(u) + v * cos(u / 2) * cos(u));
     p.y = 4.f * R * (sin(u) + v * cos(u / 2) * sin(u));
@@ -94,7 +96,8 @@ void TrefoilKnotScene::doInitialize()
     const float R = 500.f;
     const float r = 50.f + rand() % 800;
     const int geometry = rand() % 10;
-    const vec4f a = make_vec4f(1.f + rand() % 4, 1.f + rand() % 4, 1.f + rand() % 4, 1.f + rand() % 4);
+    const vec4f a = make_vec4f(1.f + rand() % 4, 1.f + rand() % 4,
+                               1.f + rand() % 4, 1.f + rand() % 4);
     const float s = 1.f;
 
     vec4f U, V;
@@ -214,17 +217,21 @@ void TrefoilKnotScene::doInitialize()
             break;
             }
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptCylinder);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, r, 0.f, 0.f, material + M);
+            m_gpuKernel->setPrimitive(m_nbPrimitives, p0.x, p0.y, p0.z, p1.x,
+                                      p1.y, p1.z, r, 0.f, 0.f, material + M);
             m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-            m_gpuKernel->setPrimitive(m_nbPrimitives, p1.x, p1.y, p1.z, r, 0.f, 0.f, material + M);
+            m_gpuKernel->setPrimitive(m_nbPrimitives, p1.x, p1.y, p1.z, r, 0.f,
+                                      0.f, material + M);
             ++element;
         }
     }
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000.f, -1000.f, 1000.f, 1500.f, 0.f, 0.f, 114);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, -4000.f, -1000.f, 1000.f, 1500.f,
+                              0.f, 0.f, 114);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 4000.f, -1000.f, 1000.f, 1500.f, 0.f, 0.f, 113);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 4000.f, -1000.f, 1000.f, 1500.f,
+                              0.f, 0.f, 113);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
     m_gpuKernel->getSceneInfo().nbRayIterations = 20;
 }
@@ -239,5 +246,6 @@ void TrefoilKnotScene::doAnimate()
 void TrefoilKnotScene::doAddLights()
 {
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 50.f, 0.f, 0.f, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 5000.f, 0.f, 50.f, 0.f, 0.f,
+                              DEFAULT_LIGHT_MATERIAL);
 }

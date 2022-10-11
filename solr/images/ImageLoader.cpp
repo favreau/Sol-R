@@ -20,8 +20,8 @@
 
 #include <iostream>
 
-#include "../consts.h"
 #include "../Logging.h"
+#include "../consts.h"
 
 #include "ImageLoader.h"
 
@@ -59,15 +59,12 @@ typedef struct tagBITMAPINFOHEADER
 } BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 #endif // WIN32
 
-ImageLoader::ImageLoader(void)
-{
-}
+ImageLoader::ImageLoader(void) {}
 
-ImageLoader::~ImageLoader(void)
-{
-}
+ImageLoader::~ImageLoader(void) {}
 
-bool ImageLoader::loadBMP24(const int index, const std::string &filename, TextureInfo *textureInformations)
+bool ImageLoader::loadBMP24(const int index, const std::string &filename,
+                            TextureInfo *textureInformations)
 {
     FILE *filePtr(0);                  // our file pointer
     BITMAPFILEHEADER bitmapFileHeader; // our bitmap file header
@@ -88,7 +85,8 @@ bool ImageLoader::loadBMP24(const int index, const std::string &filename, Textur
     }
 
     // read the bitmap file header
-    size_t status = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
+    size_t status =
+        fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
 
     // verify that this is a bmp file by check bitmap id
     if (bitmapFileHeader.bfType != 0x4D42)
@@ -104,7 +102,9 @@ bool ImageLoader::loadBMP24(const int index, const std::string &filename, Textur
     // move file point to the begging of bitmap data
     fseek(filePtr, bitmapFileHeader.bfOffBits, SEEK_SET);
 
-    unsigned int bitmapSize = bitmapInfoHeader.biWidth * bitmapInfoHeader.biHeight * bitmapInfoHeader.biBitCount / 8;
+    unsigned int bitmapSize = bitmapInfoHeader.biWidth *
+                              bitmapInfoHeader.biHeight *
+                              bitmapInfoHeader.biBitCount / 8;
 
     // Add Texture to CPU Memory
     if (textureInformations[index].buffer != 0)
@@ -123,7 +123,8 @@ bool ImageLoader::loadBMP24(const int index, const std::string &filename, Textur
     {
         free(textureInformations[index].buffer);
         fclose(filePtr);
-        LOG_ERROR("Failed to load " << filename << ", invalid memory allocation");
+        LOG_ERROR("Failed to load " << filename
+                                    << ", invalid memory allocation");
         return false;
     }
 
@@ -134,7 +135,8 @@ bool ImageLoader::loadBMP24(const int index, const std::string &filename, Textur
     if (textureInformations[index].buffer == NULL)
     {
         fclose(filePtr);
-        LOG_ERROR("Failed to load " << filename << ", bitmap image could not be read");
+        LOG_ERROR("Failed to load " << filename
+                                    << ", bitmap image could not be read");
         return false;
     }
 
@@ -142,36 +144,47 @@ bool ImageLoader::loadBMP24(const int index, const std::string &filename, Textur
     for (imageIdx = 0; imageIdx < bitmapSize; imageIdx += 3)
     {
         tempRGB = textureInformations[index].buffer[imageIdx];
-        textureInformations[index].buffer[imageIdx] = textureInformations[index].buffer[imageIdx + 2];
+        textureInformations[index].buffer[imageIdx] =
+            textureInformations[index].buffer[imageIdx + 2];
         textureInformations[index].buffer[imageIdx + 2] = tempRGB;
     }
 
     // close file and return bitmap image data
     fclose(filePtr);
 
-    LOG_INFO(3, "[" << index << "] Successfully loaded " << filename << std::endl
-                    << "biSize         : " << bitmapInfoHeader.biSize << std::endl
-                    << "biWidth        : " << bitmapInfoHeader.biWidth << std::endl
-                    << "biHeight       : " << bitmapInfoHeader.biHeight << std::endl
-                    << "biPlanes       : " << bitmapInfoHeader.biPlanes << std::endl
-                    << "biBitCount     : " << bitmapInfoHeader.biBitCount << std::endl
-                    << "biCompression  : " << bitmapInfoHeader.biCompression << std::endl
-                    << "biSizeImage    : " << bitmapSize << "/" << bitmapInfoHeader.biSizeImage << std::endl
-                    << "biXPelsPerMeter: " << bitmapInfoHeader.biXPelsPerMeter << std::endl
-                    << "biXPelsPerMeter: " << bitmapInfoHeader.biYPelsPerMeter);
+    LOG_INFO(3,
+             "[" << index << "] Successfully loaded " << filename << std::endl
+                 << "biSize         : " << bitmapInfoHeader.biSize << std::endl
+                 << "biWidth        : " << bitmapInfoHeader.biWidth << std::endl
+                 << "biHeight       : " << bitmapInfoHeader.biHeight
+                 << std::endl
+                 << "biPlanes       : " << bitmapInfoHeader.biPlanes
+                 << std::endl
+                 << "biBitCount     : " << bitmapInfoHeader.biBitCount
+                 << std::endl
+                 << "biCompression  : " << bitmapInfoHeader.biCompression
+                 << std::endl
+                 << "biSizeImage    : " << bitmapSize << "/"
+                 << bitmapInfoHeader.biSizeImage << std::endl
+                 << "biXPelsPerMeter: " << bitmapInfoHeader.biXPelsPerMeter
+                 << std::endl
+                 << "biXPelsPerMeter: " << bitmapInfoHeader.biYPelsPerMeter);
 
-    LOG_INFO(3, "Slot " << index << ": Successfully loaded texture " << filename << " ("
-                        << textureInformations[index].size.x << "," << textureInformations[index].size.y << ","
+    LOG_INFO(3, "Slot " << index << ": Successfully loaded texture " << filename
+                        << " (" << textureInformations[index].size.x << ","
+                        << textureInformations[index].size.y << ","
                         << textureInformations[index].size.z << ")");
 
     return true;
 }
 
-bool ImageLoader::loadJPEG(const int index, const std::string &filename, TextureInfo *textureInformations)
+bool ImageLoader::loadJPEG(const int index, const std::string &filename,
+                           TextureInfo *textureInformations)
 {
     int width, height, actual_comps, req_comps(3);
     BitmapBuffer *buffer =
-        jpgd::decompress_jpeg_image_from_file(filename.c_str(), &width, &height, &actual_comps, req_comps);
+        jpgd::decompress_jpeg_image_from_file(filename.c_str(), &width, &height,
+                                              &actual_comps, req_comps);
 
     if (buffer != 0)
     {
@@ -200,8 +213,10 @@ bool ImageLoader::loadJPEG(const int index, const std::string &filename, Texture
         textureInformations[index].size.z = actual_comps;
         textureInformations[index].offset = 0;
 
-        LOG_INFO(3, "Slot " << index << ": Successfully loaded texture " << filename << " ("
-                            << textureInformations[index].size.x << "," << textureInformations[index].size.y << ","
+        LOG_INFO(3, "Slot " << index << ": Successfully loaded texture "
+                            << filename << " ("
+                            << textureInformations[index].size.x << ","
+                            << textureInformations[index].size.y << ","
                             << textureInformations[index].size.z << ")");
 
         return true;
@@ -209,7 +224,8 @@ bool ImageLoader::loadJPEG(const int index, const std::string &filename, Texture
     return false;
 }
 
-bool ImageLoader::loadTGA(const int index, const std::string &filename, TextureInfo *textureInformations)
+bool ImageLoader::loadTGA(const int index, const std::string &filename,
+                          TextureInfo *textureInformations)
 {
 #if 0
     TGAFILE tgaFile;
@@ -311,10 +327,11 @@ bool ImageLoader::loadTGA(const int index, const std::string &filename, TextureI
     textureInformations[index].size.z = texture.bpp / 8;
 #endif
 
-    LOG_INFO(3, "Slot " << index << ": Successfully loaded texture " << filename << " ("
-                        << textureInformations[index].size.x << "," << textureInformations[index].size.y << ","
+    LOG_INFO(3, "Slot " << index << ": Successfully loaded texture " << filename
+                        << " (" << textureInformations[index].size.x << ","
+                        << textureInformations[index].size.y << ","
                         << textureInformations[index].size.z << ")");
 
     return true;
 }
-}
+} // namespace solr

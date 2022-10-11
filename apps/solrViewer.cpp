@@ -45,21 +45,21 @@
 #include <scenes/experiments/CubesScene.h>
 #include <scenes/experiments/CylinderScene.h>
 #include <scenes/experiments/DoggyStyleScene.h>
-#include <scenes/experiments/XmasScene.h>
-#include <scenes/experiments/Year2013.h>
 #include <scenes/experiments/GalleryScene.h>
 #include <scenes/experiments/GraphScene.h>
 #include <scenes/experiments/PerpetualMotionScene.h>
 #include <scenes/experiments/TransparentScene.h>
+#include <scenes/experiments/XmasScene.h>
+#include <scenes/experiments/Year2013.h>
 #include <scenes/games/SpindizzyScene.h>
 #include <scenes/maths/FractalScene.h>
 #include <scenes/maths/FractalsScene.h>
 #include <scenes/maths/TrefoilKnotScene.h>
 #include <scenes/meshes/ObjScene.h>
 #include <scenes/meshes/TrianglesScene.h>
+#include <scenes/science/HypercubeScene.h>
 #include <scenes/science/MoleculeScene.h>
 #include <scenes/science/SwcScene.h>
-#include <scenes/science/HypercubeScene.h>
 #include <scenes/science/TesseractScene.h>
 
 // Ray-tracing Kernel
@@ -125,28 +125,29 @@ struct MenuItem
     char key;
 };
 const int NB_MENU_ITEMS = 22;
-MenuItem menuItems[NB_MENU_ITEMS] = {{"A: Black background and no image noise", 'A'},
-                                     {"b: Randomly set background color and image noise", 'b'},
-                                     {"f: Auto-focus", 'f'},
-                                     {"h: Help", 'h'},
-                                     {"i: Show/hide Bounding boxes", 'i'},
-                                     {"m: Animate scene", 'm'},
-                                     {"n: Load next 3D model (in folder medias/obj)", 'n'},
-                                     {"o: Switch to VR mode", 'o'},
-                                     {"p: Post processing (Depth of field, ambient occlusion, bloom, etc)", 'p'},
-                                     {"r: Reset current scene", 'r'},
-                                     {"t: Next scene", 't'},
-                                     {"s: Change graphics level", 's'},
-                                     {"v: Random materials", 'i'},
-                                     {"x: Next environment (CornellBox, SkyBox, etc.)", 'x'},
-                                     {"*: View modes (Standard, Anaglyth 3D, Oculus Rift", '*'},
-                                     {"1: Camera mouse control", '1'},
-                                     {"2: Light mouse control", '2'},
-                                     {"3: 3D model mouse control", '3'},
-                                     {"4: Depth of field mouse control", '3'},
-                                     {"5: Field of view mouse control", '3'},
-                                     {"9: Shadow strength", '9'},
-                                     {"Esc: Exit application", '\033'}};
+MenuItem menuItems[NB_MENU_ITEMS] = {
+    {"A: Black background and no image noise", 'A'},
+    {"b: Randomly set background color and image noise", 'b'},
+    {"f: Auto-focus", 'f'},
+    {"h: Help", 'h'},
+    {"i: Show/hide Bounding boxes", 'i'},
+    {"m: Animate scene", 'm'},
+    {"n: Load next 3D model (in folder medias/obj)", 'n'},
+    {"o: Switch to VR mode", 'o'},
+    {"p: Post processing (Depth of field, ambient occlusion, bloom, etc)", 'p'},
+    {"r: Reset current scene", 'r'},
+    {"t: Next scene", 't'},
+    {"s: Change graphics level", 's'},
+    {"v: Random materials", 'i'},
+    {"x: Next environment (CornellBox, SkyBox, etc.)", 'x'},
+    {"*: View modes (Standard, Anaglyth 3D, Oculus Rift", '*'},
+    {"1: Camera mouse control", '1'},
+    {"2: Light mouse control", '2'},
+    {"3: 3D model mouse control", '3'},
+    {"4: Depth of field mouse control", '3'},
+    {"5: Field of view mouse control", '3'},
+    {"9: Shadow strength", '9'},
+    {"Esc: Exit application", '\033'}};
 
 // controlType
 enum ControlType
@@ -208,7 +209,8 @@ void reshape(int x, int y);
 void createScene();
 
 #ifdef WIN32
-void RenderString(float x, float y, float z, void *font, const std::string &string, const vec4f &rgb);
+void RenderString(float x, float y, float z, void *font,
+                  const std::string &string, const vec4f &rgb);
 #endif
 
 // Helpers
@@ -289,11 +291,13 @@ void initgl(int argc, char **argv)
 }
 
 #ifdef WIN32
-void RenderString(float x, float y, float z, void *font, const std::string &string, const vec4f &rgb)
+void RenderString(float x, float y, float z, void *font,
+                  const std::string &string, const vec4f &rgb)
 {
     // glColor3f(rgb.x, rgb.y, rgb.z);
     glRasterPos3f(x, y, z);
-    glutBitmapString(font, reinterpret_cast<const unsigned char *>(string.c_str()));
+    glutBitmapString(font,
+                     reinterpret_cast<const unsigned char *>(string.c_str()));
 }
 #endif
 
@@ -356,15 +360,20 @@ void display()
                     tmpMenuItems += "\n";
                 }
                 vec4f textColor = {1.f, 1.f, 1.f};
-                sprintf(tmp,
-                        "%sSelected primitive: %d\nFPS: %d on %s (%dx%d)\nScene "
-                        "%d: %s\nMouse control: %s\nPrimitives/Boxes: "
-                        "%d/%d\nhttp://cudaopencl.blogspot.com [%d]",
-                        tmpMenuItems.c_str(), gSelectedPrimitive, gFPS, gKernel->getGPUDescription().c_str(),
-                        gScene->getSceneInfo().size.x, gScene->getSceneInfo().size.y, gSceneId,
-                        gScene->getName().c_str(), gHint.c_str(), gKernel->getNbActivePrimitives(),
-                        gKernel->getNbActiveBoxes(), si.pathTracingIteration);
-                RenderString(-0.9f, 0.9f, 0.f, GLUT_BITMAP_HELVETICA_10, tmp, textColor);
+                sprintf(
+                    tmp,
+                    "%sSelected primitive: %d\nFPS: %d on %s (%dx%d)\nScene "
+                    "%d: %s\nMouse control: %s\nPrimitives/Boxes: "
+                    "%d/%d\nhttp://cudaopencl.blogspot.com [%d]",
+                    tmpMenuItems.c_str(), gSelectedPrimitive, gFPS,
+                    gKernel->getGPUDescription().c_str(),
+                    gScene->getSceneInfo().size.x,
+                    gScene->getSceneInfo().size.y, gSceneId,
+                    gScene->getName().c_str(), gHint.c_str(),
+                    gKernel->getNbActivePrimitives(),
+                    gKernel->getNbActiveBoxes(), si.pathTracingIteration);
+                RenderString(-0.9f, 0.9f, 0.f, GLUT_BITMAP_HELVETICA_10, tmp,
+                             textColor);
             }
 #endif // WIN32
         }
@@ -386,18 +395,22 @@ void display()
             text << gRenderingTime << " ms\n";
             text << gKernel->getGPUDescription();
             text << "\n"
-                 << gKernel->getNbActivePrimitives() << " triangles, " << si.size.x << "x" << si.size.y << ", "
+                 << gKernel->getNbActivePrimitives() << " triangles, "
+                 << si.size.x << "x" << si.size.y << ", "
                  << si.maxPathTracingIterations << " samples/pixel";
-            RenderString(-0.95f, -0.8f, 0.f, GLUT_BITMAP_HELVETICA_10, text.str().c_str(), make_vec4f(1.f, 1.f, 1.f));
+            RenderString(-0.95f, -0.8f, 0.f, GLUT_BITMAP_HELVETICA_10,
+                         text.str().c_str(), make_vec4f(1.f, 1.f, 1.f));
             gScene->renderText();
 #endif
 
             if (!gSavedToDisk)
             {
                 int margin = 32;
-                size_t size = (si.size.x - margin) * (si.size.y - margin) * gColorDepth;
+                size_t size =
+                    (si.size.x - margin) * (si.size.y - margin) * gColorDepth;
                 GLubyte *buffer = new GLubyte[size];
-                glReadPixels(0, 0, si.size.x - margin, si.size.y - margin, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+                glReadPixels(0, 0, si.size.x - margin, si.size.y - margin,
+                             GL_RGB, GL_UNSIGNED_BYTE, buffer);
                 GLubyte *dst = new GLubyte[size];
                 int X = (si.size.x - margin) * gColorDepth;
 
@@ -411,8 +424,10 @@ void display()
                 // Save to disc
                 std::string filename("./SolR");
                 filename += ".jpg";
-                jpge::compress_image_to_jpeg_file(filename.c_str(), si.size.x - margin, si.size.y - margin, gColorDepth,
-                                                  dst);
+                jpge::compress_image_to_jpeg_file(filename.c_str(),
+                                                  si.size.x - margin,
+                                                  si.size.y - margin,
+                                                  gColorDepth, dst);
                 delete[] buffer;
                 delete[] dst;
                 gSavedToDisk = true;
@@ -426,7 +441,8 @@ void display()
             // Copyright
             const char *copyright = "http://cudaopencl.blogspot.com";
             float p = strlen(copyright) * 20.f / si.size.x;
-            RenderString(-p / 2.f, -0.9f, 0.f, GLUT_BITMAP_HELVETICA_18, copyright, make_vec4f(1.f, 1.f, 1.f));
+            RenderString(-p / 2.f, -0.9f, 0.f, GLUT_BITMAP_HELVETICA_18,
+                         copyright, make_vec4f(1.f, 1.f, 1.f));
             gScene->renderText();
         }
 
@@ -453,7 +469,8 @@ case 10: // Kinect
         {
             for (int x(0); x < KINECT_DEPTH_WIDTH; x += gKinectStep)
             {
-                int index = KINECT_DEPTH_SIZE - (y * KINECT_DEPTH_WIDTH + x) * KINECT_DEPTH_DEPTH;
+                int index = KINECT_DEPTH_SIZE -
+                            (y * KINECT_DEPTH_WIDTH + x) * KINECT_DEPTH_DEPTH;
                 char a = depthBitmap[index];
                 char b = depthBitmap[index + 1];
                 int s = b * 256 + a;
@@ -462,8 +479,10 @@ case 10: // Kinect
                 if (s < 1 || s > 15000)
                     s = 50000;
 
-                kernel.setPrimitive(p, 5 + p / gKinectNbSpherePerBox, -(x - 160) * gKinectSpace,
-                                    (y - 120) * gKinectSpace, s / 3.f - 5000.f, gKinectSize, 0.f, 0.f, 7, 1, 1);
+                kernel.setPrimitive(p, 5 + p / gKinectNbSpherePerBox,
+                                    -(x - 160) * gKinectSpace,
+                                    (y - 120) * gKinectSpace, s / 3.f - 5000.f,
+                                    gKinectSize, 0.f, 0.f, 7, 1, 1);
 
                 ++b;
                 ++p;
@@ -535,13 +554,16 @@ void keyboard(unsigned char key, int x, int y)
         gScene->getSceneInfo().backgroundColor.z = 0.1f;
         gScene->getSceneInfo().backgroundColor.w = 0.5f;
         gScene->getSceneInfo().skyboxMaterialId =
-            (gScene->getSceneInfo().skyboxMaterialId == MATERIAL_NONE) ? SKYBOX_SPHERE_MATERIAL : MATERIAL_NONE;
+            (gScene->getSceneInfo().skyboxMaterialId == MATERIAL_NONE)
+                ? SKYBOX_SPHERE_MATERIAL
+                : MATERIAL_NONE;
         break;
     }
     case 'b':
     {
         gScene->getSceneInfo().backgroundColor =
-            make_vec4f(rand() % 255 / 255.f, rand() % 255 / 255.f, rand() % 255 / 255.f, 0.5f);
+            make_vec4f(rand() % 255 / 255.f, rand() % 255 / 255.f,
+                       rand() % 255 / 255.f, 0.5f);
         break;
     }
     case 'D':
@@ -560,7 +582,8 @@ void keyboard(unsigned char key, int x, int y)
     case 'E':
     {
         // Extended geometry
-        gScene->getSceneInfo().extendedGeometry = !gScene->getSceneInfo().extendedGeometry;
+        gScene->getSceneInfo().extendedGeometry =
+            !gScene->getSceneInfo().extendedGeometry;
         break;
     }
     case 'e':
@@ -571,11 +594,16 @@ void keyboard(unsigned char key, int x, int y)
         {
             Material *m = kernel->getMaterial(SKYBOX_SPHERE_MATERIAL);
             gSphereMaterial = (gSphereMaterial + 1) % nbHDRI;
-            kernel->setMaterial(SKYBOX_SPHERE_MATERIAL, m->color.x, m->color.y, m->color.z, m->color.w, 0.f, 0.f,
-                                (m->attributes.y == 1), (m->attributes.z == 1), m->attributes.w, 0.f, m->opacity,
-                                gSphereMaterial, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
-                                TEXTURE_NONE, m->specular.x, m->specular.y, m->specular.z, m->innerIllumination.x,
-                                m->innerIllumination.y, m->innerIllumination.z, (m->attributes.x == 1));
+            kernel->setMaterial(SKYBOX_SPHERE_MATERIAL, m->color.x, m->color.y,
+                                m->color.z, m->color.w, 0.f, 0.f,
+                                (m->attributes.y == 1), (m->attributes.z == 1),
+                                m->attributes.w, 0.f, m->opacity,
+                                gSphereMaterial, TEXTURE_NONE, TEXTURE_NONE,
+                                TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+                                TEXTURE_NONE, m->specular.x, m->specular.y,
+                                m->specular.z, m->innerIllumination.x,
+                                m->innerIllumination.y, m->innerIllumination.z,
+                                (m->attributes.x == 1));
         }
         break;
     }
@@ -597,7 +625,8 @@ void keyboard(unsigned char key, int x, int y)
     }
     case 'g':
     {
-        int nbTextures = (kernel->getNbActiveTextures() - gScene->getNbHDRI()) / 5;
+        int nbTextures =
+            (kernel->getNbActiveTextures() - gScene->getNbHDRI()) / 5;
         if (nbTextures > 0)
         {
             gGroundMaterial = (gGroundMaterial + 1) % nbTextures;
@@ -648,12 +677,17 @@ void keyboard(unsigned char key, int x, int y)
                 m->transparency = 1.f;
                 m->refraction = 1.1f;
             }
-            kernel->setMaterial(SKYBOX_GROUND_MATERIAL, m->color.x, m->color.y, m->color.z, m->color.w, 1.f,
-                                m->refraction, (m->attributes.y == 1), (m->attributes.z == 1), m->attributes.w,
-                                m->transparency, m->opacity, diffuseTextureId, normalTextureId, bumpTextureId,
-                                specularTextureId, reflectionTextureId, transparencyTextureId, TEXTURE_NONE,
-                                m->specular.x, m->specular.y, m->specular.z, m->innerIllumination.x,
-                                m->innerIllumination.y, m->innerIllumination.z, (m->attributes.x == 1));
+            kernel->setMaterial(SKYBOX_GROUND_MATERIAL, m->color.x, m->color.y,
+                                m->color.z, m->color.w, 1.f, m->refraction,
+                                (m->attributes.y == 1), (m->attributes.z == 1),
+                                m->attributes.w, m->transparency, m->opacity,
+                                diffuseTextureId, normalTextureId,
+                                bumpTextureId, specularTextureId,
+                                reflectionTextureId, transparencyTextureId,
+                                TEXTURE_NONE, m->specular.x, m->specular.y,
+                                m->specular.z, m->innerIllumination.x,
+                                m->innerIllumination.y, m->innerIllumination.z,
+                                (m->attributes.x == 1));
         }
         break;
     }
@@ -665,7 +699,8 @@ void keyboard(unsigned char key, int x, int y)
     case 'I':
     {
         gScene->getSceneInfo().advancedIllumination =
-            static_cast<AdvancedIllumination>((gScene->getSceneInfo().advancedIllumination + 1) % 3);
+            static_cast<AdvancedIllumination>(
+                (gScene->getSceneInfo().advancedIllumination + 1) % 3);
         break;
     }
     case 'i':
@@ -678,7 +713,8 @@ void keyboard(unsigned char key, int x, int y)
     }
     case 'k':
     {
-        gScene->getSceneInfo().gradientBackground = !gScene->getSceneInfo().gradientBackground;
+        gScene->getSceneInfo().gradientBackground =
+            !gScene->getSceneInfo().gradientBackground;
         break;
     }
     case 'K':
@@ -716,11 +752,16 @@ void keyboard(unsigned char key, int x, int y)
     case 'o':
     {
         gScene->getSceneInfo().cameraType =
-            (gScene->getSceneInfo().cameraType == ctVolumeRendering) ? ctPerspective : ctVolumeRendering;
+            (gScene->getSceneInfo().cameraType == ctVolumeRendering)
+                ? ctPerspective
+                : ctVolumeRendering;
         gScene->getSceneInfo().graphicsLevel =
-            (gScene->getSceneInfo().cameraType == ctVolumeRendering) ? glNoShading : glReflectionsAndRefractions;
+            (gScene->getSceneInfo().cameraType == ctVolumeRendering)
+                ? glNoShading
+                : glReflectionsAndRefractions;
         gScene->getSceneInfo().backgroundColor.w =
-            (gScene->getSceneInfo().cameraType == ctVolumeRendering) ? 0.01f : 0.5f;
+            (gScene->getSceneInfo().cameraType == ctVolumeRendering) ? 0.01f
+                                                                     : 0.5f;
         break;
     }
     case 'p':
@@ -741,26 +782,31 @@ void keyboard(unsigned char key, int x, int y)
         if (key == 'q')
         {
 #ifdef WIN32
-            std::string filename("E:/Cloud/Dropbox/Samsung Link/Photos/1K/CudaSolR_");
+            std::string filename(
+                "E:/Cloud/Dropbox/Samsung Link/Photos/1K/CudaSolR_");
 #else
             std::string filename("~/Pictures/1K/CudaSolR_");
 #endif
             filename += buffer;
 
             if (kernel)
-                kernel->generateScreenshot(filename, 2100, 2970, gScene->getSceneInfo().maxPathTracingIterations);
+                kernel->generateScreenshot(
+                    filename, 2100, 2970,
+                    gScene->getSceneInfo().maxPathTracingIterations);
         }
         else
         {
 #ifdef WIN32
-            std::string filename("E:/Cloud/Dropbox/Samsung Link/Photos/4K/CudaSolR_");
+            std::string filename(
+                "E:/Cloud/Dropbox/Samsung Link/Photos/4K/CudaSolR_");
 #else
             std::string filename("~/Pictures/4K/CudaSolR_");
 #endif
             filename += buffer;
             if (kernel)
-                kernel->generateScreenshot(filename, 2 * 2970, 2 * 2100,
-                                           gScene->getSceneInfo().maxPathTracingIterations);
+                kernel->generateScreenshot(
+                    filename, 2 * 2970, 2 * 2100,
+                    gScene->getSceneInfo().maxPathTracingIterations);
         }
         break;
     }
@@ -780,7 +826,8 @@ void keyboard(unsigned char key, int x, int y)
     }
     case 'S':
     {
-        gScene->getSceneInfo().graphicsLevel = static_cast<GraphicsLevel>(gScene->getSceneInfo().graphicsLevel + 1);
+        gScene->getSceneInfo().graphicsLevel = static_cast<GraphicsLevel>(
+            gScene->getSceneInfo().graphicsLevel + 1);
         if (gScene->getSceneInfo().graphicsLevel > glFull)
             gScene->getSceneInfo().graphicsLevel = glNoShading;
         break;
@@ -795,7 +842,8 @@ void keyboard(unsigned char key, int x, int y)
     case 'T':
     {
         // Double sided triangles
-        gScene->getSceneInfo().doubleSidedTriangles = !gScene->getSceneInfo().doubleSidedTriangles;
+        gScene->getSceneInfo().doubleSidedTriangles =
+            !gScene->getSceneInfo().doubleSidedTriangles;
         break;
     }
     case 't':
@@ -824,7 +872,9 @@ void keyboard(unsigned char key, int x, int y)
     {
         gScene->getSceneInfo().backgroundColor.w += 0.1f;
         gScene->getSceneInfo().backgroundColor.w =
-            (gScene->getSceneInfo().backgroundColor.w > 1.f) ? 0.f : gScene->getSceneInfo().backgroundColor.w;
+            (gScene->getSceneInfo().backgroundColor.w > 1.f)
+                ? 0.f
+                : gScene->getSceneInfo().backgroundColor.w;
         break;
     }
     case 'x':
@@ -862,7 +912,8 @@ void keyboard(unsigned char key, int x, int y)
     }
     case '*':
     {
-        gScene->getSceneInfo().cameraType = static_cast<CameraType>((gScene->getSceneInfo().cameraType + 1) % 7);
+        gScene->getSceneInfo().cameraType = static_cast<CameraType>(
+            (gScene->getSceneInfo().cameraType + 1) % 7);
         LOG_INFO(1, "Camera type: " << gScene->getSceneInfo().cameraType);
         break;
     }
@@ -927,7 +978,9 @@ void keyboard(unsigned char key, int x, int y)
     {
         gScene->getSceneInfo().shadowIntensity += 0.05f;
         gScene->getSceneInfo().shadowIntensity =
-            (gScene->getSceneInfo().shadowIntensity > 1.f) ? 0.f : gScene->getSceneInfo().shadowIntensity;
+            (gScene->getSceneInfo().shadowIntensity > 1.f)
+                ? 0.f
+                : gScene->getSceneInfo().shadowIntensity;
         break;
     }
     case '+':
@@ -1138,9 +1191,12 @@ void motion(int x, int y)
             // Changing camera angle
             gViewPos.z -= 50 * (mouse_old_y - y);
             gViewAngles.w -= 50 * (mouse_old_x - x);
-            LOG_INFO(1, "ViewPos        = " << gViewPos.x << "," << gViewPos.y << "," << gViewPos.z);
-            LOG_INFO(1, "ViewDir        = " << gViewDir.x << "," << gViewDir.y << "," << gViewDir.z);
-            LOG_INFO(1, "Eye Separation = " << gScene->getSceneInfo().eyeSeparation);
+            LOG_INFO(1, "ViewPos        = " << gViewPos.x << "," << gViewPos.y
+                                            << "," << gViewPos.z);
+            LOG_INFO(1, "ViewDir        = " << gViewDir.x << "," << gViewDir.y
+                                            << "," << gViewDir.z);
+            LOG_INFO(1, "Eye Separation = "
+                            << gScene->getSceneInfo().eyeSeparation);
             break;
         }
         case ctGroundHeight:
@@ -1166,7 +1222,8 @@ void motion(int x, int y)
     if (gAutoFocus)
     {
         // Autofocus
-        int index = gKernel->getPrimitiveAt(gKernel->getSceneInfo().size.x / 2, gKernel->getSceneInfo().size.y / 2);
+        int index = gKernel->getPrimitiveAt(gKernel->getSceneInfo().size.x / 2,
+                                            gKernel->getSceneInfo().size.y / 2);
         if (index != -1)
         {
             solr::CPUPrimitive *p = gKernel->getPrimitive(index);
@@ -1220,41 +1277,49 @@ void createKinectScene(int platform, int device)
                 USHORT RealDepth = (s & 0xfff8) >> 3;
                 // Masque pour retrouver si un player a �t� detect�
                 USHORT Player = s & 7;
-                // Transforme les informations de profondeur sur 13-Bit en une intensit�
-                // cod� sur 8 Bits
+                // Transforme les informations de profondeur sur 13-Bit en une
+                // intensit� cod� sur 8 Bits
 
                 // afin d'afficher une couleur en fonction de la profondeur
                 BYTE l = 255 - (BYTE)(256 * RealDepth / 0x0fff);
 
                 int p = kernel.addPrimitive(ptSphere);
-                kernel.setPrimitive(p, 5 + p / gKinectNbSpherePerBox, (x - 160) * 100.f, (y - 120) * 100.f, 0.f,
-                                    gKinectStep * 10.f, 0.f, 0.f, 20 + x % 20, 1, 1);
+                kernel.setPrimitive(p, 5 + p / gKinectNbSpherePerBox,
+                                    (x - 160) * 100.f, (y - 120) * 100.f, 0.f,
+                                    gKinectStep * 10.f, 0.f, 0.f, 20 + x % 20,
+                                    1, 1);
             }
         }
     }
 
     // Sol
     int s0 = kernel.addPrimitive(ptXZPlane);
-    kernel.setPrimitive(s0, 0, 0.f, -5000.f, 0.f, 10000.f, 0.f, 10000.f, 100, 1, 1);
+    kernel.setPrimitive(s0, 0, 0.f, -5000.f, 0.f, 10000.f, 0.f, 10000.f, 100, 1,
+                        1);
 
     // Wall
     int m_nbPrimitives = kernel.addPrimitive(ptXYPlane);
-    kernel.setPrimitive(m_nbPrimitives, 0, 0.f, 0.f, 5000.f, 5000.f, 5000.f, 0.f, 110, 1, 1);
+    kernel.setPrimitive(m_nbPrimitives, 0, 0.f, 0.f, 5000.f, 5000.f, 5000.f,
+                        0.f, 110, 1, 1);
     m_nbPrimitives = kernel.addPrimitive(ptYZPlane);
-    kernel.setPrimitive(m_nbPrimitives, 1, -5000.f, 0.f, 0.f, 0.f, 5000.f, 5000.f, 107, 1, 1);
+    kernel.setPrimitive(m_nbPrimitives, 1, -5000.f, 0.f, 0.f, 0.f, 5000.f,
+                        5000.f, 107, 1, 1);
     m_nbPrimitives = kernel.addPrimitive(ptYZPlane);
-    kernel.setPrimitive(m_nbPrimitives, 2, 5000.f, 0.f, 0.f, 0.f, 5000.f, 5000.f, 108, 1, 1);
+    kernel.setPrimitive(m_nbPrimitives, 2, 5000.f, 0.f, 0.f, 0.f, 5000.f,
+                        5000.f, 108, 1, 1);
     m_nbPrimitives = kernel.addPrimitive(ptXZPlane);
-    kernel.setPrimitive(m_nbPrimitives, 3, 0.f, 5000.f, 0.f, 5000.f, 0.f, 5000.f, 110, 1, 1);
+    kernel.setPrimitive(m_nbPrimitives, 3, 0.f, 5000.f, 0.f, 5000.f, 0.f,
+                        5000.f, 110, 1, 1);
 
     // Camera
     m_nbPrimitives = kernel.addPrimitive(ptCamera);
-    kernel.setPrimitive(m_nbPrimitives, 0, -2500.f, -4000.f, -5000.f, 1500.f, 1500.f, 0.f, DEFAULT_LIGHT_MATERIAL, 1,
-                        1);
+    kernel.setPrimitive(m_nbPrimitives, 0, -2500.f, -4000.f, -5000.f, 1500.f,
+                        1500.f, 0.f, DEFAULT_LIGHT_MATERIAL, 1, 1);
 
     // Lights
     gLampIndex = kernel.addPrimitive(ptSphere);
-    kernel.setPrimitive(gLampIndex, 4, -5000.f, 2000.f, -20000.f, 500, 0, 50, 128, 1, 1);
+    kernel.setPrimitive(gLampIndex, 4, -5000.f, 2000.f, -20000.f, 500, 0, 50,
+                        128, 1, 1);
 
     gNbBoxes = kernel.compactBoxes();
 }
@@ -1334,6 +1399,10 @@ void createScene()
 
 int main(int argc, char *argv[])
 {
+#if USE_RANDOM_DEVICE
+    LOG_INFO(1, "Using random device generator");
+#endif
+
     std::vector<std::string> arguments;
     for (int i(0); i < argc; ++i)
     {

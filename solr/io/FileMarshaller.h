@@ -29,8 +29,10 @@ class SOLR_API FileMarshaller
 public:
     FileMarshaller() {}
     ~FileMarshaller() {}
+
 public:
-    vec4f loadFromFile(GPUKernel &kernel, const std::string &filename, const vec4f &center, const float scale);
+    vec4f loadFromFile(GPUKernel &kernel, const std::string &filename,
+                       const vec4f &center, const float scale);
     void saveToFile(GPUKernel &kernel, const std::string &filename);
 };
-}
+} // namespace solr

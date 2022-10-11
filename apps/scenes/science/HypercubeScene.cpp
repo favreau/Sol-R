@@ -64,9 +64,18 @@ void HypercubeScene::makeMatrix()
 {
     const float ratio = static_cast<float>(M_PI) / 360.f;
     _matrix = identityMatrix();
-    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(0, 1, _angles[2] * ratio)); // Rotate YZ
-    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(1, 2, _angles[0] * ratio)); // Rotate XZ
-    _matrix = multiplyMatrices(_matrix, makeRotationMatrix(2, 0, _angles[1] * ratio)); // Rotate XY
+    _matrix =
+        multiplyMatrices(_matrix,
+                         makeRotationMatrix(0, 1, _angles[2] * ratio)); // Rotate
+                                                                        // YZ
+    _matrix =
+        multiplyMatrices(_matrix,
+                         makeRotationMatrix(1, 2, _angles[0] * ratio)); // Rotate
+                                                                        // XZ
+    _matrix =
+        multiplyMatrices(_matrix,
+                         makeRotationMatrix(2, 0, _angles[1] * ratio)); // Rotate
+                                                                        // XY
     for (size_t a = 0; a < 3 * (_dimension - 3); ++a)
     {
         auto i = a % 3;
@@ -77,11 +86,14 @@ void HypercubeScene::makeMatrix()
             i = j;
             j = t;
         }
-        _matrix = multiplyMatrices(_matrix, makeRotationMatrix(i, j, _angles[a + 3] * ratio));
+        _matrix =
+            multiplyMatrices(_matrix,
+                             makeRotationMatrix(i, j, _angles[a + 3] * ratio));
     }
 }
 
-Matrix HypercubeScene::makeRotationMatrix(const size_t i, const size_t j, const float angle)
+Matrix HypercubeScene::makeRotationMatrix(const size_t i, const size_t j,
+                                          const float angle)
 {
     Matrix matrix = identityMatrix();
     const auto c = cos(angle);
@@ -102,7 +114,8 @@ Matrix HypercubeScene::identityMatrix()
     return matrix;
 }
 
-Matrix HypercubeScene::multiplyMatrices(const Matrix& matrix1, const Matrix& matrix2)
+Matrix HypercubeScene::multiplyMatrices(const Matrix& matrix1,
+                                        const Matrix& matrix2)
 {
     Matrix matrix;
     for (size_t a = 0; a < MaxDimensions; ++a)
@@ -125,7 +138,8 @@ Vector HypercubeScene::cross(const Vector& u, const Vector& v)
     return vector;
 }
 
-void HypercubeScene::makeSubFaces(const size_t a, const size_t b, size_t& c, const size_t n)
+void HypercubeScene::makeSubFaces(const size_t a, const size_t b, size_t& c,
+                                  const size_t n)
 {
     const float s = _scale * _explosionFactor;
     for (size_t i = 0; i < n; ++i)
@@ -166,13 +180,17 @@ void HypercubeScene::makeSubFaces(const size_t a, const size_t b, size_t& c, con
 
 void HypercubeScene::createGeometry()
 {
-    const size_t nbVertices = (_dimension - 1) * _dimension * powerOfTwo(_dimension - 1);
+    const size_t nbVertices =
+        (_dimension - 1) * _dimension * powerOfTwo(_dimension - 1);
 
     const float refraction = 1.f;
     for (unsigned int i = 0; i < (nbVertices + 4); ++i)
-        m_gpuKernel->setMaterial(i, 0.5f + 0.5f * cos(i), 0.5f, 0.5f + 0.5f * cos(i) * sin(i), 0.f, _reflection,
-                                 refraction, false, false, 0, _transparency, 0.f, TEXTURE_NONE, TEXTURE_NONE,
-                                 TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE, 0.f, 100.f, 0.f,
+        m_gpuKernel->setMaterial(i, 0.5f + 0.5f * cos(i), 0.5f,
+                                 0.5f + 0.5f * cos(i) * sin(i), 0.f,
+                                 _reflection, refraction, false, false, 0,
+                                 _transparency, 0.f, TEXTURE_NONE, TEXTURE_NONE,
+                                 TEXTURE_NONE, TEXTURE_NONE, TEXTURE_NONE,
+                                 TEXTURE_NONE, TEXTURE_NONE, 0.f, 100.f, 0.f,
                                  0.f, 10.f, 10000.f, false);
 
     _vertices.clear();
@@ -242,17 +260,25 @@ void HypercubeScene::drawFace(const size_t Id)
     {
         const float radius = _scale / 50.f;
         _primitiveIndex = m_gpuKernel->addPrimitive(ptCylinder);
-        m_gpuKernel->setPrimitive(_primitiveIndex, t[index], t[index + 1], t[index + 2], u[index], u[index + 1],
-                                  u[index + 2], radius, 0.f, 0.f, METAL_MATERIAL);
+        m_gpuKernel->setPrimitive(_primitiveIndex, t[index], t[index + 1],
+                                  t[index + 2], u[index], u[index + 1],
+                                  u[index + 2], radius, 0.f, 0.f,
+                                  METAL_MATERIAL);
         _primitiveIndex = m_gpuKernel->addPrimitive(ptCylinder);
-        m_gpuKernel->setPrimitive(_primitiveIndex, u[index], u[index + 1], u[index + 2], v[index], v[index + 1],
-                                  v[index + 2], radius, 0.f, 0.f, METAL_MATERIAL);
+        m_gpuKernel->setPrimitive(_primitiveIndex, u[index], u[index + 1],
+                                  u[index + 2], v[index], v[index + 1],
+                                  v[index + 2], radius, 0.f, 0.f,
+                                  METAL_MATERIAL);
         _primitiveIndex = m_gpuKernel->addPrimitive(ptCylinder);
-        m_gpuKernel->setPrimitive(_primitiveIndex, v[index], v[index + 1], v[index + 2], w[index], w[index + 1],
-                                  w[index + 2], radius, 0.f, 0.f, METAL_MATERIAL);
+        m_gpuKernel->setPrimitive(_primitiveIndex, v[index], v[index + 1],
+                                  v[index + 2], w[index], w[index + 1],
+                                  w[index + 2], radius, 0.f, 0.f,
+                                  METAL_MATERIAL);
         _primitiveIndex = m_gpuKernel->addPrimitive(ptCylinder);
-        m_gpuKernel->setPrimitive(_primitiveIndex, w[index], w[index + 1], w[index + 2], t[index], t[index + 1],
-                                  t[index + 2], radius, 0.f, 0.f, METAL_MATERIAL);
+        m_gpuKernel->setPrimitive(_primitiveIndex, w[index], w[index + 1],
+                                  w[index + 2], t[index], t[index + 1],
+                                  t[index + 2], radius, 0.f, 0.f,
+                                  METAL_MATERIAL);
     }
 }
 
@@ -268,7 +294,8 @@ void HypercubeScene::drawFaces()
             const float radius = _scale / 10.f;
             Vector t = multiplyVector(_matrix, _vertices[a]);
             _primitiveIndex = m_gpuKernel->addPrimitive(ptSphere);
-            m_gpuKernel->setPrimitive(_primitiveIndex, t[index], t[index + 1], t[index + 2], radius, 0.f, 0.f,
+            m_gpuKernel->setPrimitive(_primitiveIndex, t[index], t[index + 1],
+                                      t[index + 2], radius, 0.f, 0.f,
                                       METAL_MATERIAL);
         }
 }
@@ -300,6 +327,7 @@ void HypercubeScene::doAddLights()
 {
     // lights
     m_nbPrimitives = m_gpuKernel->addPrimitive(ptSphere);
-    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 10000.f, -10000.f, 1000.f, 0.f, 0, DEFAULT_LIGHT_MATERIAL);
+    m_gpuKernel->setPrimitive(m_nbPrimitives, 0.f, 10000.f, -10000.f, 1000.f,
+                              0.f, 0, DEFAULT_LIGHT_MATERIAL);
     m_gpuKernel->setPrimitiveIsMovable(m_nbPrimitives, false);
 }
