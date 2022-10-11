@@ -17,6 +17,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 # Project
 # ================================================================================
 
+option(SOLR_RANDOM_DEVICE_ENABLED "Activate Random Device Generator" OFF)
 option(SOLR_KINECT_ENABLED "Activate Kinect" OFF)
 option(SOLR_OCULUS_ENABLED "Activate Oculus" OFF)
 option(SOLR_SIXENSE_ENABLED "Activate Sixense Controller" OFF)
@@ -120,6 +121,13 @@ if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif(OPENMP_FOUND)
+
+# ================================================================================
+# RANDOM _DEVICE
+# ================================================================================
+if(SOLR_RANDOM_DEVICE_ENABLED)
+    list(APPEND FIND_PACKAGES_DEFINES USE_RANDOM_DEVICE)
+endif(SOLR_RANDOM_DEVICE_ENABLED)
 
 # ================================================================================
 # KINECT 1.8

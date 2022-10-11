@@ -30,6 +30,7 @@
 #endif
 
 #include <algorithm>
+#include <random>
 
 // JPeg
 #include <images/ImageLoader.h>
@@ -344,25 +345,7 @@ void GPUKernel::initBuffers()
     // Textures
     memset(m_hTextures, 0, NB_MAX_TEXTURES * sizeof(TextureInfo));
 
-    // Randoms
-    size_t size = MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT;
-    if (m_hRandoms)
-        delete m_hRandoms;
-    m_hRandoms = new RandomBuffer[size];
-
-    // Primitive IDs
-    if (m_hPrimitivesXYIds)
-        delete m_hPrimitivesXYIds;
-    m_hPrimitivesXYIds = new PrimitiveXYIdBuffer[size];
-    memset(m_hPrimitivesXYIds, 0, size * sizeof(PrimitiveXYIdBuffer));
-
-    // Bitmap
-    if (m_bitmap)
-        delete m_bitmap;
-    size *= gColorDepth;
-    m_bitmap = new BitmapBuffer[size];
-    memset(m_bitmap, 0, size * sizeof(BitmapBuffer));
-    LOG_INFO(3, m_bitmap << " - Bitmap Size=" << size);
+    reshape();
 
 #ifdef USE_OCULUS
     LOG_INFO(1, "Initializing Oculus DK1");
@@ -476,7 +459,26 @@ void GPUKernel::cleanup()
 
 void GPUKernel::reshape()
 {
-    // m_randomsTransfered=false;
+    size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
+
+    // Randoms
+    if (m_hRandoms)
+        delete m_hRandoms;
+    m_hRandoms = new RandomBuffer[size];
+
+    // Primitive IDs
+    if (m_hPrimitivesXYIds)
+        delete m_hPrimitivesXYIds;
+    m_hPrimitivesXYIds = new PrimitiveXYIdBuffer[size];
+    memset(m_hPrimitivesXYIds, 0, size * sizeof(PrimitiveXYIdBuffer));
+
+    // Bitmap
+    if (m_bitmap)
+        delete m_bitmap;
+    size *= gColorDepth;
+    m_bitmap = new BitmapBuffer[size];
+    memset(m_bitmap, 0, size * sizeof(BitmapBuffer));
+    LOG_INFO(3, m_bitmap << " - Bitmap Size=" << size);
 }
 
 /*
@@ -2719,16 +2721,26 @@ void GPUKernel::render_begin(const float timer)
     LOG_INFO(3, "GPUKernel::render_begin");
     LOG_INFO(3, "Scene size: " << m_sceneInfo.size.x << "x" << m_sceneInfo.size.y);
 
-    // Random
+    // Randoms
     const size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
     m_sceneInfo.timestamp = rand() % 10000;
     if (!m_randomsTransfered || m_sceneInfo.pathTracingIteration % 50 == 1)
     {
-        m_randomsTransfered = false;
+    //     m_randomsTransfered = false;
+#if USE_RANDOM_DEVICE
         srand(static_cast<int>(time(0)));
 #pragma omp parallel for
         for (int i = 0; i < size; ++i)
             m_hRandoms[i] = 0.0000005f * (rand() % 20000 - 10000);
+#else
+        std::random_device device;
+        std::mt19937 generator(device());
+        std::uniform_int_distribution<int> distribution(0, 20000);
+        size_t i;
+#pragma omp parallel for
+        for (i = 0; i < size; ++i)
+            m_hRandoms[i] = 0.0000001f * (distribution(generator) - 10000);
+#endif
     }
 
 #ifdef USE_OCULUS
@@ -2801,8 +2813,8 @@ void GPUKernel::generateScreenshot(const std::string &filename, const unsigned i
                                          << ")");
     SceneInfo sceneInfo = m_sceneInfo;
     SceneInfo bakSceneInfo = m_sceneInfo;
-    sceneInfo.size.x = std::min(width, MAX_BITMAP_WIDTH);
-    sceneInfo.size.y = std::min(height, MAX_BITMAP_HEIGHT);
+    sceneInfo.size.x = width;
+    sceneInfo.size.y = height;
     sceneInfo.maxPathTracingIterations = quality;
     for (unsigned int i = 0; i < quality; ++i)
     {
