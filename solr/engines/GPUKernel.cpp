@@ -1,21 +1,18 @@
-/* Copyright (c) 2011-2017, Cyrille Favreau
- * All rights reserved. Do not distribute without permission.
- * Responsible Author: Cyrille Favreau <cyrille_favreau@hotmail.com>
+/*
+ * Copyright (c) 2011-2022, Cyrille Favreau
  *
- * This file is part of Sol-R <https://github.com/cyrillefavreau/Sol-R>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License version 3.0 as published
- * by the Free Software Foundation.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifdef WIN32
@@ -23,18 +20,11 @@
 #else
 #include <iostream>
 #include <math.h>
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vector>
 #endif
-
-#include <algorithm>
-#include <random>
-
-// JPeg
-#include <images/ImageLoader.h>
-#include <images/jpge.h>
 
 // Raytracing
 #include "GPUKernel.h"
@@ -42,6 +32,13 @@
 #include "consts.h"
 #include "io/FileMarshaller.h"
 #include "opengl/rtgl.h"
+#include "random/RandomGenerator.h"
+
+#include <algorithm>
+
+// JPeg
+#include <images/ImageLoader.h>
+#include <images/jpge.h>
 
 #ifdef USE_CUDA
 #include <engines/cuda/CudaKernel.h>
@@ -68,6 +65,10 @@ extern "C" FILE *__cdecl __iob_func(void)
 #pragma comment(lib, "legacy_stdio_definitions.lib")
 #endif
 #endif // USE_OCULUS
+
+#ifdef USE_RANDOM_DEVICE
+#include <iomanip>
+#endif
 
 using namespace solr;
 
@@ -310,6 +311,8 @@ GPUKernel::GPUKernel()
     }
     LOG_INFO(3, "----------------------------");
 #endif // USE_KINECT
+
+    RandomGenerator::getInstance().initialize();
 }
 
 GPUKernel::~GPUKernel()
@@ -1085,8 +1088,8 @@ int GPUKernel::processOutterBoxes(const int boxSize,
         int Z = static_cast<int>((center.z - m_minPos[m_frame].z) / boxSteps.z);
         int B = (X * boxSize * boxSize + Y * boxSize + Z);
 
-        B++; // Index 0 is used to store lights, so we start storing primitives
-             // from index 1
+        B++; // Index 0 is used to store lights, so we start storing
+             // primitives from index 1
 
         // Box B
         m_boundingBoxes[m_frame][boundingBoxesDepth][B].parameters[0].x =
@@ -3031,23 +3034,11 @@ void GPUKernel::render_begin(const float timer)
     // Randoms
     const size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
     m_sceneInfo.timestamp = rand() % 10000;
-    if (!m_randomsTransfered || m_sceneInfo.pathTracingIteration % 50 == 1)
+    if (!m_randomsTransfered || m_sceneInfo.pathTracingIteration % 20 == 1)
     {
         //     m_randomsTransfered = false;
-#if USE_RANDOM_DEVICE
-        srand(static_cast<int>(time(0)));
-#pragma omp parallel for
-        for (int i = 0; i < size; ++i)
-            m_hRandoms[i] = 0.0000005f * (rand() % 20000 - 10000);
-#else
-        std::random_device device;
-        std::mt19937 generator(device());
-        std::uniform_int_distribution<int> distribution(0, 20000);
-        size_t i;
-#pragma omp parallel for
-        for (i = 0; i < size; ++i)
-            m_hRandoms[i] = 0.0000001f * (distribution(generator) - 10000);
-#endif
+        auto floats = RandomGenerator::getInstance().getFloats(size, 0.001f);
+        memcpy(&m_hRandoms[0], floats.data(), floats.size() * sizeof(float));
     }
 
 #ifdef USE_OCULUS

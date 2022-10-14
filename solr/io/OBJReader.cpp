@@ -1,21 +1,18 @@
-/* Copyright (c) 2011-2017, Cyrille Favreau
- * All rights reserved. Do not distribute without permission.
- * Responsible Author: Cyrille Favreau <cyrille_favreau@hotmail.com>
+/*
+ * Copyright (c) 2011-2022, Cyrille Favreau
  *
- * This file is part of Sol-R <https://github.com/cyrillefavreau/Sol-R>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License version 3.0 as published
- * by the Free Software Foundation.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <algorithm>
@@ -28,14 +25,15 @@
 #include <string.h>
 #include <vector>
 
-#include "../consts.h"
 #include "../Logging.h"
+#include "../consts.h"
 
 #include "OBJReader.h"
 
 namespace solr
 {
-const int NB_MAX_FACES = static_cast<int>(NB_MAX_PRIMITIVES * 0.9f); // Max number of faces
+const int NB_MAX_FACES =
+    static_cast<int>(NB_MAX_PRIMITIVES * 0.9f); // Max number of faces
 
 OBJReader::OBJReader() {}
 
@@ -153,9 +151,9 @@ vec4i readFace(const std::string &face)
     return returnValue;
 }
 
-unsigned int OBJReader::loadMaterialsFromFile(const std::string &filename,
-                                              std::map<std::string, MaterialMTL> &materials, GPUKernel &kernel,
-                                              int materialId)
+unsigned int OBJReader::loadMaterialsFromFile(
+    const std::string &filename, std::map<std::string, MaterialMTL> &materials,
+    GPUKernel &kernel, int materialId)
 {
     LOG_INFO(1, " - Material library: " << filename);
     const float innerDiffusion = 1000.f;
@@ -182,26 +180,39 @@ unsigned int OBJReader::loadMaterialsFromFile(const std::string &filename,
                     MaterialMTL &m = materials[id];
 
                     // Grey material is reflective!!! :-)
-                    // if(m.Kd.x>0.4f && m.Kd.x>0.6f && fabs(m.Kd.x-m.Kd.y)<0.01f &&
-                    // fabs(m.Kd.y-m.Kd.z)<0.01f) m.reflection=0.5f;
+                    // if(m.Kd.x>0.4f && m.Kd.x>0.6f &&
+                    // fabs(m.Kd.x-m.Kd.y)<0.01f && fabs(m.Kd.y-m.Kd.z)<0.01f)
+                    // m.reflection=0.5f;
 
                     // Add material to kernel
-                    kernel.setMaterial(m.index, m.Kd.x, m.Kd.y, m.Kd.z, m.gloss, m.reflection, m.refraction, false,
-                                       false, 0, m.transparency, m.opacity, m.diffuseTextureId, m.normalTextureId,
-                                       m.bumpTextureId, m.specularTextureId, m.reflectionTextureId,
-                                       m.transparencyTextureId, m.ambientOcclusionTextureId, m.Ks.x, 100.f * m.Ks.y,
-                                       m.Ks.z, m.illumination, innerDiffusion, innerDiffusion * diffusionRatio, false);
-                    LOG_INFO(3, "[" << m.index << "] Added material [" << id << "] "
-                                    << "( " << m.Kd.x << ", " << m.Kd.y << ", " << m.Kd.z << ") "
-                                    << "( " << m.Ks.x << ", " << m.Ks.y << ", " << m.Ks.z << ") "
+                    kernel.setMaterial(m.index, m.Kd.x, m.Kd.y, m.Kd.z, m.gloss,
+                                       m.reflection, m.refraction, false, false,
+                                       0, m.transparency, m.opacity,
+                                       m.diffuseTextureId, m.normalTextureId,
+                                       m.bumpTextureId, m.specularTextureId,
+                                       m.reflectionTextureId,
+                                       m.transparencyTextureId,
+                                       m.ambientOcclusionTextureId, m.Ks.x,
+                                       100.f * m.Ks.y, m.Ks.z, m.illumination,
+                                       innerDiffusion,
+                                       innerDiffusion * diffusionRatio, false);
+                    LOG_INFO(3, "[" << m.index << "] Added material [" << id
+                                    << "] "
+                                    << "( " << m.Kd.x << ", " << m.Kd.y << ", "
+                                    << m.Kd.z << ") "
+                                    << "( " << m.Ks.x << ", " << m.Ks.y << ", "
+                                    << m.Ks.z << ") "
                                     << "( " << m.illumination << ") "
-                                    << ", Textures [" << m.diffuseTextureId << "," << m.bumpTextureId
-                                    << "]=" << kernel.getTextureFilename(m.diffuseTextureId));
+                                    << ", Textures [" << m.diffuseTextureId
+                                    << "," << m.bumpTextureId << "]="
+                                    << kernel.getTextureFilename(
+                                           m.diffuseTextureId));
                 }
                 id = line.substr(7);
                 MaterialMTL material;
                 memset(&material, 0, sizeof(MaterialMTL));
-                material.index = static_cast<unsigned int>(materials.size() + materialId);
+                material.index =
+                    static_cast<unsigned int>(materials.size() + materialId);
                 // material.reflection = 0.2f;
                 material.diffuseTextureId = MATERIAL_NONE;
                 material.normalTextureId = MATERIAL_NONE;
@@ -225,7 +236,10 @@ unsigned int OBJReader::loadMaterialsFromFile(const std::string &filename,
                 materials[id].Kd = readVertex(line);
                 if (materials[id].isSketchupLightMaterial)
                 {
-                    materials[id].illumination = (materials[id].Kd.x + materials[id].Kd.y + materials[id].Kd.z) / 3.f;
+                    materials[id].illumination =
+                        (materials[id].Kd.x + materials[id].Kd.y +
+                         materials[id].Kd.z) /
+                        3.f;
                 }
             }
 
@@ -264,30 +278,42 @@ unsigned int OBJReader::loadMaterialsFromFile(const std::string &filename,
                     if (diffuseMap)
                     {
                         materials[id].diffuseTextureId = idx;
-                        LOG_INFO(3, "[Slot " << idx << "] Diffuse texture " << folder
-                                             << " successfully loaded and assigned to material " << id << "("
-                                             << materials[id].index << ")");
+                        LOG_INFO(3, "[Slot " << idx << "] Diffuse texture "
+                                             << folder
+                                             << " successfully loaded and "
+                                                "assigned to material "
+                                             << id << "(" << materials[id].index
+                                             << ")");
                     }
                     if (bumpMap)
                     {
                         materials[id].bumpTextureId = idx;
-                        LOG_INFO(3, "[Slot " << idx << "] Bump texture " << folder
-                                             << " successfully loaded and assigned to material " << id << "("
-                                             << materials[id].index << ")");
+                        LOG_INFO(3, "[Slot " << idx << "] Bump texture "
+                                             << folder
+                                             << " successfully loaded and "
+                                                "assigned to material "
+                                             << id << "(" << materials[id].index
+                                             << ")");
                     }
                     if (normalMap)
                     {
                         materials[id].normalTextureId = idx;
-                        LOG_INFO(3, "[Slot " << idx << "] Mormal texture " << folder
-                                             << " successfully loaded and assigned to material " << id << "("
-                                             << materials[id].index << ")");
+                        LOG_INFO(3, "[Slot " << idx << "] Mormal texture "
+                                             << folder
+                                             << " successfully loaded and "
+                                                "assigned to material "
+                                             << id << "(" << materials[id].index
+                                             << ")");
                     }
                     if (specularlMap)
                     {
                         materials[id].specularTextureId = idx;
-                        LOG_INFO(3, "[Slot " << idx << "] Specular texture " << folder
-                                             << " successfully loaded and assigned to material " << id << "("
-                                             << materials[id].index << ")");
+                        LOG_INFO(3, "[Slot " << idx << "] Specular texture "
+                                             << folder
+                                             << " successfully loaded and "
+                                                "assigned to material "
+                                             << id << "(" << materials[id].index
+                                             << ")");
                     }
                 }
                 else
@@ -343,17 +369,25 @@ unsigned int OBJReader::loadMaterialsFromFile(const std::string &filename,
             // fabs(m.Kd.y-m.Kd.z)<0.01f) m.reflection=0.5f;
 
             // Add material to kernel
-            kernel.setMaterial(m.index, m.Kd.x, m.Kd.y, m.Kd.z, m.gloss, m.reflection, m.refraction, false, false, 0,
-                               m.transparency, m.opacity, m.diffuseTextureId, m.normalTextureId, m.bumpTextureId,
-                               m.specularTextureId, m.reflectionTextureId, m.transparencyTextureId,
-                               m.ambientOcclusionTextureId, m.Ks.x, 100.f * m.Ks.y, m.Ks.z, m.illumination,
-                               innerDiffusion, innerDiffusion * diffusionRatio, false);
+            kernel.setMaterial(m.index, m.Kd.x, m.Kd.y, m.Kd.z, m.gloss,
+                               m.reflection, m.refraction, false, false, 0,
+                               m.transparency, m.opacity, m.diffuseTextureId,
+                               m.normalTextureId, m.bumpTextureId,
+                               m.specularTextureId, m.reflectionTextureId,
+                               m.transparencyTextureId,
+                               m.ambientOcclusionTextureId, m.Ks.x,
+                               100.f * m.Ks.y, m.Ks.z, m.illumination,
+                               innerDiffusion, innerDiffusion * diffusionRatio,
+                               false);
             LOG_INFO(3, "[" << m.index << "] Added material [" << id << "] "
-                            << "( " << m.Kd.x << ", " << m.Kd.y << ", " << m.Kd.z << ") "
-                            << "( " << m.Ks.x << ", " << m.Ks.y << ", " << m.Ks.z << ") "
+                            << "( " << m.Kd.x << ", " << m.Kd.y << ", "
+                            << m.Kd.z << ") "
+                            << "( " << m.Ks.x << ", " << m.Ks.y << ", "
+                            << m.Ks.z << ") "
                             << "( " << m.illumination << ") "
-                            << ", Textures [" << m.diffuseTextureId << "," << m.bumpTextureId
-                            << "]=" << kernel.getTextureFilename(m.diffuseTextureId));
+                            << ", Textures [" << m.diffuseTextureId << ","
+                            << m.bumpTextureId << "]="
+                            << kernel.getTextureFilename(m.diffuseTextureId));
         }
 
         file.close();
@@ -361,8 +395,11 @@ unsigned int OBJReader::loadMaterialsFromFile(const std::string &filename,
     return 0;
 }
 
-void OBJReader::addLightComponent(GPUKernel &kernel, std::vector<vec4f> &solrVertices, const vec4f &center,
-                                  const vec4f &objectCenter, const vec4f &objectScale, const int material,
+void OBJReader::addLightComponent(GPUKernel &kernel,
+                                  std::vector<vec4f> &solrVertices,
+                                  const vec4f &center,
+                                  const vec4f &objectCenter,
+                                  const vec4f &objectScale, const int material,
                                   CPUBoundingBox &aabb)
 {
     size_t len = solrVertices.size();
@@ -377,36 +414,48 @@ void OBJReader::addLightComponent(GPUKernel &kernel, std::vector<vec4f> &solrVer
         aabb.parameters[1].z = -1000000.f;
         for (size_t i(0); i < len; ++i)
         {
-            aabb.parameters[0].x = std::min(solrVertices[i].x, aabb.parameters[0].x);
-            aabb.parameters[1].x = std::max(solrVertices[i].x, aabb.parameters[1].x);
-            aabb.parameters[0].y = std::min(solrVertices[i].y, aabb.parameters[0].y);
-            aabb.parameters[1].y = std::max(solrVertices[i].y, aabb.parameters[1].y);
-            aabb.parameters[0].z = std::min(solrVertices[i].z, aabb.parameters[0].z);
-            aabb.parameters[1].z = std::max(solrVertices[i].z, aabb.parameters[1].z);
+            aabb.parameters[0].x =
+                std::min(solrVertices[i].x, aabb.parameters[0].x);
+            aabb.parameters[1].x =
+                std::max(solrVertices[i].x, aabb.parameters[1].x);
+            aabb.parameters[0].y =
+                std::min(solrVertices[i].y, aabb.parameters[0].y);
+            aabb.parameters[1].y =
+                std::max(solrVertices[i].y, aabb.parameters[1].y);
+            aabb.parameters[0].z =
+                std::min(solrVertices[i].z, aabb.parameters[0].z);
+            aabb.parameters[1].z =
+                std::max(solrVertices[i].z, aabb.parameters[1].z);
         }
         lightCenter.x = (aabb.parameters[1].x + aabb.parameters[0].x) / 2.f;
         lightCenter.y = (aabb.parameters[1].y + aabb.parameters[0].y) / 2.f;
         lightCenter.z = (aabb.parameters[1].z + aabb.parameters[0].z) / 2.f;
-        const vec4f L =
-            make_vec4f(aabb.parameters[1].x - aabb.parameters[0].x, aabb.parameters[1].y - aabb.parameters[0].y,
-                       aabb.parameters[1].z - aabb.parameters[0].z);
+        const vec4f L = make_vec4f(aabb.parameters[1].x - aabb.parameters[0].x,
+                                   aabb.parameters[1].y - aabb.parameters[0].y,
+                                   aabb.parameters[1].z - aabb.parameters[0].z);
         const float radius = sqrt(L.x * L.x + L.y * L.y + L.z * L.z) / 2.f;
 
         const int nbPrimitives = kernel.addPrimitive(ptSphere);
-        LOG_INFO(3, "Adding SoL-R light [" << material << "] to primitive " << nbPrimitives << " (" << lightCenter.x
-                                           << "," << lightCenter.y << "," << lightCenter.z << ") r=" << radius);
-        kernel.setPrimitive(nbPrimitives, center.x + objectScale.x * (-objectCenter.x + lightCenter.x),
-                            center.y + objectScale.y * (-objectCenter.y + lightCenter.y),
-                            center.z + objectScale.z * (-objectCenter.z + lightCenter.z), radius, 0.f, 0.f, material);
+        LOG_INFO(3, "Adding SoL-R light ["
+                        << material << "] to primitive " << nbPrimitives << " ("
+                        << lightCenter.x << "," << lightCenter.y << ","
+                        << lightCenter.z << ") r=" << radius);
+        kernel.setPrimitive(
+            nbPrimitives,
+            center.x + objectScale.x * (-objectCenter.x + lightCenter.x),
+            center.y + objectScale.y * (-objectCenter.y + lightCenter.y),
+            center.z + objectScale.z * (-objectCenter.z + lightCenter.z),
+            radius, 0.f, 0.f, material);
         kernel.setPrimitiveBellongsToModel(nbPrimitives, true);
     }
     solrVertices.clear();
 }
 
-vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kernel, const vec4f &objectPosition,
-                                   const bool autoScale, const vec4f &scale, bool loadMaterials, int materialId,
-                                   bool allSpheres, bool autoCenter, CPUBoundingBox &aabb, const bool &checkInAABB,
-                                   const CPUBoundingBox &inAABB)
+vec4f OBJReader::loadModelFromFile(
+    const std::string &filename, GPUKernel &kernel, const vec4f &objectPosition,
+    const bool autoScale, const vec4f &scale, bool loadMaterials,
+    int materialId, bool allSpheres, bool autoCenter, CPUBoundingBox &aabb,
+    const bool &checkInAABB, const CPUBoundingBox &inAABB)
 {
     LOG_INFO(1, "OBJ Filename.......: " << filename);
     std::map<int, vec3f> vertices;
@@ -451,9 +500,11 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                 {
                     // Load materials
                     std::string materialFileName = line.substr(7);
-                    std::string folder = noExtFilename.substr(0, noExtFilename.rfind('/'));
+                    std::string folder =
+                        noExtFilename.substr(0, noExtFilename.rfind('/'));
                     materialFileName = folder + '/' + materialFileName;
-                    loadMaterialsFromFile(materialFileName, materials, kernel, materialId);
+                    loadMaterialsFromFile(materialFileName, materials, kernel,
+                                          materialId);
                 }
                 if (line[0] == 'v')
                 {
@@ -471,13 +522,16 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                             switch (item)
                             {
                             case 1:
-                                vertex.x = static_cast<float>(atof(value.c_str()));
+                                vertex.x =
+                                    static_cast<float>(atof(value.c_str()));
                                 break;
                             case 2:
-                                vertex.y = static_cast<float>(atof(value.c_str()));
+                                vertex.y =
+                                    static_cast<float>(atof(value.c_str()));
                                 break;
                             case 3:
-                                vertex.z = static_cast<float>(atof(value.c_str()));
+                                vertex.z =
+                                    static_cast<float>(atof(value.c_str()));
                                 break;
                             }
                             ++item;
@@ -535,7 +589,8 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                             texCoords.y = Yb;
                         }
 
-                        textureCoordinates[index_textureCoordinates] = texCoords;
+                        textureCoordinates[index_textureCoordinates] =
+                            texCoords;
                         ++index_textureCoordinates;
                     }
                     else
@@ -548,14 +603,32 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                             ++index_vertices;
 
                             // min
-                            aabb.parameters[0].x = (vertex.x < aabb.parameters[0].x) ? vertex.x : aabb.parameters[0].x;
-                            aabb.parameters[0].y = (vertex.y < aabb.parameters[0].y) ? vertex.y : aabb.parameters[0].y;
-                            aabb.parameters[0].z = (vertex.z < aabb.parameters[0].z) ? vertex.z : aabb.parameters[0].z;
+                            aabb.parameters[0].x =
+                                (vertex.x < aabb.parameters[0].x)
+                                    ? vertex.x
+                                    : aabb.parameters[0].x;
+                            aabb.parameters[0].y =
+                                (vertex.y < aabb.parameters[0].y)
+                                    ? vertex.y
+                                    : aabb.parameters[0].y;
+                            aabb.parameters[0].z =
+                                (vertex.z < aabb.parameters[0].z)
+                                    ? vertex.z
+                                    : aabb.parameters[0].z;
 
                             // max
-                            aabb.parameters[1].x = (vertex.x > aabb.parameters[1].x) ? vertex.x : aabb.parameters[1].x;
-                            aabb.parameters[1].y = (vertex.y > aabb.parameters[1].y) ? vertex.y : aabb.parameters[1].y;
-                            aabb.parameters[1].z = (vertex.z > aabb.parameters[1].z) ? vertex.z : aabb.parameters[1].z;
+                            aabb.parameters[1].x =
+                                (vertex.x > aabb.parameters[1].x)
+                                    ? vertex.x
+                                    : aabb.parameters[1].x;
+                            aabb.parameters[1].y =
+                                (vertex.y > aabb.parameters[1].y)
+                                    ? vertex.y
+                                    : aabb.parameters[1].y;
+                            aabb.parameters[1].z =
+                                (vertex.z > aabb.parameters[1].z)
+                                    ? vertex.z
+                                    : aabb.parameters[1].z;
                         }
                     }
                 }
@@ -586,9 +659,10 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
     vec4f objectScale = scale;
     if (autoScale)
     {
-        float os = std::max(aabb.parameters[1].x - aabb.parameters[0].x,
-                            std::max(aabb.parameters[1].y - aabb.parameters[0].y,
-                                     aabb.parameters[1].z - aabb.parameters[0].z));
+        float os =
+            std::max(aabb.parameters[1].x - aabb.parameters[0].x,
+                     std::max(aabb.parameters[1].y - aabb.parameters[0].y,
+                              aabb.parameters[1].z - aabb.parameters[0].z));
         objectScale.x = scale.x / os;
         objectScale.y = scale.y / os;
         objectScale.z = scale.z / os;
@@ -596,9 +670,12 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
         if (autoCenter)
         {
             // Center align object
-            objectCenter.x = (aabb.parameters[0].x + aabb.parameters[1].x) / 2.f;
-            objectCenter.y = (aabb.parameters[0].y + aabb.parameters[1].y) / 2.f;
-            objectCenter.z = (aabb.parameters[0].z + aabb.parameters[1].z) / 2.f;
+            objectCenter.x =
+                (aabb.parameters[0].x + aabb.parameters[1].x) / 2.f;
+            objectCenter.y =
+                (aabb.parameters[0].y + aabb.parameters[1].y) / 2.f;
+            objectCenter.z =
+                (aabb.parameters[0].z + aabb.parameters[1].z) / 2.f;
         }
     }
 
@@ -628,8 +705,10 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                     {
                         if (line != component)
                         {
-                            addLightComponent(kernel, solrVertices, objectPosition, objectCenter, objectScale,
-                                              sketchupMaterial, aabb);
+                            addLightComponent(kernel, solrVertices,
+                                              objectPosition, objectCenter,
+                                              objectScale, sketchupMaterial,
+                                              aabb);
                         }
                         component = line;
                     }
@@ -663,7 +742,8 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                     {
                         if (line[i] != ' ')
                             value += line[i];
-                        if (i == (line.length() - 1) || (line[i] == ' ' && previousChar != ' '))
+                        if (i == (line.length() - 1) ||
+                            (line[i] == ' ' && previousChar != ' '))
                             if (value.length() != 0)
                             {
                                 vec4i v = readFace(value);
@@ -680,62 +760,106 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                     {
                         vec4f sphereCenter;
                         sphereCenter.x =
-                            (vertices[face[f].x].x + vertices[face[f + 1].x].x + vertices[face[f + 2].x].x) / 3.f;
+                            (vertices[face[f].x].x + vertices[face[f + 1].x].x +
+                             vertices[face[f + 2].x].x) /
+                            3.f;
                         sphereCenter.y =
-                            (vertices[face[f].x].y + vertices[face[f + 1].x].y + vertices[face[f + 2].x].y) / 3.f;
+                            (vertices[face[f].x].y + vertices[face[f + 1].x].y +
+                             vertices[face[f + 2].x].y) /
+                            3.f;
                         sphereCenter.z =
-                            (vertices[face[f].x].z + vertices[face[f + 1].x].z + vertices[face[f + 2].x].z) / 3.f;
+                            (vertices[face[f].x].z + vertices[face[f + 1].x].z +
+                             vertices[face[f + 2].x].z) /
+                            3.f;
 
                         vec4f sphereRadius[3];
                         for (int i = 0; i < 3; ++i)
                         {
-                            sphereRadius[i].x = (sphereCenter.x - vertices[face[f + i].x].x);
-                            sphereRadius[i].y = (sphereCenter.y - vertices[face[f + i].x].y);
-                            sphereRadius[i].z = (sphereCenter.z - vertices[face[f + i].x].z);
+                            sphereRadius[i].x =
+                                (sphereCenter.x - vertices[face[f + i].x].x);
+                            sphereRadius[i].y =
+                                (sphereCenter.y - vertices[face[f + i].x].y);
+                            sphereRadius[i].z =
+                                (sphereCenter.z - vertices[face[f + i].x].z);
                         }
                         vec4f s;
-                        s.x = std::max(sphereRadius[0].x, std::max(sphereRadius[1].x, sphereRadius[2].x));
-                        s.y = std::max(sphereRadius[0].y, std::max(sphereRadius[1].y, sphereRadius[2].y));
-                        s.z = std::max(sphereRadius[0].z, std::max(sphereRadius[1].z, sphereRadius[2].z));
+                        s.x = std::max(sphereRadius[0].x,
+                                       std::max(sphereRadius[1].x,
+                                                sphereRadius[2].x));
+                        s.y = std::max(sphereRadius[0].y,
+                                       std::max(sphereRadius[1].y,
+                                                sphereRadius[2].y));
+                        s.z = std::max(sphereRadius[0].z,
+                                       std::max(sphereRadius[1].z,
+                                                sphereRadius[2].z));
 
                         if (isSketchupLightMaterial)
                             solrVertices.push_back(sphereCenter);
                         else
                         {
                             nbPrimitives = kernel.addPrimitive(ptEllipsoid);
-                            kernel.setPrimitive(nbPrimitives,
-                                                objectPosition.x + objectScale.x * (-objectCenter.x + sphereCenter.x),
-                                                objectPosition.y + objectScale.y * (-objectCenter.y + sphereCenter.y),
-                                                objectPosition.z + objectScale.z * (-objectCenter.z + sphereCenter.z),
-                                                objectScale.x * s.x, objectScale.y * s.y, objectScale.z * s.z,
-                                                material);
-                            kernel.setPrimitiveBellongsToModel(nbPrimitives, true);
+                            kernel.setPrimitive(
+                                nbPrimitives,
+                                objectPosition.x +
+                                    objectScale.x *
+                                        (-objectCenter.x + sphereCenter.x),
+                                objectPosition.y +
+                                    objectScale.y *
+                                        (-objectCenter.y + sphereCenter.y),
+                                objectPosition.z +
+                                    objectScale.z *
+                                        (-objectCenter.z + sphereCenter.z),
+                                objectScale.x * s.x, objectScale.y * s.y,
+                                objectScale.z * s.z, material);
+                            kernel.setPrimitiveBellongsToModel(nbPrimitives,
+                                                               true);
                         }
                     }
                     else
                     {
                         nbPrimitives = kernel.addPrimitive(ptTriangle);
                         kernel.setPrimitive(
-                            nbPrimitives, objectPosition.x + objectScale.x * (-objectCenter.x + vertices[face[f].x].x),
-                            objectPosition.y + objectScale.y * (-objectCenter.y + vertices[face[f].x].y),
-                            objectPosition.z + objectScale.z * (-objectCenter.z + vertices[face[f].x].z),
-                            objectPosition.x + objectScale.x * (-objectCenter.x + vertices[face[f + 1].x].x),
-                            objectPosition.y + objectScale.y * (-objectCenter.y + vertices[face[f + 1].x].y),
-                            objectPosition.z + objectScale.z * (-objectCenter.z + vertices[face[f + 1].x].z),
-                            objectPosition.x + objectScale.x * (-objectCenter.x + vertices[face[f + 2].x].x),
-                            objectPosition.y + objectScale.y * (-objectCenter.y + vertices[face[f + 2].x].y),
-                            objectPosition.z + objectScale.z * (-objectCenter.z + vertices[face[f + 2].x].z), 0.f, 0.f,
-                            0.f, material);
+                            nbPrimitives,
+                            objectPosition.x +
+                                objectScale.x *
+                                    (-objectCenter.x + vertices[face[f].x].x),
+                            objectPosition.y +
+                                objectScale.y *
+                                    (-objectCenter.y + vertices[face[f].x].y),
+                            objectPosition.z +
+                                objectScale.z *
+                                    (-objectCenter.z + vertices[face[f].x].z),
+                            objectPosition.x +
+                                objectScale.x * (-objectCenter.x +
+                                                 vertices[face[f + 1].x].x),
+                            objectPosition.y +
+                                objectScale.y * (-objectCenter.y +
+                                                 vertices[face[f + 1].x].y),
+                            objectPosition.z +
+                                objectScale.z * (-objectCenter.z +
+                                                 vertices[face[f + 1].x].z),
+                            objectPosition.x +
+                                objectScale.x * (-objectCenter.x +
+                                                 vertices[face[f + 2].x].x),
+                            objectPosition.y +
+                                objectScale.y * (-objectCenter.y +
+                                                 vertices[face[f + 2].x].y),
+                            objectPosition.z +
+                                objectScale.z * (-objectCenter.z +
+                                                 vertices[face[f + 2].x].z),
+                            0.f, 0.f, 0.f, material);
                         kernel.setPrimitiveBellongsToModel(nbPrimitives, true);
                     }
 
                     // Texture coordinates
-                    kernel.setPrimitiveTextureCoordinates(nbPrimitives, textureCoordinates[face[f].y],
-                                                          textureCoordinates[face[f + 1].y],
-                                                          textureCoordinates[face[f + 2].y]);
+                    kernel.setPrimitiveTextureCoordinates(
+                        nbPrimitives, textureCoordinates[face[f].y],
+                        textureCoordinates[face[f + 1].y],
+                        textureCoordinates[face[f + 2].y]);
 
                     // Normals
-                    kernel.setPrimitiveNormals(nbPrimitives, normals[face[f].z], normals[face[f + 1].z],
+                    kernel.setPrimitiveNormals(nbPrimitives, normals[face[f].z],
+                                               normals[face[f + 1].z],
                                                normals[face[f + 2].z]);
 
                     if (face.size() == 4)
@@ -744,51 +868,90 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
                         if (allSpheres)
                         {
                             vec4f sphereCenter;
-                            sphereCenter.x =
-                                (vertices[face[f + 3].x].x + vertices[face[f + 2].x].x + vertices[face[f].x].x) / 3.f;
-                            sphereCenter.y =
-                                (vertices[face[f + 3].x].y + vertices[face[f + 2].x].y + vertices[face[f].x].y) / 3.f;
-                            sphereCenter.z =
-                                (vertices[face[f + 3].x].z + vertices[face[f + 2].x].z + vertices[face[f].x].z) / 3.f;
+                            sphereCenter.x = (vertices[face[f + 3].x].x +
+                                              vertices[face[f + 2].x].x +
+                                              vertices[face[f].x].x) /
+                                             3.f;
+                            sphereCenter.y = (vertices[face[f + 3].x].y +
+                                              vertices[face[f + 2].x].y +
+                                              vertices[face[f].x].y) /
+                                             3.f;
+                            sphereCenter.z = (vertices[face[f + 3].x].z +
+                                              vertices[face[f + 2].x].z +
+                                              vertices[face[f].x].z) /
+                                             3.f;
 
                             vec4f sphereRadius;
-                            sphereRadius.x = sphereCenter.x - vertices[face[f].x].x;
-                            sphereRadius.y = sphereCenter.y - vertices[face[f].x].y;
-                            sphereRadius.z = sphereCenter.z - vertices[face[f].x].z;
+                            sphereRadius.x =
+                                sphereCenter.x - vertices[face[f].x].x;
+                            sphereRadius.y =
+                                sphereCenter.y - vertices[face[f].x].y;
+                            sphereRadius.z =
+                                sphereCenter.z - vertices[face[f].x].z;
 
                             float radius =
                                 100.f; // objectScale*sqrt(sphereRadius.x*sphereRadius.x+sphereRadius.y*sphereRadius.y+sphereRadius.z*sphereRadius.z);
 
                             nbPrimitives = kernel.addPrimitive(ptSphere);
-                            kernel.setPrimitive(nbPrimitives,
-                                                objectPosition.x + objectScale.x * (-objectCenter.x + sphereCenter.x),
-                                                objectPosition.y + objectScale.y * (-objectCenter.y + sphereCenter.y),
-                                                objectPosition.z + objectScale.z * (-objectCenter.z + sphereCenter.z),
-                                                radius, 0.f, 0.f, material);
-                            kernel.setPrimitiveBellongsToModel(nbPrimitives, true);
+                            kernel.setPrimitive(
+                                nbPrimitives,
+                                objectPosition.x +
+                                    objectScale.x *
+                                        (-objectCenter.x + sphereCenter.x),
+                                objectPosition.y +
+                                    objectScale.y *
+                                        (-objectCenter.y + sphereCenter.y),
+                                objectPosition.z +
+                                    objectScale.z *
+                                        (-objectCenter.z + sphereCenter.z),
+                                radius, 0.f, 0.f, material);
+                            kernel.setPrimitiveBellongsToModel(nbPrimitives,
+                                                               true);
                         }
                         else
                         {
                             nbPrimitives = kernel.addPrimitive(ptTriangle);
                             kernel.setPrimitive(
                                 nbPrimitives,
-                                objectPosition.x + objectScale.x * (-objectCenter.x + vertices[face[f + 3].x].x),
-                                objectPosition.y + objectScale.y * (-objectCenter.y + vertices[face[f + 3].x].y),
-                                objectPosition.z + objectScale.z * (-objectCenter.z + vertices[face[f + 3].x].z),
-                                objectPosition.x + objectScale.x * (-objectCenter.x + vertices[face[f + 2].x].x),
-                                objectPosition.y + objectScale.y * (-objectCenter.y + vertices[face[f + 2].x].y),
-                                objectPosition.z + objectScale.z * (-objectCenter.z + vertices[face[f + 2].x].z),
-                                objectPosition.x + objectScale.x * (-objectCenter.x + vertices[face[f].x].x),
-                                objectPosition.y + objectScale.y * (-objectCenter.y + vertices[face[f].x].y),
-                                objectPosition.z + objectScale.z * (-objectCenter.z + vertices[face[f].x].z), 0.f, 0.f,
-                                0.f, material);
-                            kernel.setPrimitiveBellongsToModel(nbPrimitives, true);
+                                objectPosition.x +
+                                    objectScale.x * (-objectCenter.x +
+                                                     vertices[face[f + 3].x].x),
+                                objectPosition.y +
+                                    objectScale.y * (-objectCenter.y +
+                                                     vertices[face[f + 3].x].y),
+                                objectPosition.z +
+                                    objectScale.z * (-objectCenter.z +
+                                                     vertices[face[f + 3].x].z),
+                                objectPosition.x +
+                                    objectScale.x * (-objectCenter.x +
+                                                     vertices[face[f + 2].x].x),
+                                objectPosition.y +
+                                    objectScale.y * (-objectCenter.y +
+                                                     vertices[face[f + 2].x].y),
+                                objectPosition.z +
+                                    objectScale.z * (-objectCenter.z +
+                                                     vertices[face[f + 2].x].z),
+                                objectPosition.x +
+                                    objectScale.x * (-objectCenter.x +
+                                                     vertices[face[f].x].x),
+                                objectPosition.y +
+                                    objectScale.y * (-objectCenter.y +
+                                                     vertices[face[f].x].y),
+                                objectPosition.z +
+                                    objectScale.z * (-objectCenter.z +
+                                                     vertices[face[f].x].z),
+                                0.f, 0.f, 0.f, material);
+                            kernel.setPrimitiveBellongsToModel(nbPrimitives,
+                                                               true);
                         }
                         // Texture coordinates
-                        kernel.setPrimitiveTextureCoordinates(nbPrimitives, textureCoordinates[face[f + 3].y],
-                                                              textureCoordinates[face[f + 2].y],
-                                                              textureCoordinates[face[f].y]);
-                        kernel.setPrimitiveNormals(nbPrimitives, normals[face[f + 3].z], normals[face[f + 2].z],
+                        kernel.setPrimitiveTextureCoordinates(
+                            nbPrimitives, textureCoordinates[face[f + 3].y],
+                            textureCoordinates[face[f + 2].y],
+                            textureCoordinates[face[f].y]);
+                        kernel.setPrimitiveNormals(nbPrimitives,
+                                                   normals[face[f + 3].z],
+                                                   normals[face[f + 2].z],
                                                    normals[face[f].z]);
                     }
                 }
@@ -798,28 +961,43 @@ vec4f OBJReader::loadModelFromFile(const std::string &filename, GPUKernel &kerne
 
         // Remaining SoL-R lights
         if (solrVertices.size() != 0)
-            addLightComponent(kernel, solrVertices, objectPosition, objectCenter, objectScale, sketchupMaterial, aabb);
+            addLightComponent(kernel, solrVertices, objectPosition,
+                              objectCenter, objectScale, sketchupMaterial,
+                              aabb);
     }
 
-    objectSize.x = objectScale.x * (aabb.parameters[1].x - aabb.parameters[0].x);
-    objectSize.y = objectScale.y * (aabb.parameters[1].y - aabb.parameters[0].y);
-    objectSize.z = objectScale.z * (aabb.parameters[1].z - aabb.parameters[0].z);
+    objectSize.x =
+        objectScale.x * (aabb.parameters[1].x - aabb.parameters[0].x);
+    objectSize.y =
+        objectScale.y * (aabb.parameters[1].y - aabb.parameters[0].y);
+    objectSize.z =
+        objectScale.z * (aabb.parameters[1].z - aabb.parameters[0].z);
 
     LOG_INFO(1, " - Vertices........: " << kernel.getNbActivePrimitives());
     LOG_INFO(1, " - Faces...........: " << kernel.getNbActivePrimitives() / 3);
-    LOG_INFO(3, " - Min.............: " << aabb.parameters[0].x << "," << aabb.parameters[0].y << ","
+    LOG_INFO(3, " - Min.............: " << aabb.parameters[0].x << ","
+                                        << aabb.parameters[0].y << ","
                                         << aabb.parameters[0].z);
-    LOG_INFO(3, " - Max.............: " << aabb.parameters[1].x << "," << aabb.parameters[1].y << ","
+    LOG_INFO(3, " - Max.............: " << aabb.parameters[1].x << ","
+                                        << aabb.parameters[1].y << ","
                                         << aabb.parameters[1].z);
-    LOG_INFO(3, " - Center..........: " << objectCenter.x << "," << objectCenter.y << "," << objectCenter.z);
-    LOG_INFO(3, " - Scale...........: " << objectScale.x << "," << objectScale.y << "," << objectScale.z);
-    LOG_INFO(1, " - Object size.....: " << objectSize.x << "," << objectSize.y << "," << objectSize.z);
-    LOG_INFO(3, " - AABB............: (" << aabb.parameters[0].x << "," << aabb.parameters[0].y << ","
-                                         << aabb.parameters[0].z << "),(" << aabb.parameters[1].x << ","
-                                         << aabb.parameters[1].y << "," << aabb.parameters[1].z << ")");
-    LOG_INFO(3, " - inAABB..........: (" << inAABB.parameters[0].x << "," << inAABB.parameters[0].y << ","
-                                         << inAABB.parameters[0].z << "),(" << inAABB.parameters[1].x << ","
-                                         << inAABB.parameters[1].y << "," << inAABB.parameters[1].z << ")");
+    LOG_INFO(3, " - Center..........: " << objectCenter.x << ","
+                                        << objectCenter.y << ","
+                                        << objectCenter.z);
+    LOG_INFO(3, " - Scale...........: " << objectScale.x << "," << objectScale.y
+                                        << "," << objectScale.z);
+    LOG_INFO(1, " - Object size.....: " << objectSize.x << "," << objectSize.y
+                                        << "," << objectSize.z);
+    LOG_INFO(3, " - AABB............: ("
+                    << aabb.parameters[0].x << "," << aabb.parameters[0].y
+                    << "," << aabb.parameters[0].z << "),("
+                    << aabb.parameters[1].x << "," << aabb.parameters[1].y
+                    << "," << aabb.parameters[1].z << ")");
+    LOG_INFO(3, " - inAABB..........: ("
+                    << inAABB.parameters[0].x << "," << inAABB.parameters[0].y
+                    << "," << inAABB.parameters[0].z << "),("
+                    << inAABB.parameters[1].x << "," << inAABB.parameters[1].y
+                    << "," << inAABB.parameters[1].z << ")");
     return objectSize;
 }
 } // namespace solr

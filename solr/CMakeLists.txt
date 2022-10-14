@@ -1,7 +1,23 @@
+# Copyright (c) 2011-2022, Cyrille Favreau
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 include_directories(${PROJECT_SOURCE_DIR}/solr ${PROJECT_SOURCE_DIR}/generated)
 
 SET(SOLR_SOURCES
     SolRStub.cpp
+    engines/random/RandomGenerator.cpp
     engines/GPUKernel.cpp
     #engines/cpu/CPUKernel.cpp
     io/PDBReader.cpp
@@ -19,6 +35,8 @@ SET(SOLR_SOURCES
 SET(SOLR_HEADERS
     Logging.h
     SolRStub.h
+    engines/random/RandomGenerator.h
+    engines/GPUKernel.h
     #engines/cpu/CPUKernel.h
     io/PDBReader.h
     io/OBJReader.h
@@ -43,6 +61,11 @@ SET(SOLR_PUBLIC_HEADERS
 SET(SOLR_ENGINE_PUBLIC_HEADERS
     engines/GPUKernel.h
 )
+
+unset(SOLR_ENGINE_LIBRARIES)
+if(QUANTIS_FOUND)
+SET(SOLR_ENGINE_LIBRARIES ${QUANTIS_LIBRARY})
+endif(QUANTIS_FOUND)
 
 if (CUDA_FOUND)
     if(UNIX)
@@ -90,7 +113,8 @@ if (CUDA_FOUND)
 		${KINECT_LIBRARIES}
 		${OCULUS_SDK_LIBRARIES}
 		${SIXENSESDK_LIBRARIES}
-                )
+        ${SOLR_ENGINE_LIBRARIES}
+    )
     list(APPEND SOLR_ENGINE_PUBLIC_HEADERS engines/cuda/CudaKernel.h)
 endif()
 
@@ -110,7 +134,8 @@ if(OPENCL_FOUND)
 		${KINECT_LIBRARIES}
 		${OCULUS_SDK_LIBRARIES}
 		${SIXENSESDK_LIBRARIES}
-        )
+        ${SOLR_ENGINE_LIBRARIES}
+    )
 
     # ================================================================================
     # Install kernels

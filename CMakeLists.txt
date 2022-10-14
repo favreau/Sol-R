@@ -1,3 +1,18 @@
+# Copyright (c) 2011-2022, Cyrille Favreau
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 cmake_minimum_required(VERSION 3.5)
 
 set(PROJECT_NAME SolR)
@@ -123,10 +138,13 @@ if (OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # ================================================================================
-# RANDOM _DEVICE
+# Quantis RANDOM DEVICE
 # ================================================================================
 if(SOLR_RANDOM_DEVICE_ENABLED)
+    find_package(Quantis REQUIRED SYSTEM)
+    include_directories(${QUANTIS_INCLUDE_DIR})
     list(APPEND FIND_PACKAGES_DEFINES USE_RANDOM_DEVICE)
+    add_compile_options(-Wno-deprecated)
 endif(SOLR_RANDOM_DEVICE_ENABLED)
 
 # ================================================================================

@@ -2,6 +2,10 @@
 
 # Welcome to Sol-R, the Speed Of Light Ray-tracer
 
+## Big news: Sol-R goes Quantum!
+
+Sol-R becomes Quantum of Sol-R, thanks to the use of a Quantum Physics based random generation device. I am still waiting for the hardware provider's authorization to share the code, but it you buy the [ID Quantique QRng](https://www.idquantique.com/random-number-generation/overview/) device, will simply need to modify the [RandomGenerator](./solr/engines/random/RandomGenerator.h) class, and I can tell you that it's pretty straight forward!
+
 ## Note about the Blue Brain BioExplorer, a Sol-R sequel
 
 If you like Sol-R, but you think it's now getting a bit old, you will love my new open-source, the [Blue Brain BioExplorer](https://github.com/BlueBrain/BioExplorer). Check-it out and star the GitHub Repository to support the project.
@@ -18,7 +22,7 @@ The idea was to produce a Ray-Tracer that has its own "personality". Most of the
 
 Take it for what it is! Sol-R is a lot of fun to play with if you like coding computer generated images.
 
-May the fun continue with your contributions! :-)
+May the fun continue with your contributions! :)
 
 ```
 usage: solrViewer
