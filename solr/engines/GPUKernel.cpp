@@ -73,6 +73,7 @@ extern "C" FILE *__cdecl __iob_func(void)
 using namespace solr;
 
 const unsigned int AABB_MAGIC_NUMBER = 6400;
+const float DEFAULT_RANDOM_MULTIPLIER = 0.002f;
 
 vec3f min2(const vec3f a, const vec3f b)
 {
@@ -190,7 +191,6 @@ GPUKernel::GPUKernel()
     , m_hPrimitives(0)
     , m_hLamps(0)
     , m_hMaterials(0)
-    , m_hRandoms(0)
     , m_hPrimitivesXYIds(0)
     , m_nbActiveMaterials(-1)
     , m_nbActiveTextures(0)
@@ -248,7 +248,7 @@ GPUKernel::GPUKernel()
     LOG_INFO(1, "                       Created by cyrille.favreau@gmail.com");
     LOG_INFO(1, "");
 
-    for (int i(0); i < NB_MAX_FRAMES; ++i)
+    for (size_t i = 0; i < NB_MAX_FRAMES; ++i)
     {
         m_nbActiveBoxes[i] = 0;
         m_nbActivePrimitives[i] = 0;
@@ -312,7 +312,7 @@ GPUKernel::GPUKernel()
     LOG_INFO(3, "----------------------------");
 #endif // USE_KINECT
 
-    RandomGenerator::getInstance().initialize();
+    RandomGenerator::getInstance().initialize(DEFAULT_RANDOM_MULTIPLIER);
 }
 
 GPUKernel::~GPUKernel()
@@ -372,18 +372,17 @@ void GPUKernel::initBuffers()
 
 void GPUKernel::cleanup()
 {
+    RandomGenerator::getInstance().pause();
 #ifdef USE_OCULUS
 // finializeOVR();
 #endif // USE_OCULUS
 
     LOG_INFO(3, "Cleaning up resources");
 
-    for (int i(0); i < NB_MAX_FRAMES; ++i)
+    for (size_t i = 0; i < NB_MAX_FRAMES; ++i)
     {
         for (int j(0); j < BOUNDING_BOXES_TREE_DEPTH; ++j)
-        {
             m_boundingBoxes[i][j].clear();
-        }
         m_nbActiveBoxes[i] = 0;
 
         m_primitives[i].clear();
@@ -400,17 +399,17 @@ void GPUKernel::cleanup()
         m_maxPos[i].z = m_sceneInfo.viewDistance;
     }
 
-    for (int i(0); i < NB_MAX_TEXTURES; ++i)
+    for (size_t i = 0; i < NB_MAX_TEXTURES; ++i)
     {
 #ifdef USE_KINECT
         if (i > 1 && m_hTextures[i].buffer)
-            delete[] m_hTextures[i].buffer;
+            delete m_hTextures[i].buffer;
 #else
         if (m_hTextures[i].buffer != 0)
         {
             LOG_INFO(3, "[cleanup] Buffer " << i << " needs to be released");
-            delete[] m_hTextures[i].buffer;
-            m_hTextures[i].buffer = 0;
+            delete m_hTextures[i].buffer;
+            m_hTextures[i].buffer = nullptr;
         }
 #endif // USE_KINECT
     }
@@ -420,32 +419,29 @@ void GPUKernel::cleanup()
     m_normals.clear();
     m_textCoords.clear();
 
-    if (m_hRandoms)
-        delete m_hRandoms;
-    m_hRandoms = 0;
     if (m_bitmap)
         delete[] m_bitmap;
-    m_bitmap = 0;
+    m_bitmap = nullptr;
 #ifndef USE_MANAGED_MEMORY
     if (m_hBoundingBoxes)
-        delete m_hBoundingBoxes;
-    m_hBoundingBoxes = 0;
+        delete[] m_hBoundingBoxes;
+    m_hBoundingBoxes = nullptr;
     if (m_hPrimitives)
-        delete m_hPrimitives;
+        delete[] m_hPrimitives;
     m_hPrimitives = nullptr;
 #endif
     if (m_hLamps)
-        delete m_hLamps;
-    m_hLamps = 0;
+        delete[] m_hLamps;
+    m_hLamps = nullptr;
     if (m_hMaterials)
-        delete m_hMaterials;
-    m_hMaterials = 0;
+        delete[] m_hMaterials;
+    m_hMaterials = nullptr;
     if (m_hPrimitivesXYIds)
-        delete m_hPrimitivesXYIds;
-    m_hPrimitivesXYIds = 0;
+        delete[] m_hPrimitivesXYIds;
+    m_hPrimitivesXYIds = nullptr;
     if (m_lightInformation)
-        delete m_lightInformation;
-    m_lightInformation = 0;
+        delete[] m_lightInformation;
+    m_lightInformation = nullptr;
 
     m_nbActiveMaterials = -1;
     m_nbActiveTextures = 0;
@@ -473,26 +469,25 @@ void GPUKernel::cleanup()
 
 void GPUKernel::reshape()
 {
-    size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
-
-    // Randoms
-    if (m_hRandoms)
-        delete m_hRandoms;
-    m_hRandoms = new RandomBuffer[size];
+    RandomGenerator::getInstance().pause();
+    const size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
+    LOG_INFO(1, "Reshaping frame buffers to " << m_sceneInfo.size.x << "x"
+                                              << m_sceneInfo.size.y);
 
     // Primitive IDs
     if (m_hPrimitivesXYIds)
-        delete m_hPrimitivesXYIds;
+        delete[] m_hPrimitivesXYIds;
     m_hPrimitivesXYIds = new PrimitiveXYIdBuffer[size];
     memset(m_hPrimitivesXYIds, 0, size * sizeof(PrimitiveXYIdBuffer));
 
     // Bitmap
     if (m_bitmap)
-        delete m_bitmap;
-    size *= gColorDepth;
-    m_bitmap = new BitmapBuffer[size];
-    memset(m_bitmap, 0, size * sizeof(BitmapBuffer));
-    LOG_INFO(3, m_bitmap << " - Bitmap Size=" << size);
+        delete[] m_bitmap;
+    m_bitmap = new BitmapBuffer[size * gColorDepth];
+
+    // Randoms
+    RandomGenerator::getInstance().reshape(size);
+    RandomGenerator::getInstance().resume();
 }
 
 /*
@@ -955,7 +950,7 @@ bool GPUKernel::updateOutterBoundingBox(CPUBoundingBox &outterBox,
 void GPUKernel::resetBoxes(bool resetPrimitives)
 {
     if (resetPrimitives)
-        for (int i(0); i < m_boundingBoxes[m_frame][0].size(); ++i)
+        for (size_t i = 0; i < m_boundingBoxes[m_frame][0].size(); ++i)
             resetBox(m_boundingBoxes[m_frame][0][i], resetPrimitives);
     else
         m_boundingBoxes[m_frame][0].clear();
@@ -1267,6 +1262,8 @@ void GPUKernel::recursiveDataStreamToGPU(const int depth,
 
 void GPUKernel::streamDataToGPU()
 {
+    RandomGenerator::getInstance().pause();
+
     LOG_INFO(3, "GPUKernel::streamDataToGPU");
     // --------------------------------------------------------------------------------
     // Transform data for ray-tracer
@@ -1421,7 +1418,7 @@ void GPUKernel::streamDataToGPU()
                   << "!=" << m_primitives[m_frame].size());
     }
 
-    for (int i(0); i < m_nbActiveBoxes[m_frame]; ++i)
+    for (size_t i = 0; i < m_nbActiveBoxes[m_frame]; ++i)
     {
         if (i + m_hBoundingBoxes[i].indexForNextBox.x >
             m_nbActiveBoxes[m_frame])
@@ -1430,6 +1427,7 @@ void GPUKernel::streamDataToGPU()
                              << i + m_hBoundingBoxes[i].indexForNextBox.x);
         }
     }
+    RandomGenerator::getInstance().resume();
 }
 
 void GPUKernel::resetFrame()
@@ -1440,7 +1438,7 @@ void GPUKernel::resetFrame()
 
     m_currentMaterial = 0;
 
-    for (int i(0); i < BOUNDING_BOXES_TREE_DEPTH; ++i)
+    for (size_t i = 0; i < BOUNDING_BOXES_TREE_DEPTH; ++i)
         m_boundingBoxes[m_frame][i].clear();
 
     m_boundingBoxes[m_frame][0].clear();
@@ -1478,16 +1476,16 @@ void GPUKernel::resetAll()
     m_nbActiveMaterials = -1;
     m_materialsTransfered = false;
 
-    for (int i(0); i < NB_MAX_TEXTURES; ++i)
+    for (size_t i = 0; i < NB_MAX_TEXTURES; ++i)
     {
 #ifdef USE_KINECT
         if (i > 1 && m_hTextures[i].buffer != 0)
-            delete[] m_hTextures[i].buffer;
+            delete m_hTextures[i].buffer;
 #else
         if (m_hTextures[i].buffer)
         {
             LOG_INFO(3, "[resetAll] Buffer " << i << " needs to be released");
-            delete[] m_hTextures[i].buffer;
+            delete m_hTextures[i].buffer;
             m_hTextures[i].buffer = 0;
         }
 #endif // USE_KINECT
@@ -1502,7 +1500,7 @@ void GPUKernel::resetAll()
 
 void GPUKernel::displayBoxesInfo()
 {
-    for (unsigned int i(0); i <= m_boundingBoxes[m_frame][0].size(); ++i)
+    for (unsigned int i = 0; i <= m_boundingBoxes[m_frame][0].size(); ++i)
     {
         CPUBoundingBox &box = m_boundingBoxes[m_frame][0][i];
         LOG_INFO(3, "Box " << i);
@@ -2240,7 +2238,7 @@ void GPUKernel::setTexture(const int index, const TextureInfo &textureInfo)
     if (index >= m_nbActiveTextures)
         ++m_nbActiveTextures;
     if (m_hTextures[index].buffer != 0)
-        delete[] m_hTextures[index].buffer;
+        delete m_hTextures[index].buffer;
     int size = textureInfo.size.x * textureInfo.size.y * textureInfo.size.z;
     m_hTextures[index].buffer = new BitmapBuffer[size];
     m_hTextures[index].offset = 0;
@@ -2411,7 +2409,7 @@ void GPUKernel::reorganizeLights()
                 {
                     // Lights
                     bool found(false);
-                    int i(0);
+                    size_t i = 0;
                     while (!found && i < m_nbActiveLamps[m_frame])
                     {
                         LOG_INFO(1, "[Box " << (*it).first << "] Lamp " << i
@@ -2500,7 +2498,7 @@ void GPUKernel::realignTexturesAndMaterials()
     processTextureOffsets();
 
     // Materials
-    for (int i(0); i < m_nbActiveMaterials; ++i)
+    for (size_t i = 0; i < m_nbActiveMaterials; ++i)
     {
         int diffuseTextureId = m_hMaterials[i].textureIds.x;
         int normalTextureId = m_hMaterials[i].textureIds.y;
@@ -2788,7 +2786,7 @@ int GPUKernel::setGLMode(const int &glMode)
     int p = -1;
     if (glMode == -1)
     {
-        for (int i(0); i < m_vertices.size(); ++i)
+        for (size_t i = 0; i < m_vertices.size(); ++i)
         {
             m_vertices[i].x += m_translation.x;
             m_vertices[i].y += m_translation.y;
@@ -2799,7 +2797,7 @@ int GPUKernel::setGLMode(const int &glMode)
         {
         case GL_POINTS:
         {
-            for (int i(0); i < m_vertices.size(); ++i)
+            for (size_t i = 0; i < m_vertices.size(); ++i)
             {
                 p = addPrimitive(ptSphere);
                 setPrimitive(p, m_vertices[i].x, m_vertices[i].y,
@@ -2812,7 +2810,7 @@ int GPUKernel::setGLMode(const int &glMode)
         case GL_LINES:
         {
             int nbLines = static_cast<int>(m_vertices.size() / 2);
-            for (int i(0); i < nbLines; ++i)
+            for (size_t i = 0; i < nbLines; ++i)
             {
                 int index = i * 2;
                 if (index + 1 <= m_vertices.size())
@@ -2831,7 +2829,7 @@ int GPUKernel::setGLMode(const int &glMode)
         {
             // Vertices
             int nbTriangles = static_cast<int>(m_vertices.size() / 3);
-            for (int i(0); i < nbTriangles; ++i)
+            for (size_t i = 0; i < nbTriangles; ++i)
             {
                 int index = i * 3;
                 if (index + 2 <= m_vertices.size())
@@ -2867,7 +2865,7 @@ int GPUKernel::setGLMode(const int &glMode)
         {
             // Vertices
             int nbQuads = static_cast<int>(m_vertices.size() / 4);
-            for (int i(0); i < nbQuads; ++i)
+            for (size_t i = 0; i < nbQuads; ++i)
             {
                 int p1, p2;
                 int index = i * 4;
@@ -3007,7 +3005,7 @@ void GPUKernel::processTextureOffsets()
 {
     // Reprocess offset
     int totalSize = 0;
-    for (int i(0); i < NB_MAX_TEXTURES; ++i)
+    for (size_t i = 0; i < NB_MAX_TEXTURES; ++i)
     {
         if (m_hTextures[i].buffer != 0)
         {
@@ -3032,14 +3030,19 @@ void GPUKernel::render_begin(const float timer)
              "Scene size: " << m_sceneInfo.size.x << "x" << m_sceneInfo.size.y);
 
     // Randoms
-    const size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
+    // const size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y;
     m_sceneInfo.timestamp = rand() % 10000;
-    if (!m_randomsTransfered || m_sceneInfo.pathTracingIteration % 20 == 1)
-    {
-        //     m_randomsTransfered = false;
-        auto floats = RandomGenerator::getInstance().getFloats(size, 0.001f);
-        memcpy(&m_hRandoms[0], floats.data(), floats.size() * sizeof(float));
-    }
+    // if (m_sceneInfo.pathTracingIteration % 20 == 19)
+    // m_sceneInfo.timestamp = rand() % m_sceneInfo.size.x;
+    // if (m_sceneInfo.pathTracingIteration % 20 == 19)
+    // {
+    //     m_randomsTransfered = false;
+    //     LOG_INFO(1, "Quantum");
+    //     auto floats =
+    //         RandomGenerator::getInstance().getFloats(size,
+    //                                                  DEFAULT_RANDOM_MULTIPLIER);
+    //     memcpy(&m_hRandoms[0], floats.data(), floats.size() * sizeof(float));
+    // }
 
 #ifdef USE_OCULUS
     if (m_oculus && m_sensorFusion && m_sensorFusion->IsAttachedToSensor())
@@ -3112,21 +3115,21 @@ void GPUKernel::generateScreenshot(const std::string &filename,
     LOG_INFO(1, "Generating screenshot " << filename << " (Quality=" << quality
                                          << ", Size=" << width << "x" << height
                                          << ")");
-    SceneInfo sceneInfo = m_sceneInfo;
     SceneInfo bakSceneInfo = m_sceneInfo;
-    sceneInfo.size.x = width;
-    sceneInfo.size.y = height;
-    sceneInfo.maxPathTracingIterations = quality;
+    m_sceneInfo.size.x = width;
+    m_sceneInfo.size.y = height;
+    m_sceneInfo.maxPathTracingIterations = quality;
+    reshape();
+
     for (unsigned int i = 0; i < quality; ++i)
     {
 #ifdef WIN32
         long t = GetTickCount();
 #endif
-        sceneInfo.pathTracingIteration = i;
-        m_sceneInfo = sceneInfo;
-        render_begin(0);
+        m_sceneInfo.pathTracingIteration = i;
+        render_begin(rand() % 10000);
         render_end();
-        LOG_INFO(1, "Frame " << i << " rendered!");
+        LOG_INFO(1, "Frame " << i << "/" << quality << " rendered!");
 #ifdef WIN32
         int avg = GetTickCount() - t;
         int left = static_cast<int>(static_cast<float>(quality - i) *
@@ -3134,45 +3137,37 @@ void GPUKernel::generateScreenshot(const std::string &filename,
         LOG_INFO(1, "Frame " << i << " generated in " << avg << "ms (" << left
                              << " seconds left...)");
 #endif
-        LOG_INFO(1, "Saving bitmap to disk");
-        size_t size = sceneInfo.size.x * sceneInfo.size.y * gColorDepth;
-        switch (sceneInfo.frameBufferType)
+    }
+
+    LOG_INFO(1, "Saving bitmap to disk: " << filename);
+    const size_t size = m_sceneInfo.size.x * m_sceneInfo.size.y * gColorDepth;
+    BitmapBuffer *dst = new BitmapBuffer[size];
+    switch (m_sceneInfo.frameBufferType)
+    {
+    case ftRGB:
+    {
+        for (size_t i = 0; i < size; i += gColorDepth)
         {
-        case ftRGB:
-        {
-            BitmapBuffer *dst = new BitmapBuffer[size];
-            for (int i(0); i < size; i += gColorDepth)
-            {
-                dst[i] = m_bitmap[size - i];
-                dst[i + 1] = m_bitmap[size - i + 1];
-                dst[i + 2] = m_bitmap[size - i + 2];
-            }
-            jpge::compress_image_to_jpeg_file(filename.c_str(),
-                                              sceneInfo.size.x,
-                                              sceneInfo.size.y, gColorDepth,
-                                              dst);
-            delete[] dst;
-            break;
-        }
-        default:
-        {
-            BitmapBuffer *dst = new BitmapBuffer[size];
-            for (int i(0); i < size; i += gColorDepth)
-            {
-                dst[i] = m_bitmap[size - i + 2];
-                dst[i + 1] = m_bitmap[size - i + 1];
-                dst[i + 2] = m_bitmap[size - i];
-            }
-            jpge::compress_image_to_jpeg_file(filename.c_str(),
-                                              sceneInfo.size.x,
-                                              sceneInfo.size.y, gColorDepth,
-                                              dst);
-            delete[] dst;
-            break;
+            dst[i] = m_bitmap[size - i];
+            dst[i + 1] = m_bitmap[size - i + 1];
+            dst[i + 2] = m_bitmap[size - i + 2];
         }
         break;
-        }
     }
+    default:
+    {
+        for (size_t i = 0; i < size; i += gColorDepth)
+        {
+            dst[i] = m_bitmap[size - i + 2];
+            dst[i + 1] = m_bitmap[size - i + 1];
+            dst[i + 2] = m_bitmap[size - i];
+        }
+        break;
+    }
+    }
+    jpge::compress_image_to_jpeg_file(filename.c_str(), m_sceneInfo.size.x,
+                                      m_sceneInfo.size.y, gColorDepth, dst);
+    delete dst;
     m_sceneInfo = bakSceneInfo;
     LOG_INFO(1, "Screenshot successfully generated!");
 }

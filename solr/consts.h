@@ -34,8 +34,8 @@ const unsigned int NB_MAX_MATERIALS =
 const unsigned int NB_MAX_TEXTURES = 512;
 const unsigned int NB_MAX_FRAMES = 512;
 const unsigned int NB_MAX_LIGHTINFORMATIONS = 512;
-const unsigned int MAX_BITMAP_WIDTH = 1920;
-const unsigned int MAX_BITMAP_HEIGHT = 1080;
+const unsigned int MAX_BITMAP_WIDTH = 3840;
+const unsigned int MAX_BITMAP_HEIGHT = 3840;
 const unsigned int MAX_BITMAP_SIZE = MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT;
 
 // Constants

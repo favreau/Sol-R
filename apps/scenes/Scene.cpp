@@ -376,10 +376,16 @@ void Scene::createRandomMaterials(bool update, bool lightsOnly)
         specular.z = 0.f;
         specular.w = 0.f;
 
+        int refractionPower = 5;
+#if 1
         float reflection = 0.f;
         float refraction = 0.f;
         float transparency = 0.f;
-        int refractionPower = 5;
+#else
+        float reflection = 0.1f + rand() % 500 / 1000.f;
+        float refraction = 1.01f + 0.1f * (rand() % refractionPower);
+        float transparency = (i % 10 == 0 ? 0.5f + rand() % 500 / 1000.f : 0.f);
+#endif
 
         int diffuseTextureId = TEXTURE_NONE;
         int normalTextureId = TEXTURE_NONE;

@@ -4,7 +4,10 @@
 
 ## Big news: Sol-R goes Quantum!
 
-Sol-R becomes Quantum of Sol-R, thanks to the use of a Quantum Physics based random generation device. I am still waiting for the hardware provider's authorization to share the code, but it you buy the [ID Quantique QRng](https://www.idquantique.com/random-number-generation/overview/) device, will simply need to modify the [RandomGenerator](./solr/engines/random/RandomGenerator.h) class, and I can tell you that it's pretty straight forward!
+Sol-R becomes Quantum of Sol-R, thanks to the use of a Quantum Physics based random generation device. Unfortunately, the API to access the random number generator is not open-source but if you buy the [ID Quantique QRng](https://www.idquantique.com/random-number-generation/overview/) device, you will simply need to modify the *_getFloats* implementation of the [RandomGenerator](./solr/engines/random/RandomGenerator.h) class, and I can tell you that it's pretty straight forward! You will also need to add set the _SOLR_RANDOM_DEVICE_ENABLED_ cmake option to _ON_ before configuring the project.
+
+![Sol-R_001](doc/images/Sol-R_001.png)
+
 
 ## Note about the Blue Brain BioExplorer, a Sol-R sequel
 
@@ -14,7 +17,7 @@ If you like Sol-R, but you think it's now getting a bit old, you will love my ne
 Sol-R is a CUDA/OpenCL-based realtime ray-tracer compatible with Oculus Rift DK1, Kinect, Razor Hydra and Leap Motion devices.
 Sol-R was used by the Interactive Molecular Visualizer project (http://www.molecular-visualization.com)
 
-A number of videos can be found on my channel: https://www.youtube.com/user/CyrilleOnDrums
+A number of videos can be found on my [Youtube channel](https://www.youtube.com/user/CyrilleOnDrums).
 
 Sol-R was written as a hobby project in order to understand and learn more about CUDA and OpenCL. Most of the code was written at night and during week-ends, meaning that it's probably not the best quality ever ;-)
 
@@ -27,6 +30,9 @@ May the fun continue with your contributions! :)
 ```
 usage: solrViewer
 ```
+
+![Sol-R_002](doc/images/Sol-R_002.png)
+
 
 ## Prerequeries
 
@@ -68,21 +74,9 @@ Optional dependencies can be activated using the following cmake options:
 cmake .. -DSOLR_KINECT_ENABLED=ON -DSOLR_OCULUS_ENABLED=ON -DSOLR_SIXENSE_ENABLED -DSOLR_LEAPMOTION_ENABLED=ON
 ```
 
-### Screenshots
-![Sol-R_001](doc/images/Sol-R_001.png)
-![Sol-R_002](doc/images/Sol-R_002.png)
-![Sol-R_003](doc/images/Sol-R_003.png)
-![Sol-R_004](doc/images/Sol-R_004.png)
-![Sol-R_005](doc/images/Sol-R_005.png)
-![Sol-R_006](doc/images/Sol-R_006.png)
-![Sol-R_007](doc/images/Sol-R_007.png)
-![Sol-R_008](doc/images/Sol-R_008.png)
-![Sol-R_009](doc/images/Sol-R_009.png)
-![Sol-R_009](doc/images/Sol-R_010.png)
-
 ### Supported platforms
 
 Sol-R has currently been tested on:
 - Windows 7 with Visual Studio 2015 Community edition
 - Mac OS X Sierra 10.12.15
-- Ubuntu 16.04
+- Ubuntu 20.04

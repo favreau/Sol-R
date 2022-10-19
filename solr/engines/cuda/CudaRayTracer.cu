@@ -1771,14 +1771,13 @@ extern "C" void h2d_materials(int2 occupancyParameters, Material* materials,
     }
 }
 
-extern "C" void h2d_randoms(int2 occupancyParameters, float* randoms)
+extern "C" void h2d_randoms(int2 occupancyParameters, float* randoms, int2 size)
 {
     for (int device(0); device < occupancyParameters.x; ++device)
     {
         checkCudaErrors(cudaSetDevice(device));
         checkCudaErrors(cudaMemcpyAsync(d_randoms[device], randoms,
-                                        MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT *
-                                            sizeof(float),
+                                        size.x * size.y * sizeof(float),
                                         cudaMemcpyHostToDevice,
                                         d_streams[device][0]));
     }

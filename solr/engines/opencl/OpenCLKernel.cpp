@@ -23,6 +23,7 @@
 
 #include <Logging.h>
 #include <engines/opencl/OpenCLKernel.h>
+#include <engines/random/RandomGenerator.h>
 #include <solr.h>
 
 #ifdef WIN32
@@ -606,11 +607,10 @@ void OpenCLKernel::render_begin(const float timer)
 
         if (!m_randomsTransfered)
         {
-            CHECKSTATUS(
-                clEnqueueWriteBuffer(m_hQueue, m_dRandoms, CL_TRUE, 0,
-                                     m_sceneInfo.size.x * m_sceneInfo.size.y *
-                                         sizeof(RandomBuffer),
-                                     m_hRandoms, 0, NULL, NULL));
+            CHECKSTATUS(clEnqueueWriteBuffer(
+                m_hQueue, m_dRandoms, CL_TRUE, 0,
+                m_sceneInfo.size.x * m_sceneInfo.size.y * sizeof(RandomBuffer),
+                RandomGenerator::getInstance().getBuffer(), 0, NULL, NULL));
             m_randomsTransfered = true;
         }
 

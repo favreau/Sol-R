@@ -25,6 +25,8 @@
 
 #include "CudaKernel.h"
 #include "CudaRayTracer.h"
+#include <engines/random/RandomGenerator.h>
+
 #include <Logging.h>
 #include <consts.h>
 
@@ -218,13 +220,6 @@ void CudaKernel::render_begin(const float timer)
             m_primitivesTransfered = true;
         }
 
-        if (!m_randomsTransfered)
-        {
-            h2d_randoms(m_occupancyParameters, m_hRandoms);
-            LOG_INFO(3, "Transfering random numbers");
-            m_randomsTransfered = true;
-        }
-
         if (!m_materialsTransfered)
         {
             realignTexturesAndMaterials();
@@ -306,6 +301,10 @@ void CudaKernel::render_begin(const float timer)
         if (m_sceneInfo.draftMode && m_sceneInfo.pathTracingIteration ==
                                          m_sceneInfo.maxPathTracingIterations)
             sceneInfo.cameraType = ctAntialiazed;
+
+        // LOG_INFO(1, "Transfering random numbers");
+        h2d_randoms(m_occupancyParameters,
+                    RandomGenerator::getInstance().getBuffer(), sceneInfo.size);
 
         cudaRender(m_occupancyParameters, m_blockSize, sceneInfo, objects,
                    m_postProcessingInfo, m_viewPos, m_viewDir, m_angles
@@ -556,49 +555,27 @@ void CudaKernel::queryDevice()
         LOG_INFO(3, " - PostProcessingInfo: " << sizeof(PostProcessingInfo));
     }
 
-    // exe and CUDA driver name
-    std::string sProfileString = "deviceQuery, CUDA Driver = CUDART";
-    char cTemp[10];
-
     // driver version
-    sProfileString += ", CUDA Driver Version = ";
-#ifdef WIN32
-    sprintf_s(cTemp, 10, "%d.%d", driverVersion / 1000,
-              (driverVersion % 100) / 10);
-#else
-    sprintf(cTemp, "%d.%d", driverVersion / 1000, (driverVersion % 100) / 10);
-#endif
-    sProfileString += cTemp;
+    LOG_INFO(1, "CUDA Driver Version   : " << driverVersion / 1000 << "."
+                                           << (driverVersion % 100) / 10);
 
     // Runtime version
-    sProfileString += ", CUDA Runtime Version = ";
-#ifdef WIN32
-    sprintf_s(cTemp, 10, "%d.%d", runtimeVersion / 1000,
-              (runtimeVersion % 100) / 10);
-#else
-    sprintf(cTemp, "%d.%d", runtimeVersion / 1000, (runtimeVersion % 100) / 10);
-#endif
-    sProfileString += cTemp;
+    LOG_INFO(1, "CUDA Runtime Version  : " << runtimeVersion / 1000 << "."
+                                           << (runtimeVersion % 100) / 10);
 
     // Device count
-    sProfileString += ", NumDevs = ";
-#ifdef WIN32
-    sprintf_s(cTemp, 10, "%d", deviceCount);
-#else
-    sprintf(cTemp, "%d", deviceCount);
-#endif
-    sProfileString += cTemp;
+    LOG_INFO(1, "Number of CUDA devices: " << deviceCount);
 
     // First 2 device names, if any
     for (dev = 0; dev < ((deviceCount > 2) ? 2 : deviceCount); ++dev)
     {
         cudaDeviceProp deviceProp;
         cudaGetDeviceProperties(&deviceProp, dev);
-        sProfileString += ", Device = ";
-        sProfileString += deviceProp.name;
+        LOG_INFO(1, " - Device             : " << deviceProp.name);
     }
-    LOG_INFO(3, " - Profile........................................: "
-                    << sProfileString);
+    LOG_INFO(1,
+             "-----------------------------------------------------------------"
+             "---------------");
 }
 
 void CudaKernel::reshape()

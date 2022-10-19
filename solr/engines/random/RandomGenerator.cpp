@@ -19,34 +19,72 @@
 
 #include "Logging.h"
 
-#ifdef USE_RANDOM_DEVICE
-#include <iomanip>
-#endif
+namespace solr
+{
 
 RandomGenerator* RandomGenerator::_instance = nullptr;
 std::mutex RandomGenerator::_mutex;
 
-RandomGenerator::RandomGenerator() {}
-
-RandomGenerator::~RandomGenerator() {}
-
-void RandomGenerator::initialize()
+RandomGenerator::~RandomGenerator()
 {
-#if USE_RANDOM_DEVICE
-    // WAITING TO BE VALIDATED BY HARDWARE PROVIDER
-#endif
+    close();
 }
 
-std::vector<float> RandomGenerator::getFloats(const size_t nbFloats,
-                                              const float multiplier)
+void RandomGenerator::close()
 {
-    std::vector<float> floats;
-    floats.resize(nbFloats);
-#if USE_RANDOM_DEVICE
-    // WAITING TO BE VALIDATED BY HARDWARE PROVIDER
-#else
-    for (int i = 0; i < nbFloats; ++i)
-        floats[i] = multiplier * (rand() % 200 - 100) / 100.f;
-#endif
-    return floats;
+    if (_thread)
+    {
+        delete _thread;
+        _thread = nullptr;
+    }
 }
+
+void RandomGenerator::initialize(const float multiplier)
+{
+    _multiplier = multiplier;
+    _count = 0;
+    _thread = new std::thread(&RandomGenerator::_getFloats, this);
+    if (_thread)
+    {
+        LOG_INFO(1, "Thread for random numbers is up and running!");
+        _thread->detach();
+    }
+}
+
+void RandomGenerator::reshape(const size_t nbFloats)
+{
+    LOG_INFO(1, "Reshaping random generator to " << nbFloats << " floats");
+    _randomMutex.lock();
+    _buffer.resize(nbFloats);
+    _randomMutex.unlock();
+}
+
+void RandomGenerator::_getFloats()
+{
+    while (true)
+    {
+        if (_paused)
+            continue;
+        _randomMutex.lock();
+        LOG_INFO(3, "Fetching " << _buffer.size() << " from CPU");
+        for (size_t i = 0; i < _buffer.size() && !_paused; ++i)
+            _buffer[i] = _multiplier * (rand() % 200 - 100) / 100.f;
+        _randomMutex.unlock();
+    }
+}
+
+void RandomGenerator::pause()
+{
+    _paused = true;
+    // Wait for thread to complete current loop
+    _randomMutex.lock();
+    _randomMutex.unlock();
+}
+
+void RandomGenerator::resume()
+{
+    _paused = false;
+    _randomMutex.unlock();
+}
+
+} // namespace solr

@@ -341,18 +341,17 @@ protected:
 
 protected:
     // GPU
-    BoundingBox *m_hBoundingBoxes;
-    Primitive *m_hPrimitives;
-    int *m_hLamps;
-    Material *m_hMaterials;
+    BoundingBox *m_hBoundingBoxes{nullptr};
+    Primitive *m_hPrimitives{nullptr};
+    int *m_hLamps{nullptr};
+    Material *m_hMaterials{nullptr};
 
     // Textures
     TextureInfo m_hTextures[NB_MAX_TEXTURES];
     std::map<int, std::string> m_textureFilenames;
 
     // Scene
-    RandomBuffer *m_hRandoms;
-    PrimitiveXYIdBuffer *m_hPrimitivesXYIds;
+    PrimitiveXYIdBuffer *m_hPrimitivesXYIds{nullptr};
 
     // Acceleration structures
     int m_nbActiveBoxes[NB_MAX_FRAMES];
@@ -417,7 +416,7 @@ protected:
     BoxContainer m_boundingBoxes[NB_MAX_FRAMES][BOUNDING_BOXES_TREE_DEPTH];
     PrimitiveContainer m_primitives[NB_MAX_FRAMES];
     LampContainer m_lamps[NB_MAX_FRAMES];
-    LightInformation *m_lightInformation;
+    LightInformation *m_lightInformation{nullptr};
 
 protected:
     int m_optimalNbOfBoxes;

@@ -138,13 +138,12 @@ if (OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # ================================================================================
-# Quantis RANDOM DEVICE
+# Random Generation device
 # ================================================================================
 if(SOLR_RANDOM_DEVICE_ENABLED)
-    find_package(Quantis REQUIRED SYSTEM)
-    include_directories(${QUANTIS_INCLUDE_DIR})
-    list(APPEND FIND_PACKAGES_DEFINES USE_RANDOM_DEVICE)
-    add_compile_options(-Wno-deprecated)
+    # TODO: Find package of random device library and add includes/libs
+    # include_directories(${ ... _INCLUDE_DIR})
+    # list(APPEND FIND_PACKAGES_DEFINES USE_RANDOM_DEVICE)
 endif(SOLR_RANDOM_DEVICE_ENABLED)
 
 # ================================================================================

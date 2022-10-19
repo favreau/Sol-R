@@ -17,25 +17,23 @@
 
 #pragma once
 
-#include <solr_defines.h>
+#include <solr.h>
 
-#if USE_RANDOM_DEVICE
-// WAITING TO BE VALIDATED BY HARDWARE PROVIDER
-#else
 #include <random>
-#endif
 
 #include <map>
 #include <mutex>
-#include <vector>
+#include <thread>
 
+namespace solr
+{
 class RandomGenerator
 {
 public:
     /**
      * @brief Get the Instance object
      *
-     * @return GeneralSettings* Pointer to the object
+     * @return RandomGenerator Reference to the object
      */
     static RandomGenerator& getInstance()
     {
@@ -45,20 +43,58 @@ public:
         return *_instance;
     }
 
-    void initialize();
+    /**
+     * @brief Initialized the random frame buffer, a buffer with the size of the
+     * image, filled with random numbers and used by the engine for launching
+     * random rays. Random numbers are constantly processed in a dedicated
+     * thread. The random frame buffer is transferred to the GPU before
+     * rendering.
+     *
+     * @param multiplier Multiplier applied to every random number
+     */
+    void initialize(const float multiplier);
 
-    std::vector<float> getFloats(const size_t nbFloats, const float multiplier);
+    /**
+     * @brief Pauses the thread
+     *
+     */
+    void pause();
+    /**
+     * @brief Resumes the thread
+     *
+     */
+    void resume();
+
+    /**
+     * @brief Stops the thread and releases potential randomization devices
+     *
+     */
+    void close();
+
+    /**
+     * @brief Set the Buffer object
+     *
+     * @param buffer Pointer to the buffer filled by the randomizer
+     * @param nbFloats Number of floats in the buffer
+     */
+    void reshape(const size_t nbFloats);
+
+    RandomBuffer* getBuffer() { return _buffer.data(); }
 
     static std::mutex _mutex;
     static RandomGenerator* _instance;
 
 private:
-    RandomGenerator();
+    void _getFloats();
+
     ~RandomGenerator();
 
-#if USE_RANDOM_DEVICE
-    // WAITING TO BE VALIDATED BY HARDWARE PROVIDER
-#endif
+    std::thread* _thread{nullptr};
+    std::vector<RandomBuffer> _buffer;
+    float _multiplier;
+    size_t _count{0};
+    bool _paused{false};
 
-    bool _initialized{false};
+    std::mutex _randomMutex;
 };
+} // namespace solr

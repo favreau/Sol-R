@@ -59,6 +59,8 @@
 #include <scenes/science/SwcScene.h>
 #include <scenes/science/TesseractScene.h>
 
+#include <solr/engines/random/RandomGenerator.h>
+
 // Ray-tracing Kernel
 solr::GPUKernel *gKernel = solr::SingletonKernel::kernel();
 
@@ -500,7 +502,6 @@ void reshape(int x, int y)
         x += 32 - (x % 32);
     if (y % 32 != 0)
         y += 32 - (y % 32);
-    // y = x*9/16;
     SceneInfo &sceneInfo = gScene->getSceneInfo();
     sceneInfo.size.x = x;
     sceneInfo.size.y = y;
@@ -782,14 +783,12 @@ void keyboard(unsigned char key, int x, int y)
             std::string filename(
                 "E:/Cloud/Dropbox/Samsung Link/Photos/1K/CudaSolR_");
 #else
-            std::string filename("~/Pictures/1K/CudaSolR_");
+            std::string filename("/tmp/CudaSolR_1k_");
 #endif
             filename += buffer;
 
             if (kernel)
-                kernel->generateScreenshot(
-                    filename, 2100, 2970,
-                    gScene->getSceneInfo().maxPathTracingIterations);
+                kernel->generateScreenshot(filename, 960, 960, 256);
         }
         else
         {
@@ -797,13 +796,11 @@ void keyboard(unsigned char key, int x, int y)
             std::string filename(
                 "E:/Cloud/Dropbox/Samsung Link/Photos/4K/CudaSolR_");
 #else
-            std::string filename("~/Pictures/4K/CudaSolR_");
+            std::string filename("/tmp/CudaSolR_4k_");
 #endif
             filename += buffer;
             if (kernel)
-                kernel->generateScreenshot(
-                    filename, 2 * 2970, 2 * 2100,
-                    gScene->getSceneInfo().maxPathTracingIterations);
+                kernel->generateScreenshot(filename, 3840, 3840, 256);
         }
         break;
     }
@@ -1233,6 +1230,7 @@ void motion(int x, int y)
 
 void Cleanup(int iExitCode)
 {
+    RandomGenerator::getInstance().close();
 #ifdef WIN32
     gTickCount = GetTickCount() - gTickCount;
     LOG_INFO(1, "Benchmark: " << gTickCount << " tick counts");
@@ -1324,6 +1322,7 @@ void createKinectScene(int platform, int device)
 
 void createScene()
 {
+    RandomGenerator::getInstance().pause();
     gAnimate = false;
     gHint = "Camera";
     switch (gSceneId)
@@ -1392,14 +1391,11 @@ void createScene()
     gScene->setCurrentModel(m_counter);
     gScene->initialize(gKernel, gWindowWidth, gWindowHeight);
     gKernel->setCamera(gViewPos, gViewDir, gViewAngles);
+    RandomGenerator::getInstance().resume();
 }
 
 int main(int argc, char *argv[])
 {
-#if USE_RANDOM_DEVICE
-    LOG_INFO(1, "Using random device generator");
-#endif
-
     std::vector<std::string> arguments;
     for (int i(0); i < argc; ++i)
     {
@@ -1417,7 +1413,7 @@ int main(int argc, char *argv[])
 
     LOG_INFO(1, "Sol-R is happily running... (^_^)y");
     for (const auto &menuItem : menuItems)
-        LOG_INFO(1, menuItem.description);
+        LOG_INFO(3, menuItem.description);
 
     glutMainLoop();
 

@@ -46,7 +46,8 @@ extern "C" void h2d_scene(vec2i occupancyParameters, BoundingBox *boundingBoxes,
 extern "C" void h2d_materials(vec2i occupancyParameters, Material *materials,
                               int nbActiveMaterials);
 
-extern "C" void h2d_randoms(vec2i occupancyParameters, float *randoms);
+extern "C" void h2d_randoms(vec2i occupancyParameters, float *randoms,
+                            vec2i size);
 
 extern "C" void h2d_textures(vec2i occupancyParameters, int activeTextures,
                              TextureInfo *textureInfos);

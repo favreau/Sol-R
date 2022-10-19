@@ -63,9 +63,11 @@ SET(SOLR_ENGINE_PUBLIC_HEADERS
 )
 
 unset(SOLR_ENGINE_LIBRARIES)
-if(QUANTIS_FOUND)
-SET(SOLR_ENGINE_LIBRARIES ${QUANTIS_LIBRARY})
-endif(QUANTIS_FOUND)
+
+# TODO: Include random number device library
+#if( ... _FOUND)
+#  SET(SOLR_ENGINE_LIBRARIES ${ ... _LIBRARY})
+#endif( ... _FOUND)
 
 if (CUDA_FOUND)
     if(UNIX)
