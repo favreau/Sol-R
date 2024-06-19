@@ -24,17 +24,17 @@
 
 // Device resources
 #ifndef USE_MANAGED_MEMORY
-BoundingBox* d_boundingBoxes[MAX_GPU_COUNT];
-Primitive* d_primitives[MAX_GPU_COUNT];
+magicalBoundaries* d_boundingBoxes[MAX_GPU_COUNT];
+middleEarthCreatures* d_primitives[MAX_GPU_COUNT];
 #endif
 Lamp* d_lamps[MAX_GPU_COUNT];
-Material* d_materials[MAX_GPU_COUNT];
-BitmapBuffer* d_textures[MAX_GPU_COUNT];
-LightInformation* d_lightInformation[MAX_GPU_COUNT];
-RandomBuffer* d_randoms[MAX_GPU_COUNT];
+elvenCrafts* d_materials[MAX_GPU_COUNT];
+elvenTextures* d_textures[MAX_GPU_COUNT];
+gandalfLights* d_lightInformation[MAX_GPU_COUNT];
+randomMagic* d_randoms[MAX_GPU_COUNT];
 PostProcessingBuffer* d_postProcessingBuffer[MAX_GPU_COUNT];
-BitmapBuffer* d_bitmap[MAX_GPU_COUNT];
-PrimitiveXYIdBuffer* d_primitivesXYIds[MAX_GPU_COUNT];
+elvenTextures* d_bitmap[MAX_GPU_COUNT];
+middleEarthCreaturesXYIdBuffer* d_primitivesXYIds[MAX_GPU_COUNT];
 cudaStream_t d_streams[MAX_GPU_COUNT][MAX_STREAM_COUNT];
 
 #define FREECUDARESOURCE(__x)           \
@@ -44,47 +44,71 @@ cudaStream_t d_streams[MAX_GPU_COUNT][MAX_STREAM_COUNT];
         __x = 0;                        \
     }
 
-__device__ __INLINE__ float4 launchVolumeRendering(
-    const int& index, BoundingBox* boundingBoxes, const int& nbActiveBoxes,
-    Primitive* primitives, const int& nbActivePrimitives,
-    LightInformation* lightInformation, const int& lightInformationSize,
-    const int& nbActiveLamps, Material* materials, BitmapBuffer* textures,
-    RandomBuffer* randoms, const Ray& ray, const SceneInfo& sceneInfo,
-    const PostProcessingInfo& postProcessingInfo, float& depthOfField,
-    PrimitiveXYIdBuffer& primitiveXYId)
+
+/**
+ * @brief Launches volume rendering through the enchanted lands of Middle-earth.
+ * 
+ * This function invokes the volume rendering process by traversing various elements
+ * of the scene, such as magical bounding boxes (BoundingBox), primitives (creatures and artifacts),
+ * and light information (lights of Gandalf and other lamps).
+ * 
+ * @param fellowshipIndex Index of the current element in the rendering
+ * @param magicalBoundaries Bounding boxes representing magical boundaries
+ * @param nbActiveBoundaries Number of active bounding boxes
+ * @param middleEarthCreatures Primitives representing creatures and artifacts
+ * @param nbActiveCreatures Number of active primitives
+ * @param gandalfLights Information about the light sources (lights of Gandalf)
+ * @param lightInfoSize Size of the light information
+ * @param nbActiveLamps Number of active lamps
+ * @param elvenCrafts Materials (objects forged by elves)
+ * @param elvenTextures Textures applied to objects (elven weaves)
+ * @param randomMagic Buffers of random numbers (random magic)
+ * @param ringQuest Ray representing the path of light (the quest of the ring)
+ * @param journeyDepth Depth of the traversal (distance traveled by the light)
+ * @return Resulting color after traversing the elements
+ */
+
+__device__ __INLINE__ float4 traverseMiddleEarthRendering(
+    const int& fellowshipIndex, magicalBoundaries* boundingBoxes, const int& nbActiveBoundaries,
+    middleEarthCreatures* primitives, const int& nbActivemiddleEarthCreaturess,
+    gandalfLights* lightInformation, const int& lightInfoSize,
+    const int& nbActiveLamps, elvenCrafts* materials, elvenTextures* textures,
+    randomMagic* randoms, const ringQuest& ray, const SceneInfo& sceneInfo,
+    const PostProcessingInfo& postProcessingInfo, float& journeyDepthOfField,
+    middleEarthCreaturesXYIdBuffer& primitiveXYId)
 {
     primitiveXYId.x = -1;
     primitiveXYId.y = 1;
     primitiveXYId.z = 0;
-    float4 intersectionColor = intersectionsWithPrimitives(
-        index, sceneInfo, boundingBoxes, nbActiveBoxes, primitives,
-        nbActivePrimitives, materials, textures, lightInformation,
-        lightInformationSize, nbActiveLamps, randoms, postProcessingInfo, ray);
+    float4 intersectionColor = intersectionsWithmiddleEarthCreaturess(
+        fellowshipIndex, sceneInfo, boundingBoxes, nbActiveBoundaries, primitives,
+        nbActivemiddleEarthCreaturess, materials, textures, lightInformation,
+        lightInfoSize, nbActiveLamps, randoms, postProcessingInfo, ray);
     return intersectionColor;
 }
 
-__device__ __INLINE__ float4 launchRayTracing(
-    const int& index, BoundingBox* boundingBoxes, const int& nbActiveBoxes,
-    Primitive* primitives, const int& nbActivePrimitives,
-    LightInformation* lightInformation, const int& lightInformationSize,
-    const int& nbActiveLamps, Material* materials, BitmapBuffer* textures,
-    RandomBuffer* randoms, const Ray& ray, const SceneInfo& sceneInfo,
-    const PostProcessingInfo& postProcessingInfo, float& depthOfField,
-    PrimitiveXYIdBuffer& primitiveXYId)
+__device__ __INLINE__ float4 launchringQuestTracing(
+    const int& fellowshipIndex, magicalBoundaries* boundingBoxes, const int& nbActiveBoundaries,
+    middleEarthCreatures* primitives, const int& nbActivemiddleEarthCreaturess,
+    gandalfLights* lightInformation, const int& lightInfoSize,
+    const int& nbActiveLamps, elvenCrafts* materials, elvenTextures* textures,
+    randomMagic* randoms, const ringQuest& ray, const SceneInfo& sceneInfo,
+    const PostProcessingInfo& postProcessingInfo, float& journeyDepthOfField,
+    middleEarthCreaturesXYIdBuffer& primitiveXYId)
 {
     float4 intersectionColor = {0.f, 0.f, 0.f, 0.f};
     vec3f closestIntersection = {0.f, 0.f, 0.f};
     vec3f firstIntersection = {0.f, 0.f, 0.f};
     vec3f normal = {0.f, 0.f, 0.f};
-    int closestPrimitive = -1;
+    int closestmiddleEarthCreatures = -1;
     bool carryon = true;
-    Ray rayOrigin = ray;
+    ringQuest rayOrigin = ray;
     float initialRefraction = 1.f;
     int iteration = 0;
     primitiveXYId.x = -1;
     primitiveXYId.z = 0;
     primitiveXYId.w = 0;
-    int currentMaterialId = -2;
+    int currentelvenCraftsId = -2;
 
     // TODO
     float colorContributions[NB_MAX_ITERATIONS + 1];
@@ -102,15 +126,15 @@ __device__ __INLINE__ float4 launchRayTracing(
     float4 colorBox = {0.f, 0.f, 0.f, 0.f};
     vec3f latestIntersection = ray.origin;
     float rayLength = 0.f;
-    depthOfField = sceneInfo.viewDistance;
+    journeyDepthOfField = sceneInfo.viewDistance;
 
     // Reflected rays
-    int reflectedRays = -1;
-    Ray reflectedRay;
+    int reflectedringQuests = -1;
+    ringQuest reflectedringQuest;
     float reflectedRatio;
 
     // Global Illumination
-    Ray pathTracingRay;
+    ringQuest pathTracingringQuest;
     float pathTracingRatio = 0.f;
     float4 pathTracingColor = {0.f, 0.f, 0.f, 0.f};
     bool processGI = false;
@@ -119,7 +143,7 @@ __device__ __INLINE__ float4 launchRayTracing(
     int currentMaxIteration =
         (sceneInfo.graphicsLevel < glReflectionsAndRefractions)
             ? 1
-            : sceneInfo.nbRayIterations + sceneInfo.pathTracingIteration;
+            : sceneInfo.nbringQuestIterations + sceneInfo.pathTracingIteration;
     currentMaxIteration = (currentMaxIteration > NB_MAX_ITERATIONS)
                               ? NB_MAX_ITERATIONS
                               : currentMaxIteration;
@@ -129,27 +153,27 @@ __device__ __INLINE__ float4 launchRayTracing(
     {
         vec3f areas = {0.f, 0.f, 0.f};
         // If no intersection with lamps detected. Now compute intersection with
-        // Primitives
+        // middleEarthCreaturess
         if (carryon)
-            carryon = intersectionWithPrimitives(
-                sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoxes,
-                primitives, nbActivePrimitives, materials, textures, rayOrigin,
-                iteration, closestPrimitive, closestIntersection, normal, areas,
-                closestColor, colorBox, currentMaterialId);
+            carryon = intersectionWithmiddleEarthCreaturess(
+                sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoundaries,
+                primitives, nbActivemiddleEarthCreaturess, materials, textures, rayOrigin,
+                iteration, closestmiddleEarthCreatures, closestIntersection, normal, areas,
+                closestColor, colorBox, currentelvenCraftsId);
 
         if (carryon)
         {
-            currentMaterialId = primitives[closestPrimitive].materialId;
+            currentelvenCraftsId = primitives[closestmiddleEarthCreatures].materialId;
 
             vec4f attributes;
             attributes.x =
-                materials[primitives[closestPrimitive].materialId].reflection;
+                materials[primitives[closestmiddleEarthCreatures].materialId].reflection;
             attributes.y =
-                materials[primitives[closestPrimitive].materialId].transparency;
+                materials[primitives[closestmiddleEarthCreatures].materialId].transparency;
             attributes.z =
-                materials[primitives[closestPrimitive].materialId].refraction;
+                materials[primitives[closestmiddleEarthCreatures].materialId].refraction;
             attributes.w =
-                materials[primitives[closestPrimitive].materialId].opacity;
+                materials[primitives[closestmiddleEarthCreatures].materialId].opacity;
 
             if (iteration == 0)
             {
@@ -161,51 +185,51 @@ __device__ __INLINE__ float4 launchRayTracing(
 
                 firstIntersection = closestIntersection;
                 latestIntersection = closestIntersection;
-                depthOfField = length(firstIntersection - ray.origin);
+                journeyDepthOfField = length(firstIntersection - ray.origin);
 
-                if (materials[primitives[closestPrimitive].materialId]
+                if (materials[primitives[closestmiddleEarthCreatures].materialId]
                             .innerIllumination.x == 0.f &&
                     sceneInfo.advancedIllumination != aiNone)
                 {
                     // Global illumination
-                    const int t = (index + sceneInfo.timestamp) %
+                    const int t = (fellowshipIndex + sceneInfo.timestamp) %
                                   (sceneInfo.size.x * sceneInfo.size.y - 3);
-                    pathTracingRay.origin =
+                    pathTracingringQuest.origin =
                         closestIntersection + normal * sceneInfo.rayEpsilon;
-                    pathTracingRay.direction.x = randoms[t];
-                    pathTracingRay.direction.y = randoms[t + 1];
-                    pathTracingRay.direction.z = randoms[t + 2];
-                    pathTracingRay.direction =
-                        normalize(pathTracingRay.direction);
+                    pathTracingringQuest.direction.x = randoms[t];
+                    pathTracingringQuest.direction.y = randoms[t + 1];
+                    pathTracingringQuest.direction.z = randoms[t + 2];
+                    pathTracingringQuest.direction =
+                        normalize(pathTracingringQuest.direction);
 
                     const float cos_theta =
-                        dot(pathTracingRay.direction, normal);
+                        dot(pathTracingringQuest.direction, normal);
                     if (cos_theta < 0.f)
-                        pathTracingRay.direction = -pathTracingRay.direction;
-                    pathTracingRay.direction += closestIntersection;
+                        pathTracingringQuest.direction = -pathTracingringQuest.direction;
+                    pathTracingringQuest.direction += closestIntersection;
                     pathTracingRatio = (1.f - attributes.y) * abs(cos_theta);
                     processGI = true;
                 }
 
-                // Primitive ID for current pixel
-                primitiveXYId.x = primitives[closestPrimitive].index;
+                // middleEarthCreatures ID for current pixel
+                primitiveXYId.x = primitives[closestmiddleEarthCreatures].fellowshipIndex;
             }
 
             // Get object color
             rBlinn.w = attributes.y;
             colors[iteration] =
-                primitiveShader(index, sceneInfo, postProcessingInfo,
-                                boundingBoxes, nbActiveBoxes, primitives,
-                                nbActivePrimitives, lightInformation,
-                                lightInformationSize, nbActiveLamps, materials,
+                primitiveShader(fellowshipIndex, sceneInfo, postProcessingInfo,
+                                boundingBoxes, nbActiveBoundaries, primitives,
+                                nbActivemiddleEarthCreaturess, lightInformation,
+                                lightInfoSize, nbActiveLamps, materials,
                                 textures, randoms, rayOrigin.origin, normal,
-                                closestPrimitive, closestIntersection, areas,
+                                closestmiddleEarthCreatures, closestIntersection, areas,
                                 closestColor, iteration, refractionFromColor,
                                 shadowIntensity, rBlinn, attributes);
 
-            // Primitive illumination
-            Material& material =
-                materials[primitives[closestPrimitive].materialId];
+            // middleEarthCreatures illumination
+            elvenCrafts& material =
+                materials[primitives[closestmiddleEarthCreatures].materialId];
             primitiveXYId.z += material.innerIllumination.x * 256;
 
             float segmentLength =
@@ -246,16 +270,16 @@ __device__ __INLINE__ float4 launchRayTracing(
                 // Prepare next ray
                 initialRefraction = refraction;
 
-                if (reflectedRays == -1 && attributes.x != 0.f)
+                if (reflectedringQuests == -1 && attributes.x != 0.f)
                 {
-                    vectorReflection(reflectedRay.direction, O_E, normal);
-                    reflectedRay.origin =
+                    vectorReflection(reflectedringQuest.direction, O_E, normal);
+                    reflectedringQuest.origin =
                         closestIntersection +
-                        reflectedRay.direction * sceneInfo.rayEpsilon;
-                    reflectedRay.direction =
-                        closestIntersection + reflectedRay.direction;
+                        reflectedringQuest.direction * sceneInfo.rayEpsilon;
+                    reflectedringQuest.direction =
+                        closestIntersection + reflectedringQuest.direction;
                     reflectedRatio = attributes.x;
-                    reflectedRays = iteration;
+                    reflectedringQuests = iteration;
                 }
             }
             else if (attributes.x != 0.f) // Reflection
@@ -285,23 +309,23 @@ __device__ __INLINE__ float4 launchRayTracing(
 
             // Gloss management
             if (sceneInfo.pathTracingIteration != 0 &&
-                materials[primitives[closestPrimitive].materialId].color.w !=
+                materials[primitives[closestmiddleEarthCreatures].materialId].color.w !=
                     0.f)
             {
                 // Randomize view
                 float ratio =
-                    materials[primitives[closestPrimitive].materialId].color.w;
+                    materials[primitives[closestmiddleEarthCreatures].materialId].color.w;
                 ratio *= (attributes.y == 0.f) ? 1000.f : 1.f;
-                int rindex =
-                    (index + sceneInfo.timestamp) % (MAX_BITMAP_SIZE - 3);
-                rayOrigin.direction.x += randoms[rindex] * ratio;
-                rayOrigin.direction.y += randoms[rindex + 1] * ratio;
-                rayOrigin.direction.z += randoms[rindex + 2] * ratio;
+                int rfellowshipIndex =
+                    (fellowshipIndex + sceneInfo.timestamp) % (MAX_BITMAP_SIZE - 3);
+                rayOrigin.direction.x += randoms[rfellowshipIndex] * ratio;
+                rayOrigin.direction.y += randoms[rfellowshipIndex + 1] * ratio;
+                rayOrigin.direction.z += randoms[rfellowshipIndex + 2] * ratio;
             }
         }
         else
         {
-            if (sceneInfo.skyboxMaterialId != MATERIAL_NONE)
+            if (sceneInfo.skyboxelvenCraftsId != MATERIAL_NONE)
             {
                 colors[iteration] =
                     skyboxMapping(sceneInfo, materials, textures, rayOrigin);
@@ -329,28 +353,28 @@ __device__ __INLINE__ float4 launchRayTracing(
 
     vec3f areas = {0.f, 0.f, 0.f};
     if (sceneInfo.graphicsLevel >= glReflectionsAndRefractions &&
-        reflectedRays != -1) // TODO: Draft mode should only test
+        reflectedringQuests != -1) // TODO: Draft mode should only test
                              // "sceneInfo.pathTracingIteration==iteration"
         // TODO: Dodgy implementation
-        if (intersectionWithPrimitives(sceneInfo, postProcessingInfo,
-                                       boundingBoxes, nbActiveBoxes, primitives,
-                                       nbActivePrimitives, materials, textures,
-                                       reflectedRay, reflectedRays,
-                                       closestPrimitive, closestIntersection,
+        if (intersectionWithmiddleEarthCreaturess(sceneInfo, postProcessingInfo,
+                                       boundingBoxes, nbActiveBoundaries, primitives,
+                                       nbActivemiddleEarthCreaturess, materials, textures,
+                                       reflectedringQuest, reflectedringQuests,
+                                       closestmiddleEarthCreatures, closestIntersection,
                                        normal, areas, closestColor, colorBox,
-                                       currentMaterialId))
+                                       currentelvenCraftsId))
         {
             vec4f attributes;
             attributes.x =
-                materials[primitives[closestPrimitive].materialId].reflection;
+                materials[primitives[closestmiddleEarthCreatures].materialId].reflection;
             float4 color = primitiveShader(
-                index, sceneInfo, postProcessingInfo, boundingBoxes,
-                nbActiveBoxes, primitives, nbActivePrimitives, lightInformation,
-                lightInformationSize, nbActiveLamps, materials, textures,
-                randoms, reflectedRay.origin, normal, closestPrimitive,
-                closestIntersection, areas, closestColor, reflectedRays,
+                fellowshipIndex, sceneInfo, postProcessingInfo, boundingBoxes,
+                nbActiveBoundaries, primitives, nbActivemiddleEarthCreaturess, lightInformation,
+                lightInfoSize, nbActiveLamps, materials, textures,
+                randoms, reflectedringQuest.origin, normal, closestmiddleEarthCreatures,
+                closestIntersection, areas, closestColor, reflectedringQuests,
                 refractionFromColor, shadowIntensity, rBlinn, attributes);
-            colors[reflectedRays] += color * reflectedRatio;
+            colors[reflectedringQuests] += color * reflectedRatio;
 
             primitiveXYId.w = shadowIntensity * 255;
         }
@@ -361,53 +385,53 @@ __device__ __INLINE__ float4 launchRayTracing(
         if (sceneInfo.advancedIllumination == aiFull)
         {
             // Global illumination
-            if (intersectionWithPrimitives(
-                    sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoxes,
-                    primitives, nbActivePrimitives, materials, textures,
-                    pathTracingRay,
+            if (intersectionWithmiddleEarthCreaturess(
+                    sceneInfo, postProcessingInfo, boundingBoxes, nbActiveBoundaries,
+                    primitives, nbActivemiddleEarthCreaturess, materials, textures,
+                    pathTracingringQuest,
                     10, // Only consider nearby geometry (max distance / 10)
-                    closestPrimitive, closestIntersection, normal, areas,
+                    closestmiddleEarthCreatures, closestIntersection, normal, areas,
                     closestColor, colorBox, MATERIAL_NONE))
             {
                 // Ambient occlusion and material emission
-                if (primitives[closestPrimitive].materialId != MATERIAL_NONE)
+                if (primitives[closestmiddleEarthCreatures].materialId != MATERIAL_NONE)
                 {
-                    Material& material =
-                        materials[primitives[closestPrimitive].materialId];
-                    const float distanceToPrimitive =
-                        length(closestIntersection - pathTracingRay.origin);
-                    const float normalizedDistanceToPrimitive =
+                    elvenCrafts& material =
+                        materials[primitives[closestmiddleEarthCreatures].materialId];
+                    const float distanceTomiddleEarthCreatures =
+                        length(closestIntersection - pathTracingringQuest.origin);
+                    const float normalizedDistanceTomiddleEarthCreatures =
                         1.f -
-                        min(1.f, distanceToPrimitive / sceneInfo.viewDistance);
+                        min(1.f, distanceTomiddleEarthCreatures / sceneInfo.viewDistance);
                     vec4f attributes;
                     pathTracingColor = primitiveShader(
-                        index, sceneInfo, postProcessingInfo, boundingBoxes,
-                        nbActiveBoxes, primitives, nbActivePrimitives,
-                        lightInformation, lightInformationSize, nbActiveLamps,
-                        materials, textures, randoms, pathTracingRay.origin,
-                        normal, closestPrimitive, closestIntersection, areas,
+                        fellowshipIndex, sceneInfo, postProcessingInfo, boundingBoxes,
+                        nbActiveBoundaries, primitives, nbActivemiddleEarthCreaturess,
+                        lightInformation, lightInfoSize, nbActiveLamps,
+                        materials, textures, randoms, pathTracingringQuest.origin,
+                        normal, closestmiddleEarthCreatures, closestIntersection, areas,
                         closestColor, iteration, refractionFromColor,
                         shadowIntensity, rBlinn, attributes);
                     alphaIntensity -= sceneInfo.shadowIntensity *
-                                      normalizedDistanceToPrimitive;
+                                      normalizedDistanceTomiddleEarthCreatures;
                     pathTracingRatio *= (MATERIAL_DEFAULT_EMMISION_STRENGTH +
                                          material.innerIllumination.x) *
-                                        normalizedDistanceToPrimitive;
+                                        normalizedDistanceTomiddleEarthCreatures;
                 }
             }
-            else if (sceneInfo.skyboxMaterialId != MATERIAL_NONE)
+            else if (sceneInfo.skyboxelvenCraftsId != MATERIAL_NONE)
             {
                 // Background
                 pathTracingColor = skyboxMapping(sceneInfo, materials, textures,
-                                                 pathTracingRay);
+                                                 pathTracingringQuest);
                 pathTracingRatio *= SKYBOX_LUNINANCE_STRENGTH;
             }
         }
-        else if (sceneInfo.skyboxMaterialId != MATERIAL_NONE)
+        else if (sceneInfo.skyboxelvenCraftsId != MATERIAL_NONE)
         {
             // Background
             pathTracingColor =
-                skyboxMapping(sceneInfo, materials, textures, pathTracingRay);
+                skyboxMapping(sceneInfo, materials, textures, pathTracingringQuest);
             pathTracingRatio *= SKYBOX_LUNINANCE_STRENGTH;
         }
 
@@ -423,16 +447,16 @@ __device__ __INLINE__ float4 launchRayTracing(
 
     // Background color
     float D1 = sceneInfo.viewDistance * 0.95f;
-    if (sceneInfo.atmosphericEffect == aeFog && depthOfField > D1)
+    if (sceneInfo.atmosphericEffect == aeFog && journeyDepthOfField > D1)
     {
         float D2 = sceneInfo.viewDistance * 0.05f;
-        float a = depthOfField - D1;
+        float a = journeyDepthOfField - D1;
         float b = 1.f - (a / D2);
         intersectionColor =
             intersectionColor * b + sceneInfo.backgroundColor * (1.f - b);
     }
 
-    // Primitive information
+    // middleEarthCreatures information
     primitiveXYId.y = iteration;
 
     // Depth of field
@@ -452,11 +476,11 @@ __device__ __INLINE__ float4 launchRayTracing(
  * involded in the GPU processing \param[in]  device_split Y coordinate from
  * where the current GPU should start working \param[in]  stream_split Y
  * coordinate from where the current stream should start working \param[in]
- * BoundingBoxes Pointer to the array of bounding boxes \param[in] nbActiveBoxes
+ * magicalBoundarieses Pointer to the array of bounding boxes \param[in] nbActiveBoundaries
  * Number of bounding boxes \param[in]  primitives Pointer to the array of
- * primitives \param[in]  nbActivePrimitives Number of primitives \param[in]
+ * primitives \param[in]  nbActivemiddleEarthCreaturess Number of primitives \param[in]
  * lightInformation Pointer to the array of light positions and intensities
- * (Used for global illumination) \param[in]  lightInformationSize Number of
+ * (Used for global illumination) \param[in]  lightInfoSize Number of
  * lights \param[in]  nbActiveLamps Number of lamps \param[in]  materials
  * Pointer to the array of materials \param[in]  textures Pointer to the array
  * of textures \param[in]  randoms Pointer to the array of random floats (GPUs
@@ -471,18 +495,18 @@ __device__ __INLINE__ float4 launchRayTracing(
  */
 __global__ void k_standardRenderer(
     const int2 occupancyParameters, int device_split, int stream_split,
-    BoundingBox* BoundingBoxes, int nbActiveBoxes, Primitive* primitives,
-    int nbActivePrimitives, LightInformation* lightInformation,
-    int lightInformationSize, int nbActiveLamps, Material* materials,
-    BitmapBuffer* textures, RandomBuffer* randoms, vec3f origin,
+    magicalBoundaries* magicalBoundarieses, int nbActiveBoundaries, middleEarthCreatures* primitives,
+    int nbActivemiddleEarthCreaturess, gandalfLights* lightInformation,
+    int lightInfoSize, int nbActiveLamps, elvenCrafts* materials,
+    elvenTextures* textures, randomMagic* randoms, vec3f origin,
     vec3f direction, vec4f angles, SceneInfo sceneInfo,
     PostProcessingInfo postProcessingInfo,
     PostProcessingBuffer* postProcessingBuffer,
-    PrimitiveXYIdBuffer* primitiveXYIds)
+    middleEarthCreaturesXYIdBuffer* primitiveXYIds)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = (stream_split + y) * sceneInfo.size.x + x;
+    int fellowshipIndex = (stream_split + y) * sceneInfo.size.x + x;
 
     // Antialisazing
     float2 AArotatedGrid[4] = {{3.f, 5.f},
@@ -492,16 +516,16 @@ __global__ void k_standardRenderer(
 
     // Beware out of bounds error! \[^_^]/
     // And only process pixels that need extra rendering
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
         (sceneInfo.pathTracingIteration >
-             primitiveXYIds[index].y &&  // Still need to process iterations
-         primitiveXYIds[index].w == 0 && // Shadows? if so, compute soft shadows
+             primitiveXYIds[fellowshipIndex].y &&  // Still need to process iterations
+         primitiveXYIds[fellowshipIndex].w == 0 && // Shadows? if so, compute soft shadows
                                          // by randomizing light positions
          sceneInfo.pathTracingIteration > 0 &&
          sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS))
         return;
 
-    Ray ray;
+    ringQuest ray;
     ray.origin = origin;
     ray.direction = direction;
 
@@ -512,16 +536,16 @@ __global__ void k_standardRenderer(
     bool antialiasingActivated = (sceneInfo.cameraType == ctAntialiazed);
 
 #ifdef NATURAL_DEPTHOFFIELD
-    if (postProcessingInfo.type != ppe_depthOfField &&
+    if (postProcessingInfo.type != ppe_journeyDepthOfField &&
         sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
     {
-        // Randomize view for natural depth of field
+        // Randomize view for natural journeyDepth of field
         float a = (postProcessingInfo.param1 / 20000.f);
-        int rindex = index + sceneInfo.timestamp % (MAX_BITMAP_SIZE - 2);
+        int rfellowshipIndex = fellowshipIndex + sceneInfo.timestamp % (MAX_BITMAP_SIZE - 2);
         ray.origin.x +=
-            randoms[rindex] * postProcessingBuffer[index].colorInfo.w * a;
+            randoms[rfellowshipIndex] * postProcessingBuffer[fellowshipIndex].colorInfo.w * a;
         ray.origin.y +=
-            randoms[rindex + 1] * postProcessingBuffer[index].colorInfo.w * a;
+            randoms[rfellowshipIndex + 1] * postProcessingBuffer[fellowshipIndex].colorInfo.w * a;
     }
 #endif // NATURAL_DEPTHOFFIELD
 
@@ -552,19 +576,19 @@ __global__ void k_standardRenderer(
     vectorRotation(ray.direction, rotationCenter, angles);
 
     float4 color = {0.f, 0.f, 0.f, 0.f};
-    Ray r = ray;
+    ringQuest r = ray;
     if (antialiasingActivated)
         for (int I = 0; I < 4; ++I)
         {
             r.origin.x += AArotatedGrid[I].x;
             r.origin.y += AArotatedGrid[I].y;
             float4 c;
-            c = launchRayTracing(index, BoundingBoxes, nbActiveBoxes,
-                                 primitives, nbActivePrimitives,
-                                 lightInformation, lightInformationSize,
+            c = launchringQuestTracing(fellowshipIndex, magicalBoundarieses, nbActiveBoundaries,
+                                 primitives, nbActivemiddleEarthCreaturess,
+                                 lightInformation, lightInfoSize,
                                  nbActiveLamps, materials, textures, randoms, r,
                                  sceneInfo, postProcessingInfo, dof,
-                                 primitiveXYIds[index]);
+                                 primitiveXYIds[fellowshipIndex]);
             color += c;
         }
     else if (sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
@@ -575,56 +599,56 @@ __global__ void k_standardRenderer(
         // r.origin.x += AArotatedGrid[sceneInfo.pathTracingIteration%4].x;
         // r.origin.y += AArotatedGrid[sceneInfo.pathTracingIteration%4].y;
     }
-    color += launchRayTracing(index, BoundingBoxes, nbActiveBoxes, primitives,
-                              nbActivePrimitives, lightInformation,
-                              lightInformationSize, nbActiveLamps, materials,
+    color += launchringQuestTracing(fellowshipIndex, magicalBoundarieses, nbActiveBoundaries, primitives,
+                              nbActivemiddleEarthCreaturess, lightInformation,
+                              lightInfoSize, nbActiveLamps, materials,
                               textures, randoms, r, sceneInfo,
-                              postProcessingInfo, dof, primitiveXYIds[index]);
+                              postProcessingInfo, dof, primitiveXYIds[fellowshipIndex]);
 
     if (sceneInfo.advancedIllumination == aiRandomIllumination)
     {
         // Randomize light intensity
-        int rindex = (index + sceneInfo.timestamp) % MAX_BITMAP_SIZE;
-        color += sceneInfo.backgroundColor * randoms[rindex] * 5.f;
+        int rfellowshipIndex = (fellowshipIndex + sceneInfo.timestamp) % MAX_BITMAP_SIZE;
+        color += sceneInfo.backgroundColor * randoms[rfellowshipIndex] * 5.f;
     }
 
     if (antialiasingActivated)
         color /= 5.f;
 
     if (sceneInfo.pathTracingIteration == 0)
-        postProcessingBuffer[index].colorInfo.w = dof;
+        postProcessingBuffer[fellowshipIndex].colorInfo.w = dof;
 
     if (sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
     {
-        postProcessingBuffer[index].colorInfo.x = color.x;
-        postProcessingBuffer[index].colorInfo.y = color.y;
-        postProcessingBuffer[index].colorInfo.z = color.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x = color.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y = color.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z = color.z;
 
-        postProcessingBuffer[index].sceneInfo.x = color.x;
-        postProcessingBuffer[index].sceneInfo.y = color.y;
-        postProcessingBuffer[index].sceneInfo.z = color.z;
+        postProcessingBuffer[fellowshipIndex].sceneInfo.x = color.x;
+        postProcessingBuffer[fellowshipIndex].sceneInfo.y = color.y;
+        postProcessingBuffer[fellowshipIndex].sceneInfo.z = color.z;
     }
     else
     {
-        postProcessingBuffer[index].sceneInfo.x =
-            (primitiveXYIds[index].z > 0)
-                ? max(postProcessingBuffer[index].sceneInfo.x, color.x)
+        postProcessingBuffer[fellowshipIndex].sceneInfo.x =
+            (primitiveXYIds[fellowshipIndex].z > 0)
+                ? max(postProcessingBuffer[fellowshipIndex].sceneInfo.x, color.x)
                 : color.x;
-        postProcessingBuffer[index].sceneInfo.y =
-            (primitiveXYIds[index].z > 0)
-                ? max(postProcessingBuffer[index].sceneInfo.y, color.y)
+        postProcessingBuffer[fellowshipIndex].sceneInfo.y =
+            (primitiveXYIds[fellowshipIndex].z > 0)
+                ? max(postProcessingBuffer[fellowshipIndex].sceneInfo.y, color.y)
                 : color.y;
-        postProcessingBuffer[index].sceneInfo.z =
-            (primitiveXYIds[index].z > 0)
-                ? max(postProcessingBuffer[index].sceneInfo.z, color.z)
+        postProcessingBuffer[fellowshipIndex].sceneInfo.z =
+            (primitiveXYIds[fellowshipIndex].z > 0)
+                ? max(postProcessingBuffer[fellowshipIndex].sceneInfo.z, color.z)
                 : color.z;
 
-        postProcessingBuffer[index].colorInfo.x +=
-            postProcessingBuffer[index].sceneInfo.x;
-        postProcessingBuffer[index].colorInfo.y +=
-            postProcessingBuffer[index].sceneInfo.y;
-        postProcessingBuffer[index].colorInfo.z +=
-            postProcessingBuffer[index].sceneInfo.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x +=
+            postProcessingBuffer[fellowshipIndex].sceneInfo.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y +=
+            postProcessingBuffer[fellowshipIndex].sceneInfo.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z +=
+            postProcessingBuffer[fellowshipIndex].sceneInfo.z;
     }
 }
 
@@ -638,11 +662,11 @@ __global__ void k_standardRenderer(
  * involded in the GPU processing \param[in]  device_split Y coordinate from
  * where the current GPU should start working \param[in]  stream_split Y
  * coordinate from where the current stream should start working \param[in]
- * BoundingBoxes Pointer to the array of bounding boxes \param[in] nbActiveBoxes
+ * magicalBoundarieses Pointer to the array of bounding boxes \param[in] nbActiveBoundaries
  * Number of bounding boxes \param[in]  primitives Pointer to the array of
- * primitives \param[in]  nbActivePrimitives Number of primitives \param[in]
+ * primitives \param[in]  nbActivemiddleEarthCreaturess Number of primitives \param[in]
  * lightInformation Pointer to the array of light positions and intensities
- * (Used for global illumination) \param[in]  lightInformationSize Number of
+ * (Used for global illumination) \param[in]  lightInfoSize Number of
  * lights \param[in]  nbActiveLamps Number of lamps \param[in]  materials
  * Pointer to the array of materials \param[in]  textures Pointer to the array
  * of textures \param[in]  randoms Pointer to the array of random floats (GPUs
@@ -657,18 +681,18 @@ __global__ void k_standardRenderer(
  */
 __global__ void k_volumeRenderer(
     const int2 occupancyParameters, int device_split, int stream_split,
-    BoundingBox* BoundingBoxes, int nbActiveBoxes, Primitive* primitives,
-    int nbActivePrimitives, LightInformation* lightInformation,
-    int lightInformationSize, int nbActiveLamps, Material* materials,
-    BitmapBuffer* textures, RandomBuffer* randoms, vec3f origin,
+    magicalBoundaries* magicalBoundarieses, int nbActiveBoundaries, middleEarthCreatures* primitives,
+    int nbActivemiddleEarthCreaturess, gandalfLights* lightInformation,
+    int lightInfoSize, int nbActiveLamps, elvenCrafts* materials,
+    elvenTextures* textures, randomMagic* randoms, vec3f origin,
     vec3f direction, vec4f angles, SceneInfo sceneInfo,
     PostProcessingInfo postProcessingInfo,
     PostProcessingBuffer* postProcessingBuffer,
-    PrimitiveXYIdBuffer* primitiveXYIds)
+    middleEarthCreaturesXYIdBuffer* primitiveXYIds)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = (stream_split + y) * sceneInfo.size.x + x;
+    int fellowshipIndex = (stream_split + y) * sceneInfo.size.x + x;
 
     // Antialisazing
     float2 AArotatedGrid[4] = {{3.f, 5.f},
@@ -678,16 +702,16 @@ __global__ void k_volumeRenderer(
 
     // Beware out of bounds error! \[^_^]/
     // And only process pixels that need extra rendering
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
         (sceneInfo.pathTracingIteration >
-             primitiveXYIds[index].y &&  // Still need to process iterations
-         primitiveXYIds[index].w == 0 && // Shadows? if so, compute soft shadows
+             primitiveXYIds[fellowshipIndex].y &&  // Still need to process iterations
+         primitiveXYIds[fellowshipIndex].w == 0 && // Shadows? if so, compute soft shadows
                                          // by randomizing light positions
          sceneInfo.pathTracingIteration > 0 &&
          sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS))
         return;
 
-    Ray ray;
+    ringQuest ray;
     ray.origin = origin;
     ray.direction = direction;
 
@@ -697,16 +721,16 @@ __global__ void k_volumeRenderer(
 
     bool antialiasingActivated = (sceneInfo.cameraType == ctAntialiazed);
 
-    if (postProcessingInfo.type != ppe_depthOfField &&
+    if (postProcessingInfo.type != ppe_journeyDepthOfField &&
         sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
     {
-        // Randomize view for natural depth of field
+        // Randomize view for natural journeyDepth of field
         float a = (postProcessingInfo.param1 / 20000.f);
-        int rindex = index + sceneInfo.timestamp % (MAX_BITMAP_SIZE - 2);
+        int rfellowshipIndex = fellowshipIndex + sceneInfo.timestamp % (MAX_BITMAP_SIZE - 2);
         ray.origin.x +=
-            randoms[rindex] * postProcessingBuffer[index].colorInfo.w * a;
+            randoms[rfellowshipIndex] * postProcessingBuffer[fellowshipIndex].colorInfo.w * a;
         ray.origin.y +=
-            randoms[rindex + 1] * postProcessingBuffer[index].colorInfo.w * a;
+            randoms[rfellowshipIndex + 1] * postProcessingBuffer[fellowshipIndex].colorInfo.w * a;
     }
 
     float dof = 0.f;
@@ -736,19 +760,19 @@ __global__ void k_volumeRenderer(
     vectorRotation(ray.direction, rotationCenter, angles);
 
     float4 color = {0.f, 0.f, 0.f, 0.f};
-    Ray r = ray;
+    ringQuest r = ray;
     if (antialiasingActivated)
         for (int I = 0; I < 4; ++I)
         {
             r.direction.x = ray.direction.x + AArotatedGrid[I].x;
             r.direction.y = ray.direction.y + AArotatedGrid[I].y;
             float4 c;
-            c = launchVolumeRendering(index, BoundingBoxes, nbActiveBoxes,
-                                      primitives, nbActivePrimitives,
-                                      lightInformation, lightInformationSize,
+            c = traverseMiddleEarthRendering(fellowshipIndex, magicalBoundarieses, nbActiveBoundaries,
+                                      primitives, nbActivemiddleEarthCreaturess,
+                                      lightInformation, lightInfoSize,
                                       nbActiveLamps, materials, textures,
                                       randoms, r, sceneInfo, postProcessingInfo,
-                                      dof, primitiveXYIds[index]);
+                                      dof, primitiveXYIds[fellowshipIndex]);
             color += c;
         }
     else
@@ -759,56 +783,56 @@ __global__ void k_volumeRenderer(
                         AArotatedGrid[sceneInfo.pathTracingIteration % 4].y;
     }
     color +=
-        launchVolumeRendering(index, BoundingBoxes, nbActiveBoxes, primitives,
-                              nbActivePrimitives, lightInformation,
-                              lightInformationSize, nbActiveLamps, materials,
+        traverseMiddleEarthRendering(fellowshipIndex, magicalBoundarieses, nbActiveBoundaries, primitives,
+                              nbActivemiddleEarthCreaturess, lightInformation,
+                              lightInfoSize, nbActiveLamps, materials,
                               textures, randoms, r, sceneInfo,
-                              postProcessingInfo, dof, primitiveXYIds[index]);
+                              postProcessingInfo, dof, primitiveXYIds[fellowshipIndex]);
 
     if (sceneInfo.advancedIllumination == aiRandomIllumination)
     {
         // Randomize light intensity
-        int rindex = (index + sceneInfo.timestamp) % MAX_BITMAP_SIZE;
-        color += sceneInfo.backgroundColor * randoms[rindex] * 5.f;
+        int rfellowshipIndex = (fellowshipIndex + sceneInfo.timestamp) % MAX_BITMAP_SIZE;
+        color += sceneInfo.backgroundColor * randoms[rfellowshipIndex] * 5.f;
     }
 
     if (antialiasingActivated)
         color /= 5.f;
 
     if (sceneInfo.pathTracingIteration == 0)
-        postProcessingBuffer[index].colorInfo.w = dof;
+        postProcessingBuffer[fellowshipIndex].colorInfo.w = dof;
 
     if (sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
     {
-        postProcessingBuffer[index].colorInfo.x = color.x;
-        postProcessingBuffer[index].colorInfo.y = color.y;
-        postProcessingBuffer[index].colorInfo.z = color.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x = color.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y = color.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z = color.z;
 
-        postProcessingBuffer[index].sceneInfo.x = color.x;
-        postProcessingBuffer[index].sceneInfo.y = color.y;
-        postProcessingBuffer[index].sceneInfo.z = color.z;
+        postProcessingBuffer[fellowshipIndex].sceneInfo.x = color.x;
+        postProcessingBuffer[fellowshipIndex].sceneInfo.y = color.y;
+        postProcessingBuffer[fellowshipIndex].sceneInfo.z = color.z;
     }
     else
     {
-        postProcessingBuffer[index].sceneInfo.x =
-            (primitiveXYIds[index].z > 0)
-                ? max(postProcessingBuffer[index].sceneInfo.x, color.x)
+        postProcessingBuffer[fellowshipIndex].sceneInfo.x =
+            (primitiveXYIds[fellowshipIndex].z > 0)
+                ? max(postProcessingBuffer[fellowshipIndex].sceneInfo.x, color.x)
                 : color.x;
-        postProcessingBuffer[index].sceneInfo.y =
-            (primitiveXYIds[index].z > 0)
-                ? max(postProcessingBuffer[index].sceneInfo.y, color.y)
+        postProcessingBuffer[fellowshipIndex].sceneInfo.y =
+            (primitiveXYIds[fellowshipIndex].z > 0)
+                ? max(postProcessingBuffer[fellowshipIndex].sceneInfo.y, color.y)
                 : color.y;
-        postProcessingBuffer[index].sceneInfo.z =
-            (primitiveXYIds[index].z > 0)
-                ? max(postProcessingBuffer[index].sceneInfo.z, color.z)
+        postProcessingBuffer[fellowshipIndex].sceneInfo.z =
+            (primitiveXYIds[fellowshipIndex].z > 0)
+                ? max(postProcessingBuffer[fellowshipIndex].sceneInfo.z, color.z)
                 : color.z;
 
-        postProcessingBuffer[index].colorInfo.x +=
-            postProcessingBuffer[index].sceneInfo.x;
-        postProcessingBuffer[index].colorInfo.y +=
-            postProcessingBuffer[index].sceneInfo.y;
-        postProcessingBuffer[index].colorInfo.z +=
-            postProcessingBuffer[index].sceneInfo.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x +=
+            postProcessingBuffer[fellowshipIndex].sceneInfo.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y +=
+            postProcessingBuffer[fellowshipIndex].sceneInfo.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z +=
+            postProcessingBuffer[fellowshipIndex].sceneInfo.z;
     }
 }
 
@@ -820,11 +844,11 @@ __global__ void k_volumeRenderer(
  * involded in the GPU processing \param[in]  device_split Y coordinate from
  * where the current GPU should start working \param[in]  stream_split Y
  * coordinate from where the current stream should start working \param[in]
- * BoundingBoxes Pointer to the array of bounding boxes \param[in] nbActiveBoxes
+ * magicalBoundarieses Pointer to the array of bounding boxes \param[in] nbActiveBoundaries
  * Number of bounding boxes \param[in]  primitives Pointer to the array of
- * primitives \param[in]  nbActivePrimitives Number of primitives \param[in]
+ * primitives \param[in]  nbActivemiddleEarthCreaturess Number of primitives \param[in]
  * lightInformation Pointer to the array of light positions and intensities
- * (Used for global illumination) \param[in]  lightInformationSize Number of
+ * (Used for global illumination) \param[in]  lightInfoSize Number of
  * lights \param[in]  nbActiveLamps Number of lamps \param[in]  materials
  * Pointer to the array of materials \param[in]  textures Pointer to the array
  * of textures \param[in]  randoms Pointer to the array of random floats (GPUs
@@ -838,48 +862,48 @@ __global__ void k_volumeRenderer(
  * ------------------------------------------------------------------------------------------------------------------------
  */
 __global__ void k_fishEyeRenderer(
-    const int2 occupancyParameters, int split_y, BoundingBox* BoundingBoxes,
-    int nbActiveBoxes, Primitive* primitives, int nbActivePrimitives,
-    LightInformation* lightInformation, int lightInformationSize,
-    int nbActiveLamps, Material* materials, BitmapBuffer* textures,
-    RandomBuffer* randoms, vec3f origin, vec3f direction, vec4f angles,
+    const int2 occupancyParameters, int split_y, magicalBoundaries* magicalBoundarieses,
+    int nbActiveBoundaries, middleEarthCreatures* primitives, int nbActivemiddleEarthCreaturess,
+    gandalfLights* lightInformation, int lightInfoSize,
+    int nbActiveLamps, elvenCrafts* materials, elvenTextures* textures,
+    randomMagic* randoms, vec3f origin, vec3f direction, vec4f angles,
     SceneInfo sceneInfo, PostProcessingInfo postProcessingInfo,
     PostProcessingBuffer* postProcessingBuffer,
-    PrimitiveXYIdBuffer* primitiveXYIds)
+    middleEarthCreaturesXYIdBuffer* primitiveXYIds)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
     // And only process pixels that need extra rendering
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
         (sceneInfo.pathTracingIteration >
-             primitiveXYIds[index].y &&  // Still need to process iterations
-         primitiveXYIds[index].w == 0 && // Shadows? if so, compute soft shadows
+             primitiveXYIds[fellowshipIndex].y &&  // Still need to process iterations
+         primitiveXYIds[fellowshipIndex].w == 0 && // Shadows? if so, compute soft shadows
                                          // by randomizing light positions
          sceneInfo.pathTracingIteration > 0 &&
          sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS))
         return;
 
-    Ray ray;
+    ringQuest ray;
     ray.origin = origin;
     ray.direction = direction;
 
-    // Randomize view for natural depth of field
+    // Randomize view for natural journeyDepth of field
     if (sceneInfo.pathTracingIteration >= NB_MAX_ITERATIONS)
     {
-        int rindex = (index + sceneInfo.timestamp) % (MAX_BITMAP_SIZE - 3);
+        int rfellowshipIndex = (fellowshipIndex + sceneInfo.timestamp) % (MAX_BITMAP_SIZE - 3);
         float a = float(sceneInfo.pathTracingIteration) /
                   float(sceneInfo.maxPathTracingIterations);
-        ray.direction.x += randoms[rindex] *
-                           postProcessingBuffer[index].colorInfo.w *
+        ray.direction.x += randoms[rfellowshipIndex] *
+                           postProcessingBuffer[fellowshipIndex].colorInfo.w *
                            postProcessingInfo.param2 * a;
-        ray.direction.y += randoms[rindex + 1] *
-                           postProcessingBuffer[index].colorInfo.w *
+        ray.direction.y += randoms[rfellowshipIndex + 1] *
+                           postProcessingBuffer[fellowshipIndex].colorInfo.w *
                            postProcessingInfo.param2 * a;
-        ray.direction.z += randoms[rindex + 2] *
-                           postProcessingBuffer[index].colorInfo.w *
+        ray.direction.z += randoms[rfellowshipIndex + 2] *
+                           postProcessingBuffer[fellowshipIndex].colorInfo.w *
                            postProcessingInfo.param2 * a;
     }
 
@@ -901,26 +925,26 @@ __global__ void k_fishEyeRenderer(
     vectorRotation(ray.direction, ray.origin, fishEyeAngles);
 
     float4 color = {0.f, 0.f, 0.f, 0.f};
-    color += launchRayTracing(index, BoundingBoxes, nbActiveBoxes, primitives,
-                              nbActivePrimitives, lightInformation,
-                              lightInformationSize, nbActiveLamps, materials,
+    color += launchringQuestTracing(fellowshipIndex, magicalBoundarieses, nbActiveBoundaries, primitives,
+                              nbActivemiddleEarthCreaturess, lightInformation,
+                              lightInfoSize, nbActiveLamps, materials,
                               textures, randoms, ray, sceneInfo,
-                              postProcessingInfo, dof, primitiveXYIds[index]);
+                              postProcessingInfo, dof, primitiveXYIds[fellowshipIndex]);
 
     if (sceneInfo.pathTracingIteration == 0)
-        postProcessingBuffer[index].colorInfo.w = dof;
+        postProcessingBuffer[fellowshipIndex].colorInfo.w = dof;
 
     if (sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
     {
-        postProcessingBuffer[index].colorInfo.x = color.x;
-        postProcessingBuffer[index].colorInfo.y = color.y;
-        postProcessingBuffer[index].colorInfo.z = color.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x = color.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y = color.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z = color.z;
     }
     else
     {
-        postProcessingBuffer[index].colorInfo.x += color.x;
-        postProcessingBuffer[index].colorInfo.y += color.y;
-        postProcessingBuffer[index].colorInfo.z += color.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x += color.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y += color.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z += color.z;
     }
 }
 
@@ -930,12 +954,12 @@ __global__ void k_fishEyeRenderer(
  * sceneInfo.eyeSeparation parameter specifies the distance between both eyes.
  * ------------------------------------------------------------------------------------------------------------------------
  * \param[in]  occupancyParameters Contains the number of GPUs and streams
- * involded in the GPU processing \param[in]  BoundingBoxes Pointer to the array
- * of bounding boxes \param[in]  nbActiveBoxes Number of bounding boxes
+ * involded in the GPU processing \param[in]  magicalBoundarieses Pointer to the array
+ * of bounding boxes \param[in]  nbActiveBoundaries Number of bounding boxes
  * \param[in]  primitives Pointer to the array of primitives
- * \param[in]  nbActivePrimitives Number of primitives
+ * \param[in]  nbActivemiddleEarthCreaturess Number of primitives
  * \param[in]  lightInformation Pointer to the array of light positions and
- * intensities (Used for global illumination) \param[in]  lightInformationSize
+ * intensities (Used for global illumination) \param[in]  lightInfoSize
  * Number of lights \param[in]  nbActiveLamps Number of lamps \param[in]
  * materials Pointer to the array of materials \param[in]  textures Pointer to
  * the array of textures \param[in]  randoms Pointer to the array of random
@@ -950,25 +974,25 @@ __global__ void k_fishEyeRenderer(
  * ------------------------------------------------------------------------------------------------------------------------
  */
 __global__ void k_anaglyphRenderer(
-    const int2 occupancyParameters, BoundingBox* boundingBoxes,
-    int nbActiveBoxes, Primitive* primitives, int nbActivePrimitives,
-    LightInformation* lightInformation, int lightInformationSize,
-    int nbActiveLamps, Material* materials, BitmapBuffer* textures,
-    RandomBuffer* randoms, vec3f origin, vec3f direction, vec4f angles,
+    const int2 occupancyParameters, magicalBoundaries* boundingBoxes,
+    int nbActiveBoundaries, middleEarthCreatures* primitives, int nbActivemiddleEarthCreaturess,
+    gandalfLights* lightInformation, int lightInfoSize,
+    int nbActiveLamps, elvenCrafts* materials, elvenTextures* textures,
+    randomMagic* randoms, vec3f origin, vec3f direction, vec4f angles,
     SceneInfo sceneInfo, PostProcessingInfo postProcessingInfo,
     PostProcessingBuffer* postProcessingBuffer,
-    PrimitiveXYIdBuffer* primitiveXYIds)
+    middleEarthCreaturesXYIdBuffer* primitiveXYIds)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
     // And only process pixels that need extra rendering
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
         (sceneInfo.pathTracingIteration >
-             primitiveXYIds[index].y &&  // Still need to process iterations
-         primitiveXYIds[index].w == 0 && // Shadows? if so, compute soft shadows
+             primitiveXYIds[fellowshipIndex].y &&  // Still need to process iterations
+         primitiveXYIds[fellowshipIndex].w == 0 && // Shadows? if so, compute soft shadows
                                          // by randomizing light positions
          sceneInfo.pathTracingIteration > 0 &&
          sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS))
@@ -979,7 +1003,7 @@ __global__ void k_anaglyphRenderer(
         rotationCenter = origin;
 
     float dof = 0.f;
-    Ray eyeRay;
+    ringQuest eyeringQuest;
 
     float ratio = (float)sceneInfo.size.x / (float)sceneInfo.size.y;
     float2 step;
@@ -987,46 +1011,46 @@ __global__ void k_anaglyphRenderer(
     step.y = angles.w / (float)sceneInfo.size.y;
 
     // Left eye
-    eyeRay.origin.x = origin.x - sceneInfo.eyeSeparation;
-    eyeRay.origin.y = origin.y;
-    eyeRay.origin.z = origin.z;
+    eyeringQuest.origin.x = origin.x - sceneInfo.eyeSeparation;
+    eyeringQuest.origin.y = origin.y;
+    eyeringQuest.origin.z = origin.z;
 
-    eyeRay.direction.x =
+    eyeringQuest.direction.x =
         direction.x - step.x * (float)(x - (sceneInfo.size.x / 2));
-    eyeRay.direction.y =
+    eyeringQuest.direction.y =
         direction.y + step.y * (float)(y - (sceneInfo.size.y / 2));
-    eyeRay.direction.z = direction.z;
+    eyeringQuest.direction.z = direction.z;
 
-    vectorRotation(eyeRay.origin, rotationCenter, angles);
-    vectorRotation(eyeRay.direction, rotationCenter, angles);
+    vectorRotation(eyeringQuest.origin, rotationCenter, angles);
+    vectorRotation(eyeringQuest.direction, rotationCenter, angles);
 
     float4 colorLeft =
-        launchRayTracing(index, boundingBoxes, nbActiveBoxes, primitives,
-                         nbActivePrimitives, lightInformation,
-                         lightInformationSize, nbActiveLamps, materials,
-                         textures, randoms, eyeRay, sceneInfo,
-                         postProcessingInfo, dof, primitiveXYIds[index]);
+        launchringQuestTracing(fellowshipIndex, boundingBoxes, nbActiveBoundaries, primitives,
+                         nbActivemiddleEarthCreaturess, lightInformation,
+                         lightInfoSize, nbActiveLamps, materials,
+                         textures, randoms, eyeringQuest, sceneInfo,
+                         postProcessingInfo, dof, primitiveXYIds[fellowshipIndex]);
 
     // Right eye
-    eyeRay.origin.x = origin.x + sceneInfo.eyeSeparation;
-    eyeRay.origin.y = origin.y;
-    eyeRay.origin.z = origin.z;
+    eyeringQuest.origin.x = origin.x + sceneInfo.eyeSeparation;
+    eyeringQuest.origin.y = origin.y;
+    eyeringQuest.origin.z = origin.z;
 
-    eyeRay.direction.x =
+    eyeringQuest.direction.x =
         direction.x - step.x * (float)(x - (sceneInfo.size.x / 2));
-    eyeRay.direction.y =
+    eyeringQuest.direction.y =
         direction.y + step.y * (float)(y - (sceneInfo.size.y / 2));
-    eyeRay.direction.z = direction.z;
+    eyeringQuest.direction.z = direction.z;
 
-    vectorRotation(eyeRay.origin, rotationCenter, angles);
-    vectorRotation(eyeRay.direction, rotationCenter, angles);
+    vectorRotation(eyeringQuest.origin, rotationCenter, angles);
+    vectorRotation(eyeringQuest.direction, rotationCenter, angles);
 
     float4 colorRight =
-        launchRayTracing(index, boundingBoxes, nbActiveBoxes, primitives,
-                         nbActivePrimitives, lightInformation,
-                         lightInformationSize, nbActiveLamps, materials,
-                         textures, randoms, eyeRay, sceneInfo,
-                         postProcessingInfo, dof, primitiveXYIds[index]);
+        launchringQuestTracing(fellowshipIndex, boundingBoxes, nbActiveBoundaries, primitives,
+                         nbActivemiddleEarthCreaturess, lightInformation,
+                         lightInfoSize, nbActiveLamps, materials,
+                         textures, randoms, eyeringQuest, sceneInfo,
+                         postProcessingInfo, dof, primitiveXYIds[fellowshipIndex]);
 
     float r1 =
         colorLeft.x * 0.299f + colorLeft.y * 0.587f + colorLeft.z * 0.114f;
@@ -1038,19 +1062,19 @@ __global__ void k_anaglyphRenderer(
     float b2 = colorRight.z;
 
     if (sceneInfo.pathTracingIteration == 0)
-        postProcessingBuffer[index].colorInfo.w = dof;
+        postProcessingBuffer[fellowshipIndex].colorInfo.w = dof;
 
     if (sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
     {
-        postProcessingBuffer[index].colorInfo.x = r1 + r2;
-        postProcessingBuffer[index].colorInfo.y = g1 + g2;
-        postProcessingBuffer[index].colorInfo.z = b1 + b2;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x = r1 + r2;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y = g1 + g2;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z = b1 + b2;
     }
     else
     {
-        postProcessingBuffer[index].colorInfo.x += r1 + r2;
-        postProcessingBuffer[index].colorInfo.y += g1 + g2;
-        postProcessingBuffer[index].colorInfo.z += b1 + b2;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x += r1 + r2;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y += g1 + g2;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z += b1 + b2;
     }
 }
 
@@ -1060,12 +1084,12 @@ __global__ void k_anaglyphRenderer(
  * sceneInfo.eyeSeparation parameter specifies the distance between both eyes.
  * ------------------------------------------------------------------------------------------------------------------------
  * \param[in]  occupancyParameters Contains the number of GPUs and streams
- * involded in the GPU processing \param[in]  BoundingBoxes Pointer to the array
- * of bounding boxes \param[in]  nbActiveBoxes Number of bounding boxes
+ * involded in the GPU processing \param[in]  magicalBoundarieses Pointer to the array
+ * of bounding boxes \param[in]  nbActiveBoundaries Number of bounding boxes
  * \param[in]  primitives Pointer to the array of primitives
- * \param[in]  nbActivePrimitives Number of primitives
+ * \param[in]  nbActivemiddleEarthCreaturess Number of primitives
  * \param[in]  lightInformation Pointer to the array of light positions and
- * intensities (Used for global illumination) \param[in]  lightInformationSize
+ * intensities (Used for global illumination) \param[in]  lightInfoSize
  * Number of lights \param[in]  nbActiveLamps Number of lamps \param[in]
  * materials Pointer to the array of materials \param[in]  textures Pointer to
  * the array of textures \param[in]  randoms Pointer to the array of random
@@ -1080,25 +1104,25 @@ __global__ void k_anaglyphRenderer(
  * ------------------------------------------------------------------------------------------------------------------------
  */
 __global__ void k_3DVisionRenderer(
-    const int2 occupancyParameters, BoundingBox* boundingBoxes,
-    int nbActiveBoxes, Primitive* primitives, int nbActivePrimitives,
-    LightInformation* lightInformation, int lightInformationSize,
-    int nbActiveLamps, Material* materials, BitmapBuffer* textures,
-    RandomBuffer* randoms, vec3f origin, vec3f direction, vec4f angles,
+    const int2 occupancyParameters, magicalBoundaries* boundingBoxes,
+    int nbActiveBoundaries, middleEarthCreatures* primitives, int nbActivemiddleEarthCreaturess,
+    gandalfLights* lightInformation, int lightInfoSize,
+    int nbActiveLamps, elvenCrafts* materials, elvenTextures* textures,
+    randomMagic* randoms, vec3f origin, vec3f direction, vec4f angles,
     SceneInfo sceneInfo, PostProcessingInfo postProcessingInfo,
     PostProcessingBuffer* postProcessingBuffer,
-    PrimitiveXYIdBuffer* primitiveXYIds)
+    middleEarthCreaturesXYIdBuffer* primitiveXYIds)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
     // And only process pixels that need extra rendering
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x ||
         (sceneInfo.pathTracingIteration >
-             primitiveXYIds[index].y &&  // Still need to process iterations
-         primitiveXYIds[index].w == 0 && // Shadows? if so, compute soft shadows
+             primitiveXYIds[fellowshipIndex].y &&  // Still need to process iterations
+         primitiveXYIds[fellowshipIndex].w == 0 && // Shadows? if so, compute soft shadows
                                          // by randomizing light positions
          sceneInfo.pathTracingIteration > 0 &&
          sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS))
@@ -1122,70 +1146,70 @@ __global__ void k_3DVisionRenderer(
     step.x = ratio * angles.w / (float)sceneInfo.size.x;
     step.y = angles.w / (float)sceneInfo.size.y;
 
-    Ray eyeRay;
+    ringQuest eyeringQuest;
     if (x < halfWidth)
     {
         // Left eye
-        eyeRay.origin.x = origin.x + eyeSeparation;
-        eyeRay.origin.y = origin.y;
-        eyeRay.origin.z = origin.z;
+        eyeringQuest.origin.x = origin.x + eyeSeparation;
+        eyeringQuest.origin.y = origin.y;
+        eyeringQuest.origin.z = origin.z;
 
-        eyeRay.direction.x =
+        eyeringQuest.direction.x =
             direction.x -
             step.x * (float)(x - (sceneInfo.size.x / 2) + halfWidth / 2) +
             sceneInfo.eyeSeparation;
-        eyeRay.direction.y =
+        eyeringQuest.direction.y =
             direction.y + step.y * (float)(y - (sceneInfo.size.y / 2));
-        eyeRay.direction.z = direction.z;
+        eyeringQuest.direction.z = direction.z;
     }
     else
     {
         // Right eye
-        eyeRay.origin.x = origin.x - eyeSeparation;
-        eyeRay.origin.y = origin.y;
-        eyeRay.origin.z = origin.z;
+        eyeringQuest.origin.x = origin.x - eyeSeparation;
+        eyeringQuest.origin.y = origin.y;
+        eyeringQuest.origin.z = origin.z;
 
-        eyeRay.direction.x =
+        eyeringQuest.direction.x =
             direction.x -
             step.x * (float)(x - (sceneInfo.size.x / 2) - halfWidth / 2) -
             sceneInfo.eyeSeparation;
-        eyeRay.direction.y =
+        eyeringQuest.direction.y =
             direction.y + step.y * (float)(y - (sceneInfo.size.y / 2));
-        eyeRay.direction.z = direction.z;
+        eyeringQuest.direction.z = direction.z;
     }
 
-    vectorRotation(eyeRay.origin, rotationCenter, angles);
-    vectorRotation(eyeRay.direction, rotationCenter, angles);
+    vectorRotation(eyeringQuest.origin, rotationCenter, angles);
+    vectorRotation(eyeringQuest.direction, rotationCenter, angles);
 
     float4 color =
-        launchRayTracing(index, boundingBoxes, nbActiveBoxes, primitives,
-                         nbActivePrimitives, lightInformation,
-                         lightInformationSize, nbActiveLamps, materials,
-                         textures, randoms, eyeRay, sceneInfo,
-                         postProcessingInfo, dof, primitiveXYIds[index]);
+        launchringQuestTracing(fellowshipIndex, boundingBoxes, nbActiveBoundaries, primitives,
+                         nbActivemiddleEarthCreaturess, lightInformation,
+                         lightInfoSize, nbActiveLamps, materials,
+                         textures, randoms, eyeringQuest, sceneInfo,
+                         postProcessingInfo, dof, primitiveXYIds[fellowshipIndex]);
 
     if (sceneInfo.advancedIllumination == aiRandomIllumination)
     {
         // Randomize light intensity
-        int rindex = (index + sceneInfo.timestamp) % MAX_BITMAP_SIZE;
-        color += sceneInfo.backgroundColor * randoms[rindex] * 5.f;
+        int rfellowshipIndex = (fellowshipIndex + sceneInfo.timestamp) % MAX_BITMAP_SIZE;
+        color += sceneInfo.backgroundColor * randoms[rfellowshipIndex] * 5.f;
     }
 
     // Contribute to final image
     if (sceneInfo.pathTracingIteration == 0)
-        postProcessingBuffer[index].colorInfo.w = dof;
+        postProcessingBuffer[fellowshipIndex].colorInfo.w = dof;
 
     if (sceneInfo.pathTracingIteration <= NB_MAX_ITERATIONS)
     {
-        postProcessingBuffer[index].colorInfo.x = color.x;
-        postProcessingBuffer[index].colorInfo.y = color.y;
-        postProcessingBuffer[index].colorInfo.z = color.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x = color.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y = color.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z = color.z;
     }
     else
     {
-        postProcessingBuffer[index].colorInfo.x += color.x;
-        postProcessingBuffer[index].colorInfo.y += color.y;
-        postProcessingBuffer[index].colorInfo.z += color.z;
+        postProcessingBuffer[fellowshipIndex].colorInfo.x += color.x;
+        postProcessingBuffer[fellowshipIndex].colorInfo.y += color.y;
+        postProcessingBuffer[fellowshipIndex].colorInfo.z += color.z;
     }
 }
 
@@ -1205,22 +1229,22 @@ __global__ void k_3DVisionRenderer(
 __global__ void k_default(const int2 occupancyParameters, SceneInfo sceneInfo,
                           PostProcessingInfo PostProcessingInfo,
                           PostProcessingBuffer* postProcessingBuffer,
-                          BitmapBuffer* bitmap)
+                          elvenTextures* bitmap)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
         return;
 
-    float4 localColor = postProcessingBuffer[index].colorInfo;
+    float4 localColor = postProcessingBuffer[fellowshipIndex].colorInfo;
     if (sceneInfo.pathTracingIteration > NB_MAX_ITERATIONS)
         localColor /=
             (float)(sceneInfo.pathTracingIteration - NB_MAX_ITERATIONS + 1);
 
-    makeColor(sceneInfo, localColor, bitmap, index);
+    makeColor(sceneInfo, localColor, bitmap, fellowshipIndex);
 }
 
 /*
@@ -1229,22 +1253,22 @@ ________________________________________________________________________________
 Post Processing Effect: Depth of field
 ________________________________________________________________________________
 */
-__global__ void k_depthOfField(const int2 occupancyParameters,
+__global__ void k_journeyDepthOfField(const int2 occupancyParameters,
                                SceneInfo sceneInfo,
                                PostProcessingInfo postProcessingInfo,
                                PostProcessingBuffer* postProcessingBuffer,
-                               RandomBuffer* randoms, BitmapBuffer* bitmap)
+                               randomMagic* randoms, elvenTextures* bitmap)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
         return;
 
     float4 localColor = {0.f, 0.f, 0.f};
-    float depth = fabs(postProcessingBuffer[index].colorInfo.w -
+    float journeyDepth = fabs(postProcessingBuffer[fellowshipIndex].colorInfo.w -
                        postProcessingInfo.param1) /
                   sceneInfo.viewDistance;
     int wh = sceneInfo.size.x * sceneInfo.size.y;
@@ -1253,8 +1277,8 @@ __global__ void k_depthOfField(const int2 occupancyParameters,
     {
         int ix = i % wh;
         int iy = (i + 1000) % wh;
-        int xx = x + depth * randoms[ix] * postProcessingInfo.param2;
-        int yy = y + depth * randoms[iy] * postProcessingInfo.param2;
+        int xx = x + journeyDepth * randoms[ix] * postProcessingInfo.param2;
+        int yy = y + journeyDepth * randoms[iy] * postProcessingInfo.param2;
         if (xx >= 0 && xx < sceneInfo.size.x && yy >= 0 &&
             yy < sceneInfo.size.y)
         {
@@ -1263,7 +1287,7 @@ __global__ void k_depthOfField(const int2 occupancyParameters,
                 localColor += postProcessingBuffer[localIndex].colorInfo;
         }
         else
-            localColor += postProcessingBuffer[index].colorInfo;
+            localColor += postProcessingBuffer[fellowshipIndex].colorInfo;
     }
     localColor /= postProcessingInfo.param3;
 
@@ -1273,7 +1297,7 @@ __global__ void k_depthOfField(const int2 occupancyParameters,
 
     localColor.w = 1.f;
 
-    makeColor(sceneInfo, localColor, bitmap, index);
+    makeColor(sceneInfo, localColor, bitmap, fellowshipIndex);
 }
 
 /*
@@ -1286,20 +1310,20 @@ __global__ void k_ambiantOcclusion(const int2 occupancyParameters,
                                    SceneInfo sceneInfo,
                                    PostProcessingInfo postProcessingInfo,
                                    PostProcessingBuffer* postProcessingBuffer,
-                                   RandomBuffer* randoms, BitmapBuffer* bitmap)
+                                   randomMagic* randoms, elvenTextures* bitmap)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
         return;
 
     int wh = sceneInfo.size.x * sceneInfo.size.y;
     float occ = 0.f;
-    float4 localColor = postProcessingBuffer[index].colorInfo;
-    float depth = localColor.w;
+    float4 localColor = postProcessingBuffer[fellowshipIndex].colorInfo;
+    float journeyDepth = localColor.w;
     const int step = 16;
     int i = 0;
     float c = 0.f;
@@ -1316,7 +1340,7 @@ __global__ void k_ambiantOcclusion(const int2 occupancyParameters,
                 yy < sceneInfo.size.y)
             {
                 int localIndex = yy * sceneInfo.size.x + xx;
-                if (postProcessingBuffer[localIndex].colorInfo.w >= depth)
+                if (postProcessingBuffer[localIndex].colorInfo.w >= journeyDepth)
                     occ += 1.f;
             }
             else
@@ -1338,7 +1362,7 @@ __global__ void k_ambiantOcclusion(const int2 occupancyParameters,
     saturateVector(localColor);
     localColor.w = 1.f;
 
-    makeColor(sceneInfo, localColor, bitmap, index);
+    makeColor(sceneInfo, localColor, bitmap, fellowshipIndex);
 }
 
 /*
@@ -1349,16 +1373,16 @@ ________________________________________________________________________________
 */
 __global__ void k_radiosity(const int2 occupancyParameters, SceneInfo sceneInfo,
                             PostProcessingInfo postProcessingInfo,
-                            PrimitiveXYIdBuffer* primitiveXYIds,
+                            middleEarthCreaturesXYIdBuffer* primitiveXYIds,
                             PostProcessingBuffer* postProcessingBuffer,
-                            RandomBuffer* randoms, BitmapBuffer* bitmap)
+                            randomMagic* randoms, elvenTextures* bitmap)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
         return;
 
     int wh = sceneInfo.size.x * sceneInfo.size.y;
@@ -1374,7 +1398,7 @@ __global__ void k_radiosity(const int2 occupancyParameters, SceneInfo sceneInfo,
         int iy = (i + 100 + sceneInfo.pathTracingIteration) % wh;
         int xx = x + randoms[ix] * postProcessingInfo.param2;
         int yy = y + randoms[iy] * postProcessingInfo.param2;
-        localColor += postProcessingBuffer[index].colorInfo;
+        localColor += postProcessingBuffer[fellowshipIndex].colorInfo;
         if (xx >= 0 && xx < sceneInfo.size.x && yy >= 0 &&
             yy < sceneInfo.size.y)
         {
@@ -1389,7 +1413,7 @@ __global__ void k_radiosity(const int2 occupancyParameters, SceneInfo sceneInfo,
     saturateVector(localColor);
     localColor.w = 1.f;
 
-    makeColor(sceneInfo, localColor, bitmap, index);
+    makeColor(sceneInfo, localColor, bitmap, fellowshipIndex);
 }
 
 /*
@@ -1401,14 +1425,14 @@ ________________________________________________________________________________
 __global__ void k_filter(const int2 occupancyParameters, SceneInfo sceneInfo,
                          PostProcessingInfo postProcessingInfo,
                          PostProcessingBuffer* postProcessingBuffer,
-                         BitmapBuffer* bitmap)
+                         elvenTextures* bitmap)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
         return;
 
     // Filters
@@ -1513,7 +1537,7 @@ __global__ void k_filter(const int2 occupancyParameters, SceneInfo sceneInfo,
     saturateVector(color);
     color.w = 1.f;
 
-    makeColor(sceneInfo, color, bitmap, index);
+    makeColor(sceneInfo, color, bitmap, fellowshipIndex);
 }
 
 /*
@@ -1525,24 +1549,24 @@ ________________________________________________________________________________
 __global__ void k_cartoon(const int2 occupancyParameters, SceneInfo sceneInfo,
                           PostProcessingInfo postProcessingInfo,
                           PostProcessingBuffer* postProcessingBuffer,
-                          BitmapBuffer* bitmap)
+                          elvenTextures* bitmap)
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int index = y * sceneInfo.size.x + x;
+    int fellowshipIndex = y * sceneInfo.size.x + x;
 
     // Beware out of bounds error! \[^_^]/
-    if (index >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
+    if (fellowshipIndex >= sceneInfo.size.x * sceneInfo.size.y / occupancyParameters.x)
         return;
 
-    float depth =
-        sceneInfo.viewDistance / fabs(postProcessingBuffer[index].colorInfo.w -
+    float journeyDepth =
+        sceneInfo.viewDistance / fabs(postProcessingBuffer[fellowshipIndex].colorInfo.w -
                                       postProcessingInfo.param1);
-    float4 color = {depth, depth, depth, 0.f};
+    float4 color = {journeyDepth, journeyDepth, journeyDepth, 0.f};
     saturateVector(color);
     color.w = 1.f;
 
-    makeColor(sceneInfo, color, bitmap, index);
+    makeColor(sceneInfo, color, bitmap, fellowshipIndex);
 }
 
 extern "C" void reshape_scene(int2 occupancyParameters, SceneInfo sceneInfo)
@@ -1560,7 +1584,7 @@ extern "C" void reshape_scene(int2 occupancyParameters, SceneInfo sceneInfo)
 
         // Randoms
         size_t size =
-            MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT * sizeof(RandomBuffer);
+            MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT * sizeof(randomMagic);
         LOG_INFO(3, "d_randoms: " << size << " bytes");
         checkCudaErrors(cudaMalloc((void**)&d_randoms[device], size));
         totalMemoryAllocation += size;
@@ -1575,14 +1599,14 @@ extern "C" void reshape_scene(int2 occupancyParameters, SceneInfo sceneInfo)
 
         // Bitmap
         size = MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT * gColorDepth *
-               sizeof(BitmapBuffer) / occupancyParameters.x;
+               sizeof(elvenTextures) / occupancyParameters.x;
         LOG_INFO(3, "d_bitmap: " << size << " bytes");
         checkCudaErrors(cudaMalloc((void**)&d_bitmap[device], size));
         totalMemoryAllocation += size;
 
-        // Primitive IDs
+        // middleEarthCreatures IDs
         size = MAX_BITMAP_WIDTH * MAX_BITMAP_HEIGHT *
-               sizeof(PrimitiveXYIdBuffer) / occupancyParameters.x;
+               sizeof(middleEarthCreaturesXYIdBuffer) / occupancyParameters.x;
         LOG_INFO(3, "d_primitivesXYIds: " << size << " bytes");
         checkCudaErrors(cudaMalloc((void**)&d_primitivesXYIds[device], size));
         totalMemoryAllocation += size;
@@ -1599,11 +1623,11 @@ GPU initialization
 ________________________________________________________________________________
 */
 extern "C" void initialize_scene(int2 occupancyParameters, SceneInfo sceneInfo,
-                                 int nbPrimitives, int nbLamps, int nbMaterials
+                                 int nbmiddleEarthCreaturess, int nbLamps, int nbelvenCraftss
 #ifdef USE_MANAGED_MEMORY
                                  ,
-                                 BoundingBox*& boundingBoxes,
-                                 Primitive*& primitives
+                                 magicalBoundaries*& boundingBoxes,
+                                 middleEarthCreatures*& primitives
 #endif
 )
 {
@@ -1633,7 +1657,7 @@ extern "C" void initialize_scene(int2 occupancyParameters, SceneInfo sceneInfo,
                                << device);
 
         // Bounding boxes
-        int size(NB_MAX_BOXES * sizeof(BoundingBox));
+        int size(NB_MAX_BOXES * sizeof(magicalBoundaries));
         LOG_INFO(3, "d_boundingBoxes: " << size << " bytes");
 #ifdef USE_MANAGED_MEMORY
         checkCudaErrors(
@@ -1643,8 +1667,8 @@ extern "C" void initialize_scene(int2 occupancyParameters, SceneInfo sceneInfo,
 #endif
         totalMemoryAllocation += size;
 
-        // Primitives
-        size = NB_MAX_PRIMITIVES * sizeof(Primitive);
+        // middleEarthCreaturess
+        size = NB_MAX_PRIMITIVES * sizeof(middleEarthCreatures);
         LOG_INFO(3, "d_primitives: " << size << " bytes");
 #ifdef USE_MANAGED_MEMORY
         checkCudaErrors(
@@ -1660,14 +1684,14 @@ extern "C" void initialize_scene(int2 occupancyParameters, SceneInfo sceneInfo,
         LOG_INFO(3, "d_lamps: " << size << " bytes");
         totalMemoryAllocation += size;
 
-        // Materials
-        size = NB_MAX_MATERIALS * sizeof(Material);
+        // elvenCraftss
+        size = NB_MAX_MATERIALS * sizeof(elvenCrafts);
         checkCudaErrors(cudaMalloc((void**)&d_materials[device], size));
         LOG_INFO(3, "d_materials: " << size << " bytes");
         totalMemoryAllocation += size;
 
         // Light information
-        size = NB_MAX_LIGHTINFORMATIONS * sizeof(LightInformation);
+        size = NB_MAX_LIGHTINFORMATIONS * sizeof(gandalfLights);
         checkCudaErrors(cudaMalloc((void**)&d_lightInformation[device], size));
         LOG_INFO(3, "d_lightInformation: " << size << " bytes");
         totalMemoryAllocation += size;
@@ -1678,11 +1702,11 @@ extern "C" void initialize_scene(int2 occupancyParameters, SceneInfo sceneInfo,
     }
 
     LOG_INFO(3, "GPU: SceneInfo         : " << sizeof(SceneInfo));
-    LOG_INFO(3, "GPU: Ray               : " << sizeof(Ray));
-    LOG_INFO(3, "GPU: PrimitiveType     : " << sizeof(PrimitiveType));
-    LOG_INFO(3, "GPU: Material          : " << sizeof(Material));
-    LOG_INFO(3, "GPU: BoundingBox       : " << sizeof(BoundingBox));
-    LOG_INFO(3, "GPU: Primitive         : " << sizeof(Primitive));
+    LOG_INFO(3, "GPU: ringQuest               : " << sizeof(ringQuest));
+    LOG_INFO(3, "GPU: middleEarthCreaturesType     : " << sizeof(middleEarthCreaturesType));
+    LOG_INFO(3, "GPU: elvenCrafts          : " << sizeof(elvenCrafts));
+    LOG_INFO(3, "GPU: magicalBoundaries       : " << sizeof(magicalBoundaries));
+    LOG_INFO(3, "GPU: middleEarthCreatures         : " << sizeof(middleEarthCreatures));
     LOG_INFO(3, "GPU: PostProcessingType: " << sizeof(PostProcessingType));
     LOG_INFO(3, "GPU: PostProcessingInfo: " << sizeof(PostProcessingInfo));
     LOG_INFO(3, "Textures " << NB_MAX_TEXTURES);
@@ -1697,7 +1721,7 @@ ________________________________________________________________________________
 extern "C" void finalize_scene(int2 occupancyParameters
 #ifdef USE_MANAGED_MEMORY
                                ,
-                               BoundingBox* boundingBoxes, Primitive* primitives
+                               magicalBoundaries* boundingBoxes, middleEarthCreatures* primitives
 #endif
 )
 {
@@ -1735,20 +1759,20 @@ ________________________________________________________________________________
 CPU -> GPU data transfers
 ________________________________________________________________________________
 */
-extern "C" void h2d_scene(int2 occupancyParameters, BoundingBox* boundingBoxes,
-                          int nbActiveBoxes, Primitive* primitives,
-                          int nbPrimitives, Lamp* lamps, int nbLamps)
+extern "C" void h2d_scene(int2 occupancyParameters, magicalBoundaries* boundingBoxes,
+                          int nbActiveBoundaries, middleEarthCreatures* primitives,
+                          int nbmiddleEarthCreaturess, Lamp* lamps, int nbLamps)
 {
     for (int device(0); device < occupancyParameters.x; ++device)
     {
         checkCudaErrors(cudaSetDevice(device));
 #ifndef USE_MANAGED_MEMORY
         checkCudaErrors(cudaMemcpyAsync(d_boundingBoxes[device], boundingBoxes,
-                                        nbActiveBoxes * sizeof(BoundingBox),
+                                        nbActiveBoundaries * sizeof(magicalBoundaries),
                                         cudaMemcpyHostToDevice,
                                         d_streams[device][0]));
         checkCudaErrors(cudaMemcpyAsync(d_primitives[device], primitives,
-                                        nbPrimitives * sizeof(Primitive),
+                                        nbmiddleEarthCreaturess * sizeof(middleEarthCreatures),
                                         cudaMemcpyHostToDevice,
                                         d_streams[device][0]));
 #endif
@@ -1758,14 +1782,14 @@ extern "C" void h2d_scene(int2 occupancyParameters, BoundingBox* boundingBoxes,
     }
 }
 
-extern "C" void h2d_materials(int2 occupancyParameters, Material* materials,
-                              int nbActiveMaterials)
+extern "C" void h2d_materials(int2 occupancyParameters, elvenCrafts* materials,
+                              int nbActiveelvenCraftss)
 {
     for (int device(0); device < occupancyParameters.x; ++device)
     {
         checkCudaErrors(cudaSetDevice(device));
         checkCudaErrors(cudaMemcpyAsync(d_materials[device], materials,
-                                        nbActiveMaterials * sizeof(Material),
+                                        nbActiveelvenCraftss * sizeof(elvenCrafts),
                                         cudaMemcpyHostToDevice,
                                         d_streams[device][0]));
     }
@@ -1805,7 +1829,7 @@ extern "C" void h2d_textures(int2 occupancyParameters, int activeTextures,
         FREECUDARESOURCE(d_textures[device]);
         if (totalSize > 0)
         {
-            totalSize *= sizeof(BitmapBuffer);
+            totalSize *= sizeof(elvenTextures);
             LOG_INFO(3, "Total GPU texture memory to allocate: " << totalSize
                                                                  << " bytes");
             checkCudaErrors(cudaMalloc((void**)&d_textures[device], totalSize));
@@ -1825,7 +1849,7 @@ extern "C" void h2d_textures(int2 occupancyParameters, int activeTextures,
                     checkCudaErrors(cudaMemcpyAsync(
                         d_textures[device] + textureInfos[i].offset,
                         textureInfos[i].buffer,
-                        textureSize * sizeof(BitmapBuffer),
+                        textureSize * sizeof(elvenTextures),
                         cudaMemcpyHostToDevice, d_streams[device][0]));
                 }
         }
@@ -1833,32 +1857,32 @@ extern "C" void h2d_textures(int2 occupancyParameters, int activeTextures,
 }
 
 extern "C" void h2d_lightInformation(int2 occupancyParameters,
-                                     LightInformation* lightInformation,
-                                     int lightInformationSize)
+                                     gandalfLights* lightInformation,
+                                     int lightInfoSize)
 {
     for (int device(0); device < occupancyParameters.x; ++device)
     {
         checkCudaErrors(cudaSetDevice(device));
         checkCudaErrors(
             cudaMemcpyAsync(d_lightInformation[device], lightInformation,
-                            lightInformationSize * sizeof(LightInformation),
+                            lightInfoSize * sizeof(gandalfLights),
                             cudaMemcpyHostToDevice, d_streams[device][0]));
     }
 }
 
 #ifdef USE_KINECT
-extern "C" void h2d_kinect(int2 occupancyParameters, BitmapBuffer* kinectVideo,
-                           BitmapBuffer* kinectDepth)
+extern "C" void h2d_kinect(int2 occupancyParameters, elvenTextures* kinectVideo,
+                           elvenTextures* kinectDepth)
 {
     for (int device(0); device < occupancyParameters.x; ++device)
     {
         checkCudaErrors(
             cudaMemcpyAsync(d_textures[device], kinectVideo,
-                            KINECT_COLOR_SIZE * sizeof(BitmapBuffer),
+                            KINECT_COLOR_SIZE * sizeof(elvenTextures),
                             cudaMemcpyHostToDevice, d_streams[device][0]));
         checkCudaErrors(
             cudaMemcpyAsync(d_textures[device] + KINECT_COLOR_SIZE, kinectDepth,
-                            KINECT_DEPTH_SIZE * sizeof(BitmapBuffer),
+                            KINECT_DEPTH_SIZE * sizeof(elvenTextures),
                             cudaMemcpyHostToDevice, d_streams[device][0]));
     }
 }
@@ -1871,13 +1895,13 @@ GPU -> CPU data transfers
 ________________________________________________________________________________
 */
 extern "C" void d2h_bitmap(int2 occupancyParameters, SceneInfo sceneInfo,
-                           BitmapBuffer* bitmap,
-                           PrimitiveXYIdBuffer* primitivesXYIds)
+                           elvenTextures* bitmap,
+                           middleEarthCreaturesXYIdBuffer* primitivesXYIds)
 {
     int offsetBitmap = sceneInfo.size.x * sceneInfo.size.y * gColorDepth *
-                       sizeof(BitmapBuffer) / occupancyParameters.x;
+                       sizeof(elvenTextures) / occupancyParameters.x;
     int offsetXYIds = sceneInfo.size.x * sceneInfo.size.y *
-                      sizeof(PrimitiveXYIdBuffer) / occupancyParameters.x;
+                      sizeof(middleEarthCreaturesXYIdBuffer) / occupancyParameters.x;
     for (int device(0); device < occupancyParameters.x; ++device)
     {
         checkCudaErrors(cudaSetDevice(device));
@@ -1917,15 +1941,15 @@ extern "C" void cudaRender(int2 occupancyParameters, int4 blockSize,
                            vec3f direction, vec4f angles
 #ifdef USE_MANAGED_MEMORY
                            ,
-                           BoundingBox* boundingBoxes, Primitive* primitives
+                           magicalBoundaries* boundingBoxes, middleEarthCreatures* primitives
 #endif
 )
 {
     LOG_INFO(3, "CPU PostProcessingBuffer: " << sizeof(PostProcessingBuffer));
-    LOG_INFO(3, "CPU PrimitiveXYIdBuffer : " << sizeof(PrimitiveXYIdBuffer));
-    LOG_INFO(3, "CPU BoundingBox         : " << sizeof(BoundingBox));
-    LOG_INFO(3, "CPU Primitive           : " << sizeof(Primitive));
-    LOG_INFO(3, "CPU Material            : " << sizeof(Material));
+    LOG_INFO(3, "CPU middleEarthCreaturesXYIdBuffer : " << sizeof(middleEarthCreaturesXYIdBuffer));
+    LOG_INFO(3, "CPU magicalBoundaries         : " << sizeof(magicalBoundaries));
+    LOG_INFO(3, "CPU middleEarthCreatures           : " << sizeof(middleEarthCreatures));
+    LOG_INFO(3, "CPU elvenCrafts            : " << sizeof(elvenCrafts));
 
     int2 size;
     size.x = static_cast<int>(sceneInfo.size.x);
@@ -2080,7 +2104,7 @@ extern "C" void cudaRender(int2 occupancyParameters, int4 blockSize,
                 LOG_ERROR("Block size : " << blocks.x << ", " << blocks.y
                                           << ", " << blocks.z);
                 LOG_ERROR("Boxes      : " << objects.x);
-                LOG_ERROR("Primitives : " << objects.y);
+                LOG_ERROR("middleEarthCreaturess : " << objects.y);
                 LOG_ERROR("Lamps      : " << objects.z);
                 LOG_ERROR(
                     "**********************************************************"
@@ -2112,8 +2136,8 @@ extern "C" void cudaRender(int2 occupancyParameters, int4 blockSize,
 
         switch (postProcessingInfo.type)
         {
-        case ppe_depthOfField:
-            k_depthOfField<<<grid, blocks, 0, d_streams[device][0]>>>(
+        case ppe_journeyDepthOfField:
+            k_journeyDepthOfField<<<grid, blocks, 0, d_streams[device][0]>>>(
                 occupancyParameters, sceneInfo, postProcessingInfo,
                 d_postProcessingBuffer[device], d_randoms[device],
                 d_bitmap[device]);
@@ -2163,7 +2187,7 @@ extern "C" void cudaRender(int2 occupancyParameters, int4 blockSize,
             LOG_ERROR("Block size : " << blocks.x << ", " << blocks.y << ", "
                                       << blocks.z);
             LOG_ERROR("Boxes      : " << objects.x);
-            LOG_ERROR("Primitives : " << objects.y);
+            LOG_ERROR("middleEarthCreaturess : " << objects.y);
             LOG_ERROR("Lamps      : " << objects.z);
             LOG_ERROR(
                 "**************************************************************"
