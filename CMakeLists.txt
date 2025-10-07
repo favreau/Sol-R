@@ -38,6 +38,7 @@ option(SOLR_OCULUS_ENABLED "Activate Oculus" OFF)
 option(SOLR_SIXENSE_ENABLED "Activate Sixense Controller" OFF)
 option(SOLR_LEAPMOTION_ENABLED "Activate Leap Motion Controller" OFF)
 option(SOLR_DEFLECT_ENABLED "Activate Deflect streaming" OFF)
+option(SOLR_BUILD_ANARI_DEVICE "Build Sol-R as ANARI library device" OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -59,9 +60,7 @@ set_property(CACHE SOLR_LIBRARY_TYPE PROPERTY STRINGS STATIC SHARED)
 if(MSVC)
     add_compile_options(-D_USE_MATH_DEFINES -DNOMINMAX -std=c++11)
 else(MSVC)
-    # __STRICT_ANSI__ is required by OpenCL in order to access x,y,z.. member of
-    # cl_float2/3/.. data types. Took me a little while to find out...
-    add_compile_options(-fPIC -std=c++11 -U__STRICT_ANSI__)
+    add_compile_options(-fPIC -std=c++11)
     if(APPLE)
         add_compile_options(-Wno-c++11-extensions -Wno-narrowing -Wno-deprecated-declarations
             -Wno-macro-redefined -Wno-shift-negative-value -Wno-comment)
@@ -236,10 +235,30 @@ if(SOLR_DEFLECT_ENABLED)
 endif(SOLR_DEFLECT_ENABLED)
 
 # ================================================================================
+# ANARI SDK (optional)
+# ================================================================================
+if(SOLR_BUILD_ANARI_DEVICE)
+    find_package(anari 0.15.0 REQUIRED)
+    if(anari_FOUND)
+        message(STATUS "ANARI SDK found and selected for ANARI device build")
+        list(APPEND FIND_PACKAGES_DEFINES USE_ANARI)
+    else()
+        message(ERROR "ANARI SDK not found. Cannot build ANARI device")
+    endif()
+endif()
+
+# ================================================================================
 # Project
 # ================================================================================
 add_subdirectory(solr)
 add_subdirectory(apps)
+
+# ================================================================================
+# ANARI Device
+# ================================================================================
+if(SOLR_BUILD_ANARI_DEVICE AND anari_FOUND)
+    add_subdirectory(devices)
+endif()
 
 # ================================================================================
 # Write defines.h and options.cmake

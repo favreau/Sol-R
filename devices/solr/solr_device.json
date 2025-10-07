@@ -1,0 +1,380 @@
+{
+    "info": {
+        "name": "SOLR_DEVICE",
+        "type": "device",
+        "dependencies": [
+            "anari_core_1_0",
+            "anari_core_objects_base_1_0",
+            "khr_camera_orthographic",
+            "khr_camera_perspective",
+            "khr_device_synchronization",
+            "khr_frame_accumulation",
+            "khr_frame_completion_callback",
+            "khr_geometry_triangle",
+            "khr_geometry_sphere",
+            "khr_geometry_cylinder",
+            "khr_geometry_cone",
+            "khr_instance_transform",
+            "khr_light_directional",
+            "khr_light_point",
+            "khr_light_spot",
+            "khr_material_matte",
+            "khr_material_physically_based",
+            "khr_renderer_ambient_light",
+            "khr_renderer_background_color",
+            "khr_sampler_image2d",
+            "khr_sampler_primitive"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "solr.engine",
+            "types": [
+                "ANARI_STRING"
+            ],
+            "tags": [],
+            "default": "cuda",
+            "description": "Specify the Sol-R rendering engine to use"
+        },
+        {
+            "name": "solr.samples",
+            "types": [
+                "ANARI_INT32"
+            ],
+            "tags": [],
+            "default": 1,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Number of samples per pixel"
+        },
+        {
+            "name": "solr.maxDepth",
+            "types": [
+                "ANARI_INT32"
+            ],
+            "tags": [],
+            "default": 5,
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Maximum ray depth"
+        }
+    ],
+    "objects": [
+        {
+            "type": "ANARI_CAMERA",
+            "name": "perspective",
+            "parameters": [
+                {
+                    "name": "aspect",
+                    "types": [
+                        "ANARI_FLOAT32"
+                    ],
+                    "tags": [],
+                    "default": 1.0
+                },
+                {
+                    "name": "fovy",
+                    "types": [
+                        "ANARI_FLOAT32"
+                    ],
+                    "tags": [],
+                    "default": 1.0472
+                },
+                {
+                    "name": "position",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                {
+                    "name": "direction",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        -1.0
+                    ]
+                },
+                {
+                    "name": "up",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        1.0,
+                        0.0
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ANARI_CAMERA",
+            "name": "orthographic",
+            "parameters": [
+                {
+                    "name": "aspect",
+                    "types": [
+                        "ANARI_FLOAT32"
+                    ],
+                    "tags": [],
+                    "default": 1.0
+                },
+                {
+                    "name": "height",
+                    "types": [
+                        "ANARI_FLOAT32"
+                    ],
+                    "tags": [],
+                    "default": 1.0
+                },
+                {
+                    "name": "position",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                {
+                    "name": "direction",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        -1.0
+                    ]
+                },
+                {
+                    "name": "up",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        1.0,
+                        0.0
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ANARI_GEOMETRY",
+            "name": "triangle",
+            "parameters": [
+                {
+                    "name": "vertex.position",
+                    "types": [
+                        "ANARI_ARRAY1D"
+                    ],
+                    "elementType": "ANARI_FLOAT32_VEC3",
+                    "tags": []
+                },
+                {
+                    "name": "vertex.normal",
+                    "types": [
+                        "ANARI_ARRAY1D"
+                    ],
+                    "elementType": "ANARI_FLOAT32_VEC3",
+                    "tags": []
+                },
+                {
+                    "name": "vertex.color",
+                    "types": [
+                        "ANARI_ARRAY1D"
+                    ],
+                    "elementType": "ANARI_FLOAT32_VEC4",
+                    "tags": []
+                },
+                {
+                    "name": "primitive.index",
+                    "types": [
+                        "ANARI_ARRAY1D"
+                    ],
+                    "elementType": "ANARI_UINT32_VEC3",
+                    "tags": []
+                }
+            ]
+        },
+        {
+            "type": "ANARI_GEOMETRY",
+            "name": "sphere",
+            "parameters": [
+                {
+                    "name": "vertex.position",
+                    "types": [
+                        "ANARI_ARRAY1D"
+                    ],
+                    "elementType": "ANARI_FLOAT32_VEC3",
+                    "tags": []
+                },
+                {
+                    "name": "vertex.radius",
+                    "types": [
+                        "ANARI_ARRAY1D"
+                    ],
+                    "elementType": "ANARI_FLOAT32",
+                    "tags": []
+                }
+            ]
+        },
+        {
+            "type": "ANARI_LIGHT",
+            "name": "directional",
+            "parameters": [
+                {
+                    "name": "direction",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        -1.0
+                    ]
+                },
+                {
+                    "name": "color",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                {
+                    "name": "intensity",
+                    "types": [
+                        "ANARI_FLOAT32"
+                    ],
+                    "tags": [],
+                    "default": 1.0
+                }
+            ]
+        },
+        {
+            "type": "ANARI_LIGHT",
+            "name": "point",
+            "parameters": [
+                {
+                    "name": "position",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                {
+                    "name": "color",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                {
+                    "name": "intensity",
+                    "types": [
+                        "ANARI_FLOAT32"
+                    ],
+                    "tags": [],
+                    "default": 1.0
+                }
+            ]
+        },
+        {
+            "type": "ANARI_MATERIAL",
+            "name": "matte",
+            "parameters": [
+                {
+                    "name": "color",
+                    "types": [
+                        "ANARI_FLOAT32_VEC3"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.8,
+                        0.8,
+                        0.8
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ANARI_RENDERER",
+            "name": "raycast",
+            "parameters": [
+                {
+                    "name": "background",
+                    "types": [
+                        "ANARI_FLOAT32_VEC4"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ANARI_RENDERER",
+            "name": "pathtracer",
+            "parameters": [
+                {
+                    "name": "background",
+                    "types": [
+                        "ANARI_FLOAT32_VEC4"
+                    ],
+                    "tags": [],
+                    "default": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                {
+                    "name": "samples",
+                    "types": [
+                        "ANARI_INT32"
+                    ],
+                    "tags": [],
+                    "default": 1
+                }
+            ]
+        }
+    ]
+}

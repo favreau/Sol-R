@@ -83,7 +83,7 @@ if (CUDA_FOUND)
             -gencode=arch=compute_80,code=sm_80
             )
     else(UNIX)
-        CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS 3.0 3.5 5.0 5.2 6.0 6.1)
+        CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS 3.0 3.5 5.0 5.2 6.0 6.1 7.0 8.0 8.9)
         set(CUDA_NVCC_USER_ARGS -D_FORCE_INLINES --maxrregcount=32 --use_fast_math)
     endif(UNIX)
 
@@ -126,6 +126,9 @@ if(OPENCL_FOUND)
 		engines/opencl/OpenCLKernel.cpp 
                 engines/opencl/RayTracer.cl
                 ${SOLR_SOURCES})
+
+    # __STRICT_ANSI__ needs to be undefined for OpenCL to access x,y,z members of cl_float2/3/.. types
+    target_compile_options(solr PRIVATE -U__STRICT_ANSI__)
 
     TARGET_LINK_LIBRARIES(
 		solr
